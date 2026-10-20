@@ -156,7 +156,15 @@ namespace CursosCertificadosApp.Controllers
         [HttpGet]
         public IActionResult Register()
         {
-            return View();
+            try
+            {
+                return View();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al cargar la vista de Registro: {Message}", ex.Message);
+                return View();
+            }
         }
 
         [HttpPost]
@@ -165,32 +173,43 @@ namespace CursosCertificadosApp.Controllers
         {
             if (!ModelState.IsValid) return View(model);
 
-            var exists = await _context.Users.AnyAsync(u => u.Email.ToLower() == model.Email.ToLower());
-            if (exists)
+            try
             {
-                ModelState.AddModelError("Email", "Ya existe una cuenta con este correo electrónico.");
+                var normalizedEmail = (model.Email ?? string.Empty).Trim().ToLowerInvariant();
+                var exists = await _context.Users.AnyAsync(u => u.Email.ToLower() == normalizedEmail);
+                if (exists)
+                {
+                    ModelState.AddModelError("Email", "Ya existe una cuenta registrada con este correo electrónico.");
+                    return View(model);
+                }
+
+                var user = new User
+                {
+                    FullName = (model.FullName ?? string.Empty).Trim(),
+                    IdentificationNumber = (model.IdentificationNumber ?? string.Empty).Trim(),
+                    Age = model.Age,
+                    PhoneNumber = model.PhoneNumber?.Trim(),
+                    Email = normalizedEmail,
+                    PasswordHash = DbSeeder.HashPassword((model.Password ?? string.Empty).Trim()),
+                    Role = "Student",
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                _context.Users.Add(user);
+                await _context.SaveChangesAsync();
+
+                await SignInUser(user);
+                _logger.LogInformation("Nuevo usuario registrado y autenticado exitosamente: {Email}", user.Email);
+
+                TempData["SuccessMessage"] = $"¡Bienvenido a Cursos Globales JP, {user.FullName}! Explora nuestro catálogo y comienza tu primer curso gratis.";
+                return RedirectToAction("Dashboard");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error no controlado durante el registro de usuario ({Email}): {Message}", model.Email, ex.Message);
+                ModelState.AddModelError(string.Empty, "Ocurrió un error al procesar el registro en la base de datos. Por favor verifica tus datos o intenta nuevamente en unos momentos.");
                 return View(model);
             }
-
-            var user = new User
-            {
-                FullName = model.FullName.Trim(),
-                IdentificationNumber = model.IdentificationNumber.Trim(),
-                Age = model.Age,
-                PhoneNumber = model.PhoneNumber?.Trim(),
-                Email = model.Email.Trim().ToLower(),
-                PasswordHash = DbSeeder.HashPassword(model.Password),
-                Role = "Student",
-                CreatedAt = DateTime.UtcNow
-            };
-
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
-
-            await SignInUser(user);
-
-            TempData["SuccessMessage"] = $"¡Bienvenido a Cursos Globales JP, {user.FullName}! Explora nuestro catálogo y comienza tu primer curso gratis.";
-            return RedirectToAction("Dashboard");
         }
 
         [Authorize]

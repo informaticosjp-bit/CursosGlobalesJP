@@ -8,9 +8,17 @@ using System.Text.RegularExpressions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Escuchar exactamente en el puerto dinámico de Render o contenedor
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-builder.WebHost.UseUrls("http://*:" + port);
+// 1. Configuración de Puerto Dinámico para Render / Producción vs Local (Visual Studio)
+var envPort = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrEmpty(envPort))
+{
+    builder.WebHost.UseUrls("http://*:" + envPort);
+}
+else if (!builder.Environment.IsDevelopment())
+{
+    builder.WebHost.UseUrls("http://*:8080");
+}
+// En desarrollo local (Visual Studio), Kestrel respeta launchSettings.json (localhost:7000 / localhost:5070)
 
 // 2. Resolución y normalización de la Cadena de Conexión (PostgreSQL / Supabase)
 var connectionString = ResolveConnectionString(builder.Configuration);
@@ -246,12 +254,6 @@ static string ParsePostgresUrl(string input)
 {
     if (string.IsNullOrWhiteSpace(input)) return input;
 
-    // Si ya viene en formato de parámetros Npgsql (Host=...;Database=...)
-    if (input.Contains("Host=", StringComparison.OrdinalIgnoreCase) || input.Contains("Server=", StringComparison.OrdinalIgnoreCase))
-    {
-        return input;
-    }
-
     // Si viene en formato URL (postgres:// o postgresql://)
     if (input.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase) ||
         input.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase))
@@ -271,6 +273,17 @@ static string ParsePostgresUrl(string input)
         {
             return input;
         }
+    }
+
+    // Si ya viene en formato de parámetros Npgsql (Host=...;Database=...)
+    if (input.Contains("Host=", StringComparison.OrdinalIgnoreCase) || input.Contains("Server=", StringComparison.OrdinalIgnoreCase))
+    {
+        var result = input;
+        if (!result.Contains("Ssl Mode=", StringComparison.OrdinalIgnoreCase) && !result.Contains("sslmode=", StringComparison.OrdinalIgnoreCase))
+        {
+            result = result.TrimEnd(';') + ";Ssl Mode=Require;Trust Server Certificate=true;";
+        }
+        return result;
     }
 
     return input;
