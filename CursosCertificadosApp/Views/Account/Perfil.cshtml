@@ -1,0 +1,272 @@
+@model CursosCertificadosApp.Models.ViewModels.UserProfileViewModel
+@{
+    ViewData["Title"] = "Editar Mi Perfil";
+}
+
+<div class="container py-5">
+    <div class="max-w-900 mx-auto" style="max-width: 850px;">
+        <!-- Navegación de migas de pan -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb small">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none">Inicio</a></li>
+                <li class="breadcrumb-item"><a asp-controller="Account" asp-action="Dashboard" class="text-decoration-none">Mi Panel</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Mi Perfil</li>
+            </ol>
+        </nav>
+
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white mb-4">
+            <!-- Cabecera de Perfil con Fondo Degradado -->
+            <div class="p-4 p-md-5 text-white" style="background: linear-gradient(135deg, #0f284e 0%, #1e3a8a 100%);">
+                <div class="d-flex flex-wrap align-items-center gap-4">
+                    <!-- Avatar del Usuario (Foto o Iniciales) -->
+                    <div class="position-relative">
+                        @if (!string.IsNullOrEmpty(Model.CurrentProfilePictureUrl))
+                        {
+                            <img src="@Model.CurrentProfilePictureUrl" alt="Foto de Perfil" 
+                                 class="rounded-circle shadow border border-3 border-white object-fit-cover" 
+                                 style="width: 100px; height: 100px; object-fit: cover;" id="avatarPreview" />
+                        }
+                        else
+                        {
+                            <div class="rounded-circle shadow border border-3 border-white d-flex align-items-center justify-content-center fw-extrabold text-white" 
+                                 style="width: 100px; height: 100px; font-size: 2.2rem; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);" id="initialsAvatar">
+                                @Model.Initials
+                            </div>
+                            <img src="" alt="Previsualización" 
+                                 class="rounded-circle shadow border border-3 border-white object-fit-cover d-none" 
+                                 style="width: 100px; height: 100px; object-fit: cover;" id="avatarPreview" />
+                        }
+                        <span class="position-absolute bottom-0 end-0 badge rounded-pill bg-warning text-dark border border-white p-1" title="Editar foto">
+                            <i class="bi bi-camera-fill"></i>
+                        </span>
+                    </div>
+
+                    <div class="flex-grow-1">
+                        <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                            <h2 class="fw-bold mb-0">@Model.FullName</h2>
+                            @if (Model.Role == "Admin")
+                            {
+                                <span class="badge bg-danger fw-bold"><i class="bi bi-shield-lock-fill me-1"></i> Administrador</span>
+                            }
+                            else if (Model.Role == "Creator")
+                            {
+                                <span class="badge bg-warning text-dark fw-bold"><i class="bi bi-palette-fill me-1"></i> Creador Oficial</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-primary bg-opacity-25 text-white fw-semibold">Estudiante</span>
+                            }
+                        </div>
+                        <p class="text-light opacity-90 small mb-0">
+                            <i class="bi bi-card-heading me-1"></i> Documento: <strong>@Model.IdentificationNumber</strong> &bull; 
+                            <i class="bi bi-envelope me-1 ms-2"></i> @Model.Email
+                        </p>
+                    </div>
+
+                    <div class="text-md-end">
+                        <a asp-controller="Account" asp-action="Dashboard" class="btn btn-outline-light btn-sm fw-semibold">
+                            <i class="bi bi-journal-bookmark-fill me-1"></i> Ir a Mis Cursos
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulario de Edición de Datos -->
+            <div class="card-body p-4 p-md-5">
+                <div class="alert alert-info border-0 rounded-3 small mb-4 d-flex align-items-start gap-2">
+                    <i class="bi bi-info-circle-fill fs-5 text-primary"></i>
+                    <div>
+                        <strong>Información Importante:</strong> Tu <strong>Nombre Completo</strong> y <strong>Cédula / Documento de Identidad</strong> son los datos que se imprimirán directamente en los certificados oficiales y diplomas que obtengas al completar los cursos. Asegúrate de escribirlos tal como aparecen en tu documento legal.
+                    </div>
+                </div>
+
+                <form asp-action="Perfil" method="post" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" />
+                    <input type="hidden" asp-for="CurrentProfilePictureUrl" />
+                    <input type="hidden" asp-for="Role" />
+
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger border-0 rounded-3 small mb-4">
+                            <div asp-validation-summary="All" class="text-danger mb-0"></div>
+                        </div>
+                    }
+
+                    <h5 class="fw-bold text-dark mb-3 pb-2 border-bottom">
+                        <i class="bi bi-person-lines-fill text-primary me-2"></i>Información Personal y de Identificación
+                    </h5>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-7">
+                            <label asp-for="FullName" class="form-label fw-bold small text-dark">Nombre y Apellido Completo <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-muted"><i class="bi bi-person-fill"></i></span>
+                                <input asp-for="FullName" class="form-control" placeholder="Ej. Carlos Mendoza" required />
+                            </div>
+                            <span asp-validation-for="FullName" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-5">
+                            <label asp-for="IdentificationNumber" class="form-label fw-bold small text-dark">Cédula / DNI / Pasaporte <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-muted"><i class="bi bi-card-text"></i></span>
+                                <input asp-for="IdentificationNumber" class="form-control" placeholder="Ej. V-19027578" required />
+                            </div>
+                            <span asp-validation-for="IdentificationNumber" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Email" class="form-label fw-bold small text-dark">Correo Electrónico <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-muted"><i class="bi bi-envelope-fill"></i></span>
+                                <input asp-for="Email" type="email" class="form-control" placeholder="nombre@correo.com" required />
+                            </div>
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="PhoneNumber" class="form-label fw-bold small text-dark">Teléfono / WhatsApp (Opcional)</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-muted"><i class="bi bi-telephone-fill"></i></span>
+                                <input asp-for="PhoneNumber" class="form-control" placeholder="Ej. +58 412 1234567" />
+                            </div>
+                            <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="BirthDate" class="form-label fw-bold small text-dark">Fecha de Nacimiento</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-muted"><i class="bi bi-calendar-date"></i></span>
+                                <input asp-for="BirthDate" type="date" class="form-control" />
+                            </div>
+                            <div class="form-text small" style="font-size: 0.73rem;">Utilizada para calcular tu edad académica en los registros.</div>
+                            <span asp-validation-for="BirthDate" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Address" class="form-label fw-bold small text-dark">Dirección de Residencia</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-muted"><i class="bi bi-geo-alt-fill"></i></span>
+                                <input asp-for="Address" class="form-control" placeholder="Ciudad, Estado, Dirección" />
+                            </div>
+                            <span asp-validation-for="Address" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <h5 class="fw-bold text-dark mb-3 pb-2 border-bottom">
+                        <i class="bi bi-image text-primary me-2"></i>Foto de Perfil
+                    </h5>
+
+                    <div class="row g-3 align-items-center mb-4">
+                        <div class="col-md-8">
+                            <label asp-for="ProfilePicture" class="form-label fw-bold small text-dark d-flex align-items-center justify-content-between">
+                                <span>Seleccionar Foto (JPG, PNG o WEBP)</span>
+                                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25" style="font-size: 0.72rem;">
+                                    <i class="bi bi-hdd-fill me-1"></i> Máx. 1 MB (Auto-comprimida)
+                                </span>
+                            </label>
+                            <input asp-for="ProfilePicture" type="file" class="form-control" accept="image/png, image/jpeg, image/webp" id="fileProfilePicture" />
+                            <div class="form-text small" style="font-size: 0.74rem;">
+                                Sube una foto tuya para que aparezca en tu perfil y en tu <strong>Currículum Vitae</strong>. El sistema la optimizará automáticamente a formato ligero para no sobrecargar el almacenamiento.
+                            </div>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(Model.CurrentProfilePictureUrl))
+                        {
+                            <div class="col-md-4">
+                                <div class="form-check p-3 bg-light rounded-3 border">
+                                    <input class="form-check-input ms-1 me-2" type="checkbox" asp-for="RemovePicture" id="checkRemovePicture" />
+                                    <label class="form-check-label small fw-semibold text-danger" for="checkRemovePicture">
+                                        <i class="bi bi-trash3 me-1"></i> Eliminar foto actual y usar mis iniciales
+                                    </label>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 pt-3 border-top">
+                        <a asp-controller="Account" asp-action="Dashboard" class="btn btn-outline-secondary px-4 fw-semibold">
+                            <i class="bi bi-arrow-left me-1"></i> Cancelar / Volver
+                        </a>
+                        <button type="submit" class="btn btn-primary btn-lg px-5 fw-bold shadow-sm">
+                            <i class="bi bi-check2-circle me-1"></i> Guardar Cambios en Mi Perfil
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Previsualización y auto-compresión ligera de la foto a máx 350x350
+        document.getElementById('fileProfilePicture')?.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            // Validación previa de tamaño (máx 5MB antes de compresión)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('La foto seleccionada supera los 5 MB. Por favor elige una imagen más ligera.');
+                this.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                const img = new Image();
+                img.onload = function() {
+                    // Dimensiones máximas optimizadas para avatar (350x350 px)
+                    const maxDim = 350;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > maxDim) {
+                            height = Math.round((height * maxDim) / width);
+                            width = maxDim;
+                        }
+                    } else {
+                        if (height > maxDim) {
+                            width = Math.round((width * maxDim) / height);
+                            height = maxDim;
+                        }
+                    }
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Comprimir a JPEG calidad 0.82 (peso aproximado entre 25KB y 50KB)
+                    const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.82);
+
+                    const preview = document.getElementById('avatarPreview');
+                    const initials = document.getElementById('initialsAvatar');
+                    if (preview) {
+                        preview.src = compressedDataUrl;
+                        preview.classList.remove('d-none');
+                    }
+                    if (initials) {
+                        initials.classList.add('d-none');
+                    }
+
+                    // Reemplazar el archivo en el input por el blob comprimido
+                    canvas.toBlob(function(blob) {
+                        if (blob && window.DataTransfer) {
+                            const dt = new DataTransfer();
+                            const newFile = new File([blob], "avatar_perfil.jpg", { type: 'image/jpeg' });
+                            dt.items.add(newFile);
+                            document.getElementById('fileProfilePicture').files = dt.files;
+                        }
+                    }, 'image/jpeg', 0.82);
+                };
+                img.src = evt.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+    </script>
+}

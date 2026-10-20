@@ -1,0 +1,76 @@
+@{
+    ViewData["Title"] = "Portal de Validación y Autenticidad de Certificados";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Tarjeta Central del Portal de Validación -->
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden bg-white">
+                <div class="p-4 p-md-5 text-center text-white" style="background: linear-gradient(135deg, #0b1c36 0%, #153e75 100%);">
+                    <img src="~/images/logo-jp.png" alt="Logo Cursos Globales JP" class="rounded-circle shadow mb-3" style="width: 70px; height: 70px; object-fit: cover; border: 3px solid #ffffff;" />
+                    
+                    <span class="badge bg-warning text-dark px-3 py-1 fw-bold text-uppercase mb-2 d-inline-block">
+                        <i class="bi bi-patch-check-fill me-1"></i> Sistema de Verificación Criptográfica
+                    </span>
+                    <h1 class="display-6 fw-bold mb-2">Portal de Validación de Certificados</h1>
+                    <p class="lead opacity-90 small mb-0">
+                        Consulta y verifica en tiempo real la autenticidad de los diplomas emitidos por <strong>Cursos Globales JP</strong> para reclutadores de RRHH, empresas e instituciones.
+                    </p>
+                </div>
+
+                <div class="p-4 p-md-5">
+                    <!-- Formulario de Consulta -->
+                    <form asp-controller="Certificados" asp-action="Verificar" method="get" class="mb-4">
+                        <label class="form-label fw-bold text-dark mb-2">
+                            <i class="bi bi-qr-code-scan me-1 text-primary"></i> Ingresa el Código de Validación Oficial:
+                        </label>
+                        <div class="input-group input-group-lg shadow-sm">
+                            <span class="input-group-text bg-light text-muted"><i class="bi bi-shield-check"></i></span>
+                            <input type="text" name="id" class="form-control" placeholder="Ej: CGJP-2026-X89K2" required autofocus />
+                            <button class="btn btn-brand px-4 fw-bold" type="submit">
+                                <i class="bi bi-search me-1"></i> Validar
+                            </button>
+                        </div>
+                        <div class="form-text small mt-2 text-muted">
+                            <i class="bi bi-info-circle me-1"></i> El código alfanumérico se encuentra en la esquina superior derecha o al pie del diploma en PDF.
+                        </div>
+                        <div class="mt-3 p-2 bg-light rounded-3 d-flex align-items-center justify-content-between small">
+                            <span class="text-muted"><i class="bi bi-lightbulb-fill text-warning me-1"></i>Código de prueba verificado en el sistema:</span>
+                            <a href="/Certificados/Verificar?id=CGJP-2026-OFIC1" class="badge bg-primary text-decoration-none">Probar CGJP-2026-OFIC1 <i class="bi bi-arrow-right ms-1"></i></a>
+                        </div>
+                    </form>
+
+                    <!-- Beneficios y Garantías de Autenticidad -->
+                    <div class="row g-3 pt-3 border-top">
+                        <div class="col-md-4">
+                            <div class="p-3 bg-light rounded-3 h-100 text-center">
+                                <i class="bi bi-cpu text-primary fs-3 d-block mb-2"></i>
+                                <h6 class="fw-bold mb-1">Registro Digital</h6>
+                                <p class="small text-muted mb-0">Cada certificación posee un identificador hash único almacenado en base de datos.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-3 bg-light rounded-3 h-100 text-center">
+                                <i class="bi bi-linkedin text-info fs-3 d-block mb-2"></i>
+                                <h6 class="fw-bold mb-1">Acreditado LinkedIn</h6>
+                                <p class="small text-muted mb-0">Vínculo verificable directo para anexar a perfiles y currículums laborales.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-3 bg-light rounded-3 h-100 text-center">
+                                <i class="bi bi-shield-lock text-success fs-3 d-block mb-2"></i>
+                                <h6 class="fw-bold mb-1">Cero Falsificaciones</h6>
+                                <p class="small text-muted mb-0">El código QR dirige exclusivamente a este servidor institucional.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-3 bg-light border-top text-center text-muted small">
+                    Cursos Globales JP · Academia de Formación Continua y Competencias Digitales
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

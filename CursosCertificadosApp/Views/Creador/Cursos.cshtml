@@ -1,0 +1,239 @@
+@model List<CursosCertificadosApp.Models.Entities.Course>
+@{
+    ViewData["Title"] = "Panel del Creador de Cursos";
+    var totalCertificados = ViewBag.TotalCertificados is int tc ? tc : 0;
+    var ganancias = ViewBag.GananciasEstimadas is decimal g ? g : 0m;
+}
+
+<div class="container py-4">
+    <!-- Encabezado del Panel de Creador -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 text-white" style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <span class="badge bg-warning text-dark px-3 py-1 fw-bold mb-2">
+                    <i class="bi bi-palette-fill me-1"></i> PANEL OFICIAL DE CREADOR DE CONTENIDO
+                </span>
+                <h2 class="fw-bold mb-1">Tus Cursos y Capacitaciones</h2>
+                <p class="mb-0 opacity-90 small">
+                    Diseña tus programas formativos, añade módulos con videos e imágenes y genera $1.00 USD por cada certificado emitido.
+                </p>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                <button type="button" class="btn btn-outline-light fw-bold px-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalCrearCategoria">
+                    <i class="bi bi-tag-fill me-1"></i> Nueva Categoría
+                </button>
+                <a asp-action="CrearCurso" class="btn btn-warning text-dark fw-bold px-3 shadow">
+                    <i class="bi bi-plus-circle-fill me-1"></i> Crear Nuevo Curso
+                </a>
+                <a asp-controller="Account" asp-action="Dashboard" class="btn btn-outline-light btn-sm fw-semibold">
+                    <i class="bi bi-person-fill me-1"></i> Modo Estudiante
+                </a>
+            </div>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm rounded-3 mb-3" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm rounded-3 mb-3" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Tarjetas de Métricas del Creador -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-circle bg-primary bg-opacity-10 text-primary p-3 fs-3">
+                        <i class="bi bi-book-half"></i>
+                    </div>
+                    <div>
+                        <span class="text-muted small">Tus Cursos Creados</span>
+                        <h3 class="fw-bold mb-0 text-dark">@Model.Count</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-circle bg-info bg-opacity-10 text-info p-3 fs-3">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                    <div>
+                        <span class="text-muted small">Estudiantes Inscritos</span>
+                        <h3 class="fw-bold mb-0 text-dark">@Model.Sum(c => c.Enrollments.Count)</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-start border-4 border-success">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-circle bg-success bg-opacity-10 text-success p-3 fs-3">
+                        <i class="bi bi-cash-stack"></i>
+                    </div>
+                    <div>
+                        <span class="text-muted small">Ganancias Acumuladas (80% comisión)</span>
+                        <h3 class="fw-bold mb-0 text-success">$@ganancias.ToString("N2") <small class="fs-6 text-muted">(@totalCertificados certs)</small></h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de Cursos del Creador -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0 text-dark">Listado de Cursos</h5>
+            <span class="text-muted small">Haz clic en "Módulos" para redactar lecturas, agregar videos de YouTube y subir imágenes</span>
+        </div>
+
+        @if (!Model.Any())
+        {
+            <div class="text-center py-5">
+                <div class="rounded-circle bg-light d-inline-flex p-4 mb-3 text-muted">
+                    <i class="bi bi-journal-plus fs-1"></i>
+                </div>
+                <h5 class="fw-bold text-dark">Aún no has creado ningún curso</h5>
+                <p class="text-muted small max-w-500 mx-auto mb-3">
+                    Comienza publicando tu primera capacitación digital. Los estudiantes podrán estudiar gratis y al certificarse ganarás el 80% del precio establecido por cada diploma emitido.
+                </p>
+                <a asp-action="CrearCurso" class="btn btn-primary fw-bold">
+                    <i class="bi bi-plus-circle me-1"></i> Crear Mi Primer Curso
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Título del Curso</th>
+                            <th>Categoría</th>
+                            <th>Nivel / Horas</th>
+                            <th>Módulos</th>
+                            <th>Estudiantes</th>
+                            <th>Certificados (80%)</th>
+                            <th>Estado</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var course in Model)
+                        {
+                            var certs = course.Certificates.Count(c => c.Status == CursosCertificadosApp.Models.Entities.CertificateStatus.Issued);
+                            var gananciasCurso = certs * course.Price * 0.80m;
+                            <tr>
+                                <td>
+                                    <strong class="d-block text-dark">@course.Title</strong>
+                                    <span class="small text-muted font-monospace">/Aula/@course.Slug</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark border">@course.Category.Name</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">@course.Level</span>
+                                    <span class="small text-muted d-block mt-1">@course.EstimatedHours hrs</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-info text-dark">@course.Modules.Count módulos</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary">@course.Enrollments.Count inscritos</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-success">@certs certs ($@gananciasCurso.ToString("F2") USD)</span>
+                                    <span class="badge bg-light text-dark border d-block mt-1">Precio: $@course.Price.ToString("F2")</span>
+                                </td>
+                                <td>
+                                    @if (course.IsPublished)
+                                    {
+                                        <span class="badge bg-success">Publicado</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Borrador</span>
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    <div class="d-flex justify-content-end gap-1">
+                                        <a asp-action="ModulosCurso" asp-route-id="@course.Id" class="btn btn-sm btn-outline-primary" title="Gestionar Temario y Multimedia">
+                                            <i class="bi bi-journal-text me-1"></i> Módulos
+                                        </a>
+                                        <a asp-action="EditarCurso" asp-route-id="@course.Id" class="btn btn-sm btn-outline-secondary" title="Configurar Curso">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a asp-controller="Cursos" asp-action="Detalle" asp-route-slug="@course.Slug" target="_blank" class="btn btn-sm btn-outline-dark" title="Vista Previa Pública">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- ======================== MODAL: CREAR CATEGORÍA ======================== -->
+<div class="modal fade" id="modalCrearCategoria" tabindex="-1" aria-labelledby="modalCrearCategoriaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold" id="modalCrearCategoriaLabel">
+                    <i class="bi bi-tag-fill me-2"></i>Nueva Categoría para Cursos
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-action="CrearCategoria" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="returnUrl" value="/Creador/Cursos" />
+                <div class="modal-body p-4">
+                    <div class="alert alert-info py-2 px-3 small rounded-3 mb-3">
+                        <i class="bi bi-info-circle-fill me-1"></i> Puedes proponer y crear nuevas especialidades para clasificar tus cursos. El administrador podrá revisar o reasignar las categorías si lo requiere.
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Nombre de la Categoría <span class="text-danger">*</span></label>
+                            <input type="text" name="Name" class="form-control" placeholder="Ej: Inteligencia Artificial Aplicada" required maxlength="100" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Slug <span class="text-muted small">(opcional, automático)</span></label>
+                            <input type="text" name="Slug" class="form-control font-monospace" placeholder="ej: ia-aplicada" maxlength="120" />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Descripción</label>
+                            <textarea name="Description" class="form-control" rows="2" placeholder="Breve descripción de lo que abarca esta especialidad..." maxlength="300"></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Icono Bootstrap <span class="text-muted small">(ej: bi-cpu, bi-code-slash)</span></label>
+                            <input type="text" name="IconClass" class="form-control font-monospace" value="bi-folder" maxlength="50" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Orden de Visualización</label>
+                            <input type="number" name="DisplayOrder" class="form-control" value="10" min="1" max="999" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary fw-bold px-4">
+                        <i class="bi bi-plus-circle me-1"></i> Guardar Categoría
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

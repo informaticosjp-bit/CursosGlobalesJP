@@ -1,0 +1,342 @@
+@model CursosCertificadosApp.Models.Entities.Certificate
+@{
+    ViewData["Title"] = $"Certificado de {Model.Course.Title}";
+    bool isIssued = Model.Status == CursosCertificadosApp.Models.Entities.CertificateStatus.Issued;
+    bool isPending = Model.Status == CursosCertificadosApp.Models.Entities.CertificateStatus.PendingPayment;
+    var latestPayment = Model.Payments.OrderByDescending(p => p.CreatedAt).FirstOrDefault();
+}
+
+<div class="container py-5">
+    <!-- Banner de Celebración -->
+    <div class="text-center max-w-700 mx-auto mb-5">
+        <div class="badge bg-warning text-dark px-3 py-2 fw-bold text-uppercase mb-2 shadow-sm">
+            <i class="bi bi-stars me-1"></i> ¡Programa Culminado y Evaluación Aprobada!
+        </div>
+        <h1 class="fw-extrabold display-5 mb-2">¡Felicitaciones, @Model.User.FullName!</h1>
+        <p class="lead text-muted">
+            Has completado satisfactoriamente el curso <strong>@Model.Course.Title</strong>@(Model.QuizScore.HasValue ? $" con una calificación de {Model.QuizScore.Value:F0}%" : "").
+        </p>
+    </div>
+
+    <div class="row g-5 justify-content-center">
+        <!-- Columna Izquierda: Vista del Certificado A4 (Borrador vs Oficial) -->
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden position-relative bg-white">
+                
+                <!-- Diseño de Diploma Moderno (Diseño Oficial de Referencia) -->
+                <div class="position-relative bg-white" style="border: 1px solid #e2e8f0; min-height: 480px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
+                    
+                    @if (!isIssued)
+                    {
+                        <!-- Marca de Agua de Protección -->
+                        <div class="position-absolute top-50 start-50 translate-middle text-center w-100" style="pointer-events: none; z-index: 10; opacity: 0.12; transform: translate(-50%, -50%) rotate(-25deg);">
+                            <span class="display-4 fw-bold text-danger text-uppercase d-block">VISTA PREVIA NO VÁLIDA</span>
+                            <span class="fs-5 fw-bold text-danger d-block">NO DESCARGABLE · PENDIENTE DE VALIDACIÓN</span>
+                        </div>
+                    }
+
+                    <div class="row g-0">
+                        <!-- Columna Izquierda: Panel Lateral Minimalista -->
+                        <div class="col-md-4 p-4 d-flex flex-column justify-content-between bg-white" style="border-right: 1px solid #e2e8f0;">
+                            <div>
+                                <div class="d-flex align-items-center gap-2 mb-4">
+                                    <img src="~/images/logo-jp.png" alt="Logo JP" class="rounded-circle shadow-xs" style="width: 36px; height: 36px; object-fit: cover;" onerror="this.src='/images/logo-jp.png';" />
+                                    <div>
+                                        <div class="fw-bold text-dark lh-1" style="font-size: 0.82rem;">CURSOS GLOBALES <span style="color: #dc2626; font-weight: 800;">JP</span></div>
+                                        <span class="text-secondary small" style="font-size: 0.72rem;">Aprendizaje Online</span>
+                                    </div>
+                                </div>
+
+                                <div class="my-5 py-4">
+                                    <p class="text-muted small mb-0" style="font-size: 0.7rem; line-height: 1.35;">
+                                        Credencial oficial electrónica con código de verificación emitida por la plataforma de capacitación continua.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="mt-4 pt-3">
+                                @if (!string.IsNullOrEmpty(Model.QrCodeBase64))
+                                {
+                                    <div class="mb-2">
+                                        <img src="data:image/png;base64,@Model.QrCodeBase64" alt="QR de Validación" style="width: 68px; height: 68px;" class="shadow-2xs border p-1 rounded bg-white" />
+                                        <span class="d-block text-muted mt-1" style="font-size: 0.65rem;">Escanear para verificar</span>
+                                    </div>
+                                }
+                                <div class="mt-2">
+                                    <span class="text-muted d-block small" style="font-size: 0.68rem;">Número de serie:</span>
+                                    <strong class="font-monospace text-dark" style="font-size: 0.82rem;">@Model.VerificationCode</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Columna Derecha: Contenido Principal del Certificado -->
+                        <div class="col-md-8 p-4 p-md-5 d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="d-flex justify-content-between align-items-start mb-4">
+                                    <div class="fw-bold" style="color: #627d98; font-size: 1.15rem; line-height: 1.15; letter-spacing: 0.5px;">
+                                        CERTIFICADO DE<br>FINALIZACIÓN
+                                    </div>
+                                    <div class="fw-bold" style="color: #10b981; letter-spacing: 2px; font-size: 0.72rem;">
+                                        A C R E D I T A C I Ó N &nbsp; V E R I F I C A B L E
+                                    </div>
+                                </div>
+
+                                <div class="text-start mt-4 pt-2">
+                                    <span class="text-muted small d-block mb-1" style="font-size: 0.85rem;">Certificado de finalización de</span>
+                                    <h2 class="fw-extrabold text-dark mb-1" style="font-size: 1.85rem; letter-spacing: -0.5px;">@Model.User.FullName</h2>
+                                    @if (!string.IsNullOrWhiteSpace(Model.User.IdentificationNumber))
+                                    {
+                                        <span class="text-muted small d-block mb-3" style="font-size: 0.82rem;">Documento de Identidad: <strong>@Model.User.IdentificationNumber</strong></span>
+                                    }
+
+                                    <!-- Barra de acento rojo distintiva -->
+                                    <div class="my-3" style="width: 40px; height: 3px; background-color: #dc2626;"></div>
+
+                                    <h3 class="fw-bold text-dark mt-3 mb-2" style="font-size: 1.35rem; letter-spacing: -0.3px;">@Model.Course.Title</h3>
+                                    
+                                    <div class="text-muted small mb-1" style="font-size: 0.82rem;">
+                                        Curso completado satisfactoriamente el @((Model.IssuedAt ?? Model.CreatedAt).ToString("dd 'de' MMMM 'de' yyyy", new System.Globalization.CultureInfo("es-ES")))
+                                    </div>
+                                    <div class="text-secondary small mb-3" style="font-size: 0.82rem;">
+                                        @Model.Course.EstimatedHours.ToString("F1") Horas lectivas@(Model.Course.Modules != null && Model.Course.Modules.Count > 0 ? $" | {Model.Course.Modules.Count} Módulos" : "")
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Pie de Página Anclado al Fondo (Sección Roja de Referencia) -->
+                            <div class="mt-5 pt-3">
+                                <div class="text-muted small mb-1" style="font-size: 0.7rem;">Contenido académico desarrollado por</div>
+                                <div class="d-flex align-items-center gap-2 small text-dark fw-bold mb-3">
+                                    <span style="color: #0f172a;">Cursos Globales JP</span>
+                                    <span class="text-muted opacity-50">•</span>
+                                    <a href="https://cursos.globalesjp.net" class="text-primary text-decoration-none">https://cursos.globalesjp.net</a>
+                                </div>
+                                <div class="pt-3 border-top border-light-subtle text-muted" style="font-size: 0.65rem;">
+                                    Para validar la autenticidad y vigencia de esta credencial académica, ingrese a: 
+                                    <span class="text-muted font-monospace">https://cursos.globalesjp.net/Certificados/Verificar/@Model.VerificationCode</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Barra de Estado Inferior -->
+                <div class="p-3 text-center @(isIssued ? "bg-success text-white" : isPending ? "bg-warning text-dark" : "bg-light text-muted")">
+                    @if (isIssued)
+                    {
+                        <div class="fw-bold">
+                            <i class="bi bi-patch-check-fill me-1"></i> Certificado Oficial Aprobado y Liberado para Descarga
+                        </div>
+                    }
+                    else if (isPending)
+                    {
+                        <div class="fw-bold">
+                            <i class="bi bi-clock-history me-1"></i> Solicitud enviada (Ref: @latestPayment?.TransactionReference). En proceso de validación administrativa.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="small fw-semibold text-danger">
+                            <i class="bi bi-lock-fill me-1"></i> Descarga directa bloqueada. Se requiere la solicitud y validación de pago de @Model.Course.Price.ToString("F2") USD (tasa BCV).
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Columna Derecha: Gestión de Solicitud y Descarga -->
+        <div class="col-lg-5">
+            @if (isIssued)
+            {
+                <!-- ESTADO: APROBADO Y LIBERADO -->
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+                    <div class="text-center mb-4">
+                        <div class="badge bg-success bg-opacity-10 text-success p-3 rounded-circle mb-2">
+                            <i class="bi bi-cloud-arrow-down fs-1 text-success"></i>
+                        </div>
+                        <h4 class="fw-bold">¡Tu Diploma Oficial está Liberado!</h4>
+                        <p class="text-muted small">Tu solicitud fue validada y aprobada por la administración. Ya puedes descargar tu PDF en alta resolución.</p>
+                    </div>
+
+                    <a asp-action="Descargar" asp-route-id="@Model.Id" class="btn btn-success btn-lg w-100 fw-bold py-3 mb-3 shadow-sm">
+                        <i class="bi bi-file-earmark-pdf-fill me-2"></i> Descargar Diploma Oficial (PDF)
+                    </a>
+
+                    <!-- Botón para Compartir en LinkedIn -->
+                    <a href="https://www.linkedin.com/profile/add?startTask=CERTIFICATION_NAME&name=@Uri.EscapeDataString(Model.Course.Title)&organizationName=Cursos+Globales+JP&certId=@Model.VerificationCode&certUrl=@Uri.EscapeDataString($"https://cursos.globalesjp.net/Certificados/Verificar?id={Model.VerificationCode}")" 
+                       target="_blank" class="btn btn-primary w-100 fw-semibold py-2 mb-2">
+                        <i class="bi bi-linkedin me-2"></i> Añadir a mi Perfil de LinkedIn
+                    </a>
+
+                    <a asp-action="Verificar" asp-route-id="@Model.VerificationCode" target="_blank" class="btn btn-outline-secondary w-100 fw-semibold py-2">
+                        <i class="bi bi-qr-code me-2"></i> Ver Página de Validación Pública
+                    </a>
+                </div>
+            }
+            else if (isPending)
+            {
+                <!-- ESTADO: SOLICITUD EN REVISIÓN ADMINISTRATIVA -->
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white text-center">
+                    <div class="badge bg-warning bg-opacity-10 text-warning p-3 rounded-circle mb-3 d-inline-block">
+                        <i class="bi bi-hourglass-split fs-1 text-warning"></i>
+                    </div>
+                    <h4 class="fw-bold text-dark">Solicitud en Proceso de Validación</h4>
+                    <p class="small text-muted mb-3">
+                        Hemos recibido tu comprobante de pago con la referencia <strong>@latestPayment?.TransactionReference</strong>.
+                    </p>
+                    <div class="alert alert-light border small text-start mb-3">
+                        <span class="d-block text-muted">Titular Registrado: <strong>@Model.User.FullName</strong></span>
+                        <span class="d-block text-muted">Cédula / Documento: <strong>@Model.User.IdentificationNumber</strong></span>
+                        <span class="d-block text-muted">Fecha de Solicitud: <strong>@latestPayment?.CreatedAt.ToString("dd/MM/yyyy HH:mm")</strong></span>
+                        <span class="d-block text-success fw-semibold mt-1"><i class="bi bi-check-circle me-1"></i>En cola de conciliación bancaria</span>
+                    </div>
+
+                    <button class="btn btn-secondary w-100 py-3 mb-2 fw-semibold" disabled>
+                        <i class="bi bi-lock-fill me-2"></i> Descarga Bloqueada (Pendiente de Aprobación)
+                    </button>
+                    <span class="small text-muted d-block">Una vez aprobado por el administrador, este botón se activará automáticamente.</span>
+                </div>
+            }
+            else
+            {
+                <!-- ESTADO: BLOQUEADO -> FORMULARIO DE SOLICITUD DE CERTIFICADO -->
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold mb-0">Solicitar Certificado Oficial</h5>
+                        <span class="badge bg-success fs-6 fw-bold px-3 py-2">Tarifa: @Model.Course.Price.ToString("F2") USD (Tasa BCV)</span>
+                    </div>
+
+                    <p class="small text-muted mb-3">
+                        La descarga directa del certificado está bloqueada. Para liberarlo, realiza el pago de @Model.Course.Price.ToString("F2") USD a tasa oficial BCV y completa el formulario de solicitud con tu comprobante.
+                    </p>
+
+                    <!-- Cuadro de Cálculo Automático según Tasa Oficial BCV del Día -->
+                    @{
+                        var bcv = ViewBag.BcvRate as CursosCertificadosApp.Services.BcvRateResult;
+                        var tasaBcv = bcv?.UsdRate ?? 881.07m;
+                        var montoBs = bcv != null ? bcv.GetFormattedTotalBs(Model.Course.Price) : (Model.Course.Price * tasaBcv).ToString("N2");
+                        var fechaBcv = bcv?.ValueDate ?? DateTime.Now.ToString("dd/MM/yyyy");
+                    }
+
+                    <div class="card border-0 bg-primary bg-opacity-10 rounded-3 p-3 mb-3 text-start">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="small fw-bold text-primary">
+                                <i class="bi bi-currency-exchange me-1"></i> TASA OFICIAL BCV DEL DÍA
+                            </span>
+                            <a href="https://www.bcv.org.ve/" target="_blank" class="badge bg-primary text-decoration-none small">
+                                <i class="bi bi-box-arrow-up-right me-1"></i> bcv.org.ve
+                            </a>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-baseline">
+                            <span class="fs-5 fw-extrabold text-dark">1 USD = Bs. @tasaBcv.ToString("N2")</span>
+                            <span class="badge bg-success fs-6 fw-bold">Pagar: Bs. @montoBs (@Model.Course.Price.ToString("F2") USD)</span>
+                        </div>
+                        <div class="small text-muted mt-1" style="font-size: 0.72rem;">
+                            <i class="bi bi-clock-history me-1"></i> Fecha Valor BCV: <strong>@fechaBcv</strong> · Cálculo automático oficial.
+                        </div>
+                    </div>
+
+                    <!-- Cuadro de Datos Bancarios Oficiales -->
+                    <div class="alert alert-warning border-0 p-3 small mb-3 rounded-3" style="background-color: #fffbeb; border-left: 4px solid #f59e0b !important;">
+                        <h6 class="fw-bold text-dark mb-2"><i class="bi bi-bank me-1 text-warning"></i> Coordenadas Bancarias Oficiales:</h6>
+                        
+                        <div class="mb-2 p-2 bg-white rounded border">
+                            <span class="d-block text-muted small">Titular de la Cuenta:</span>
+                            <strong class="text-dark">Inversiones Globales JP 1968, C.A.</strong>
+                            <div class="text-muted small mt-1">RIF: <strong class="text-dark">J-41102463-5</strong> (J411024635)</div>
+                        </div>
+
+                        <div class="mb-2 p-2 bg-white rounded border">
+                            <span class="d-block text-muted small">Pago Móvil (BDV 0102):</span>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="text-muted small">Teléfono:</span> <strong class="text-primary fs-6">0412-5884084</strong>
+                                    <span class="text-muted small d-block">RIF: <strong>J-41102463-5</strong></span>
+                                </div>
+                                <span class="badge bg-light text-dark border">Banco de Venezuela</span>
+                            </div>
+                        </div>
+
+                        <div class="p-2 bg-white rounded border">
+                            <span class="d-block text-muted small">Transferencia Bancaria Nacional:</span>
+                            <span class="text-muted small">Banco:</span> <strong>0102 - Banco de Venezuela</strong>
+                            <div class="mt-1">
+                                <span class="text-muted small">N° Cuenta Corriente:</span>
+                                <div class="font-monospace fw-bold text-dark fs-6 bg-light p-1 rounded border text-center">
+                                    0102-0456-93-0000333382
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-2 bg-white rounded border mt-2">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="fw-bold text-dark small"><i class="bi bi-wallet2 text-warning me-1"></i> Binance Pay (USDT):</span>
+                                <span class="badge bg-warning text-dark fw-bold">$@Model.Course.Price.ToString("F2") USDT</span>
+                            </div>
+                            <div class="alert alert-danger py-1 px-2 border-0 small fw-bold mb-2 text-center" style="font-size: 0.72rem;">
+                                <i class="bi bi-exclamation-octagon-fill me-1"></i> NOTA: Solo se aceptan transferencias en USDT
+                            </div>
+                            <a href="https://app.binance.com/uni-qr/8iQAbhFk" target="_blank" rel="noopener noreferrer" class="btn btn-warning btn-sm w-100 fw-bold text-dark shadow-sm">
+                                <i class="bi bi-box-arrow-up-right me-1"></i> Abrir Enlace de Pago en Binance
+                            </a>
+                        </div>
+
+                        <div class="mt-2 text-center text-dark fw-bold">
+                            Monto en Bolívares: <span class="text-success fs-5">Bs. @montoBs</span> ($@Model.Course.Price.ToString("F2") USD)
+                        </div>
+                    </div>
+
+                    <!-- Formulario con datos del titular precargados automáticamente -->
+                    <form asp-action="PagarManual" method="post" enctype="multipart/form-data">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="certificateId" value="@Model.Id" />
+
+                        <!-- Datos del Titular (Cargados Automáticamente - ReadOnly) -->
+                        <div class="row g-2 mb-2">
+                            <div class="col-sm-7">
+                                <label class="form-label small fw-semibold text-muted mb-1">Titular Registrado (Automático)</label>
+                                <input type="text" class="form-control form-control-sm bg-light" value="@Model.User.FullName" readonly />
+                            </div>
+                            <div class="col-sm-5">
+                                <label class="form-label small fw-semibold text-muted mb-1">Cédula / RIF</label>
+                                <input type="text" class="form-control form-control-sm bg-light" value="@Model.User.IdentificationNumber" readonly />
+                            </div>
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label small fw-semibold mb-1">Método de Pago Utilizado</label>
+                            <select name="paymentMethod" class="form-select form-select-sm" required>
+                                <option value="Pago Móvil (BDV)">Pago Móvil (Bs. Tasa BCV)</option>
+                                <option value="Transferencia Bancaria (BDV)">Transferencia Bancaria Nacional (Bs. Tasa BCV)</option>
+                                <option value="Binance Pay">Binance Pay (Solo USDT - $@Model.Course.Price.ToString("F2") USD)</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label small fw-semibold mb-1">Número de Referencia Bancaria</label>
+                            <input type="text" name="transactionReference" class="form-control form-control-sm" placeholder="Ingresa los dígitos de la referencia" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold mb-1">Captura del Comprobante (Obligatorio)</label>
+                            <input type="file" name="proofFile" class="form-control form-control-sm" accept="image/*,.pdf" required />
+                            <div class="form-text small" style="font-size: 0.72rem;">Adjunta la imagen del comprobante emitido por tu banco.</div>
+                        </div>
+
+                        <!-- Declaración Jurada Obligatoria -->
+                        <div class="form-check mb-3 p-2 bg-light rounded border">
+                            <input class="form-check-input ms-1 me-2" type="checkbox" id="checkTitular" required />
+                            <label class="form-check-label small text-muted" for="checkTitular" style="font-size: 0.73rem; line-height: 1.3;">
+                                <strong>Declaración Jurada:</strong> Certifico que el pago fue realizado desde una cuenta bancaria a mi nombre (mismo titular registrado: <strong>@Model.User.FullName - @Model.User.IdentificationNumber</strong>) y acepto los <a asp-controller="Home" asp-action="Terminos" target="_blank" class="text-decoration-underline fw-bold text-primary">Términos y Condiciones</a>. Los pagos provenientes de cuentas de terceros no son procesados ni reembolsables.
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn btn-gold w-100 fw-bold py-2 shadow-sm">
+                            <i class="bi bi-send-check-fill me-1"></i> Solicitar Certificado y Enviar Comprobante
+                        </button>
+                    </form>
+                </div>
+            }
+        </div>
+    </div>
+</div>

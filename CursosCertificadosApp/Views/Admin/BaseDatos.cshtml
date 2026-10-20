@@ -1,0 +1,629 @@
+@model CursosCertificadosApp.Services.DatabaseStatsViewModel
+@{
+    ViewData["Title"] = "Administración de Base de Datos";
+}
+
+<div class="container py-4">
+    <!-- Encabezado y Barra Fija de Navegación del Panel de Administración Maestro -->
+    <partial name="_AdminHeader" />
+
+    <!-- Alerta Informativa de Seguridad de Datos -->
+    <div class="alert alert-warning border-0 shadow-sm rounded-4 p-3 mb-4 d-flex align-items-start gap-3">
+        <div class="fs-2 text-warning">
+            <i class="bi bi-shield-exclamation"></i>
+        </div>
+        <div>
+            <strong class="d-block text-dark fs-6">Gestión de Copias de Seguridad y Recuperación de Desastres</strong>
+            <p class="small text-muted mb-0">
+                Esta sección permite crear <strong>respaldos integrales (JSON y SQL)</strong> de todos los datos de Cursos Globales JP (estudiantes, cursos, temarios, pagos conciliados, certificados emitidos y configuraciones). Al restaurar, se reemplazará el estado actual garantizando la integridad de claves foráneas.
+            </p>
+        </div>
+    </div>
+
+    <!-- Métricas del Motor de Base de Datos -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3 col-sm-6">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 overflow-hidden">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-primary bg-opacity-10 text-primary rounded-4 p-3 fs-3 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 52px; height: 52px;">
+                        <i class="bi bi-database-fill"></i>
+                    </div>
+                    <div class="overflow-hidden">
+                        <span class="text-muted small d-block">Motor / Proveedor</span>
+                        <h5 class="fw-bold text-dark mb-0 text-truncate" title="@Model.Provider">@Model.Provider</h5>
+                        <span class="badge bg-success-subtle text-success small mt-1">
+                            <i class="bi bi-check-circle-fill me-1"></i>En línea
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-6">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 overflow-hidden">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-success bg-opacity-10 text-success rounded-4 p-3 fs-3 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 52px; height: 52px;">
+                        <i class="bi bi-layers-fill"></i>
+                    </div>
+                    <div class="overflow-hidden">
+                        <span class="text-muted small d-block">Total Registros</span>
+                        <h4 class="fw-bold text-dark mb-0">@Model.TotalRecords</h4>
+                        <span class="text-muted small">@Model.TableCounts.Count tablas activas</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-6">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 overflow-hidden">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-info bg-opacity-10 text-info rounded-4 p-3 fs-3 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 52px; height: 52px;">
+                        <i class="bi bi-archive-fill"></i>
+                    </div>
+                    <div class="overflow-hidden">
+                        <span class="text-muted small d-block">Respaldos en Servidor</span>
+                        <h4 class="fw-bold text-dark mb-0">@Model.BackupFiles.Count</h4>
+                        <span class="text-muted small">Almacenados en /App_Data</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-6">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 overflow-hidden">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-danger bg-opacity-10 text-danger rounded-4 p-3 fs-3 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 52px; height: 52px;">
+                        <i class="bi bi-shield-lock-fill"></i>
+                    </div>
+                    <div class="overflow-hidden">
+                        <span class="text-muted small d-block">Base de Datos</span>
+                        <h6 class="fw-bold text-dark mb-0 text-truncate" title="@Model.DatabaseName">
+                            @Model.DatabaseName
+                        </h6>
+                        <span class="text-muted small">UTF-8 Seguro</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Módulos Principales: Respaldar y Restaurar -->
+    <div class="row g-4 mb-4">
+        <!-- 1. RESPALDAR BASE DE DATOS -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <div class="bg-warning bg-opacity-25 text-warning-emphasis p-2 rounded-3">
+                        <i class="bi bi-cloud-arrow-down-fill fs-4 text-warning"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold text-dark mb-0">1. Generar y Descargar Respaldo</h5>
+                        <small class="text-muted">Exporta instantáneamente un clon completo de la base de datos</small>
+                    </div>
+                </div>
+
+                <p class="text-muted small mb-4">
+                    Genera y descarga un volcado completo de la base de datos (Estudiantes, Cursos, Módulos, Lecciones, Evaluaciones, Pagos Conciliados y Certificados). Guarda una copia automática en el servidor y descarga el archivo a su equipo.
+                </p>
+
+                <div class="d-flex flex-column gap-3 mt-auto">
+                    <!-- Respaldo SQL Recomendado para Servidor VPS / PostgreSQL -->
+                    <form asp-action="DescargarRespaldoSql" method="post" class="w-100">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-warning text-dark fw-bold w-100 py-3 shadow-sm d-flex align-items-center justify-content-center gap-2">
+                            <i class="bi bi-filetype-sql fs-4"></i>
+                            <span>Descargar Base de Datos Completa (.sql)</span>
+                        </button>
+                    </form>
+
+                    <!-- Respaldo JSON Portátil Opcional -->
+                    <form asp-action="DescargarRespaldoJson" method="post" class="w-100">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-outline-dark fw-bold w-100 py-2 d-flex align-items-center justify-content-center gap-2">
+                            <i class="bi bi-filetype-json fs-5"></i>
+                            <span>Descargar Respaldo Portable (.json)</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. RESTAURAR BASE DE DATOS -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <div class="bg-danger bg-opacity-10 text-danger p-2 rounded-3">
+                        <i class="bi bi-cloud-arrow-up-fill fs-4 text-danger"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold text-dark mb-0">2. Restaurar Base de Datos (.sql / .json)</h5>
+                        <small class="text-muted">Recupera la plataforma al estado de un respaldo previo</small>
+                    </div>
+                </div>
+
+                <div class="alert alert-light border small text-muted mb-3">
+                    <i class="bi bi-info-circle text-primary me-1"></i>
+                    Seleccione un archivo de respaldo <code>.sql</code> o <code>.json</code>. El sistema reconstruirá todas las tablas, relaciones de estudiantes, pagos, notas y certificados respetando la integridad y reajustando secuencias.
+                </div>
+
+                <form asp-action="RestaurarRespaldo" method="post" enctype="multipart/form-data" id="formRestaurarUpload">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-dark">Archivo de Respaldo (.sql o .json) <span class="text-danger">*</span></label>
+                        <input type="file" name="backupFile" id="backupFile" accept=".sql,.json" class="form-control" required />
+                    </div>
+
+                    <button type="button" class="btn btn-danger text-white fw-bold w-100 py-3 shadow-sm d-flex align-items-center justify-content-center gap-2 mt-auto" onclick="confirmarRestauracionUpload()">
+                        <i class="bi bi-arrow-counterclockwise fs-5"></i>
+                        <span>Restaurar Base de Datos Ahora</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. RESTABLECER EL SISTEMA (MODO PRIMER USO) -->
+    <div class="card border border-danger border-opacity-50 shadow-sm rounded-4 p-4 bg-white mb-4 position-relative overflow-hidden">
+        <div class="position-absolute top-0 end-0 bg-danger text-white px-3 py-1 rounded-bottom-start small fw-bold" style="font-size: 0.72rem;">
+            ZONA DE PELIGRO
+        </div>
+        <div class="row align-items-center g-3">
+            <div class="col-lg-8">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <div class="bg-danger text-white p-2 rounded-3">
+                        <i class="bi bi-trash3-fill fs-4"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold text-danger mb-0">3. Restablecer Sistema (Modo Primer Uso)</h5>
+                        <small class="text-muted">Limpia usuarios de prueba, pagos y certificados, conservando todo el catálogo de cursos y el Administrador Master</small>
+                    </div>
+                </div>
+                <p class="small text-muted mb-2">
+                    Esta operación elimina únicamente: cuentas de usuarios (conservando exclusivamente al Administrador Master), solicitudes y comprobantes de pago, certificados emitidos, avances, notas e inscripciones de alumnos. <strong>Se conservan íntegros al 100%: todos los cursos, módulos, lecciones, cuestionarios pedagógicos, categorías y configuraciones de la plataforma.</strong>
+                </p>
+                <div class="d-flex flex-wrap gap-3 small align-items-center p-2 bg-light rounded-3 border">
+                    <span class="badge bg-danger text-white px-2 py-1 fw-bold">
+                        <i class="bi bi-shield-lock-fill me-1"></i>Credenciales de Acceso Master:
+                    </span>
+                    <span class="text-dark"><strong>Usuario:</strong> <code>master@globalesjp.net</code> (o escribe <code>master</code>)</span>
+                    <span class="text-dark"><strong>Contraseña:</strong> <code>master141990</code></span>
+                </div>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <button type="button" class="btn btn-outline-danger fw-bold py-3 px-4 shadow-sm w-100" onclick="abrirModalRestablecerSistema()">
+                    <i class="bi bi-arrow-repeat me-2 fs-5"></i>Presiona para restablecer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Desglose de Registros por Tabla -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+        <h5 class="fw-bold text-dark mb-3">
+            <i class="bi bi-table text-primary me-2"></i>Desglose de Registros en Base de Datos
+        </h5>
+        <div class="row g-2">
+            @foreach (var table in Model.TableCounts)
+            {
+                <div class="col-md-3 col-sm-6">
+                    <div class="p-2 border rounded-3 d-flex justify-content-between align-items-center bg-light">
+                        <span class="small fw-semibold text-secondary">
+                            <i class="bi bi-circle-fill text-primary me-1" style="font-size: 0.5rem;"></i>@table.Key
+                        </span>
+                        <span class="badge bg-white text-dark border fw-bold">@table.Value</span>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Historial de Respaldos en el Servidor -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+            <div>
+                <h5 class="fw-bold text-dark mb-0">
+                    <i class="bi bi-clock-history text-secondary me-2"></i>Historial de Respaldos Guardados en el Servidor
+                </h5>
+                <small class="text-muted">Copias de seguridad almacenadas automáticamente en el directorio de la aplicación</small>
+            </div>
+            @if (Model.BackupFiles.Any())
+            {
+                <div class="d-flex align-items-center gap-2">
+                    <button type="button" id="btnToggleSelectAll" class="btn btn-sm btn-outline-secondary fw-semibold" onclick="toggleSelectAllBtn()">
+                        <i class="bi bi-check2-all me-1"></i> <span id="lblToggleSelectAll">Seleccionar Todo</span>
+                    </button>
+                    <button type="button" id="btnDeleteSelectedBackups" class="btn btn-sm btn-danger fw-semibold d-none" onclick="confirmarEliminarRespaldosSeleccionados()">
+                        <i class="bi bi-trash3-fill me-1"></i> Eliminar Seleccionados (<span id="countSelectedBackups">0</span>)
+                    </button>
+                </div>
+            }
+        </div>
+
+        @if (!Model.BackupFiles.Any())
+        {
+            <div class="text-center py-4 text-muted">
+                <i class="bi bi-inbox fs-1 d-block mb-2 text-secondary opacity-50"></i>
+                <p class="mb-0">Aún no hay respaldos almacenados en el servidor. Presione "Descargar Respaldo" para crear el primero.</p>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="border-0 text-center" style="width: 40px;">
+                                <input type="checkbox" id="checkSelectAllBackups" class="form-check-input" onchange="toggleSelectAllBackups(this)" title="Seleccionar / deseleccionar todos los respaldos" />
+                            </th>
+                            <th class="border-0">Nombre de Archivo</th>
+                            <th class="border-0">Tamaño</th>
+                            <th class="border-0">Fecha y Hora</th>
+                            <th class="border-0 text-end">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var file in Model.BackupFiles)
+                        {
+                            <tr>
+                                <td class="text-center">
+                                    <input type="checkbox" class="form-check-input backup-checkbox" value="@file.FileName" onchange="updateSelectedBackupsState()" />
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        @if (file.FileName.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            <i class="bi bi-filetype-json text-warning fs-4"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-filetype-sql text-primary fs-4"></i>
+                                        }
+                                        <span class="font-monospace fw-semibold small text-dark">@file.FileName</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark border">@file.FormattedSize</span>
+                                </td>
+                                <td class="small text-muted">
+                                    @file.CreatedAt.ToString("dd/MM/yyyy hh:mm:ss tt")
+                                </td>
+                                <td class="text-end">
+                                    <div class="d-inline-flex gap-2">
+                                        <!-- Descargar Archivo -->
+                                        <a asp-action="DescargarArchivoLocal" asp-route-fileName="@file.FileName" class="btn btn-sm btn-outline-primary fw-semibold" title="Descargar a mi PC">
+                                            <i class="bi bi-download me-1"></i> Descargar
+                                        </a>
+
+                                        <!-- Restaurar desde este archivo local (soporta .sql y .json) -->
+                                        <button type="button" class="btn btn-sm btn-outline-warning fw-semibold text-dark" onclick="confirmarRestauracionLocal('@file.FileName')">
+                                            <i class="bi bi-arrow-counterclockwise me-1"></i> Restaurar
+                                        </button>
+
+                                        <!-- Eliminar Respaldo Individual -->
+                                        <button type="button" class="btn btn-sm btn-danger fw-semibold text-white" onclick="confirmarEliminarRespaldoIndividual('@file.FileName')" title="Eliminar este archivo de respaldo">
+                                            <i class="bi bi-trash3 me-1"></i> Eliminar
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Formulario Oculto para Restauración desde Archivo Local -->
+<form id="formRestaurarLocal" asp-action="RestaurarArchivoLocal" method="post" style="display: none;">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="fileName" id="hiddenFileName" value="" />
+</form>
+
+<!-- Formulario Oculto para Eliminar Respaldo Individual -->
+<form id="formEliminarRespaldoIndividual" asp-action="EliminarRespaldoLocal" method="post" style="display: none;">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="fileName" id="hiddenDeleteFileName" value="" />
+</form>
+
+<!-- Formulario Oculto para Eliminar Respaldos Múltiples / Seleccionados -->
+<form id="formEliminarRespaldosMultiples" asp-action="EliminarRespaldosMultiples" method="post" style="display: none;">
+    @Html.AntiForgeryToken()
+    <div id="hiddenDeleteFileNamesContainer"></div>
+</form>
+
+<!-- Modal de Confirmación de Restauración -->
+<div class="modal fade" id="modalConfirmarRestauracion" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow rounded-4">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-danger">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>¿Confirmar Restauración?
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body py-3">
+                <p class="text-dark mb-2">
+                    Está a punto de <strong>sobrescribir la base de datos actual</strong> con los datos del respaldo seleccionado:
+                </p>
+                <div class="p-2 bg-light rounded-3 font-monospace small text-primary mb-3" id="modalTargetFile">
+                    archivo_respaldo.json
+                </div>
+                <div class="alert alert-danger py-2 small mb-0">
+                    <i class="bi bi-radioactive me-1"></i> Esta acción no se puede deshacer. Se recomienda tener una copia descargada antes de proceder.
+                </div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-light fw-bold" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger fw-bold shadow-sm" id="btnEjecutarRestauracion">
+                    <i class="bi bi-arrow-counterclockwise me-1"></i> Sí, Restaurar Base de Datos
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmación de Eliminación Individual -->
+<div class="modal fade" id="modalConfirmarEliminarIndividual" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow rounded-4">
+            <div class="modal-header bg-danger text-white rounded-top-4">
+                <h5 class="modal-title fw-bold">
+                    <i class="bi bi-trash3-fill me-2"></i>Eliminar Archivo de Respaldo
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body py-3">
+                <p class="text-dark mb-2">
+                    ¿Estás seguro de que deseas eliminar permanentemente el siguiente archivo de respaldo del servidor?
+                </p>
+                <div class="p-2 bg-light rounded-3 font-monospace small text-danger fw-bold mb-3 border" id="modalTargetDeleteFile">
+                    archivo.json
+                </div>
+                <div class="alert alert-warning py-2 small mb-0">
+                    <i class="bi bi-exclamation-triangle me-1"></i> Esta acción no se puede deshacer. El archivo será borrado del almacenamiento del servidor.
+                </div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-light fw-bold" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger fw-bold shadow-sm" id="btnEjecutarEliminarIndividual">
+                    <i class="bi bi-trash3 me-1"></i> Sí, Eliminar Respaldo
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmación de Eliminación Múltiple / Todos -->
+<div class="modal fade" id="modalConfirmarEliminarMultiples" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow rounded-4">
+            <div class="modal-header bg-danger text-white rounded-top-4">
+                <h5 class="modal-title fw-bold">
+                    <i class="bi bi-trash3-fill me-2"></i>Eliminar Respaldos Seleccionados
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body py-3">
+                <p class="text-dark mb-2">
+                    ¿Estás seguro de que deseas eliminar permanentemente los <strong id="modalCountDeleteMultiples">0</strong> archivos de respaldo seleccionados del servidor?
+                </p>
+                <div class="p-2 bg-light rounded-3 font-monospace small text-muted mb-3 border" style="max-height: 140px; overflow-y: auto;" id="modalListDeleteMultiples">
+                </div>
+                <div class="alert alert-danger py-2 small mb-0">
+                    <i class="bi bi-radioactive me-1"></i> Esta acción eliminará permanentemente todos los archivos seleccionados del disco del servidor.
+                </div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-light fw-bold" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger fw-bold shadow-sm" id="btnEjecutarEliminarMultiples">
+                    <i class="bi bi-trash3-fill me-1"></i> Sí, Eliminar Todos los Seleccionados
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmación para Restablecer Sistema (Modo Primer Uso) -->
+<div class="modal fade" id="modalRestablecerSistema" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow rounded-4">
+            <div class="modal-header bg-danger text-white rounded-top-4">
+                <h5 class="modal-title fw-bold">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>PREPARAR PLATAFORMA PARA PRIMER USO
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-action="RestablecerSistema" method="post" id="formRestablecerSistema">
+                @Html.AntiForgeryToken()
+                <div class="modal-body py-3">
+                    <div class="alert alert-danger py-2 small mb-3">
+                        <strong class="d-block mb-1">¡LIMPIEZA DE DATOS OPERATIVOS DE ALUMNOS!</strong>
+                        Se eliminarán de forma definitiva todas las cuentas de usuarios (excepto el Administrador Master), notas, avances, certificados y pagos registrados.
+                        <div class="mt-2 text-dark">
+                            <i class="bi bi-check-circle-fill text-success me-1"></i> <strong>Se conservan íntegros:</strong> todos los cursos, módulos, lecciones, cuestionarios, categorías y configuraciones del sistema.
+                        </div>
+                        <div class="mt-1 text-dark">
+                            <i class="bi bi-shield-check text-primary me-1"></i> Se generará automáticamente un respaldo preventivo de seguridad en <code>App_Data/Backups</code> antes de ejecutar la limpieza.
+                        </div>
+                    </div>
+                    
+                    <p class="small text-muted mb-2">
+                        La plataforma quedará lista para el primer uso comercial. El usuario <strong>Administrador Master</strong> (<code>master@globalesjp.net</code>) será el único usuario activo en el sistema con la clave <code>master141990</code>.
+                    </p>
+
+                    <label class="form-label fw-bold small text-dark mb-1">
+                        Para autorizar el restablecimiento, escriba la palabra <span class="badge bg-danger">RESTABLECER</span> en mayúsculas:
+                    </label>
+                    <input type="text" name="confirmPhrase" id="inputConfirmPhrase" class="form-control font-monospace text-uppercase" placeholder="RESTABLECER" required autocomplete="off" oninput="validarConfirmPhrase()" />
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light fw-bold" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger fw-bold shadow-sm" id="btnConfirmarRestablecer" disabled>
+                        <i class="bi bi-arrow-repeat me-1"></i> Confirmar y Preparar Primer Uso
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let pendingAction = null;
+
+        function abrirModalRestablecerSistema() {
+            document.getElementById('inputConfirmPhrase').value = '';
+            document.getElementById('btnConfirmarRestablecer').disabled = true;
+            const modal = new bootstrap.Modal(document.getElementById('modalRestablecerSistema'));
+            modal.show();
+        }
+
+        function validarConfirmPhrase() {
+            const val = document.getElementById('inputConfirmPhrase').value.trim();
+            document.getElementById('btnConfirmarRestablecer').disabled = (val !== 'RESTABLECER');
+        }
+
+        function confirmarRestauracionUpload() {
+            const input = document.getElementById('backupFile');
+            if (!input.files || input.files.length === 0) {
+                alert('Por favor seleccione un archivo .sql o .json antes de continuar.');
+                return;
+            }
+            const file = input.files[0];
+            const lowerName = file.name.toLowerCase();
+            if (!lowerName.endsWith('.sql') && !lowerName.endsWith('.json')) {
+                alert('El archivo debe tener extensión .sql o .json');
+                return;
+            }
+
+            document.getElementById('modalTargetFile').innerText = file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
+            pendingAction = function() {
+                document.getElementById('formRestaurarUpload').submit();
+            };
+
+            const modal = new bootstrap.Modal(document.getElementById('modalConfirmarRestauracion'));
+            modal.show();
+        }
+
+        function confirmarRestauracionLocal(fileName) {
+            document.getElementById('modalTargetFile').innerText = fileName;
+            pendingAction = function() {
+                document.getElementById('hiddenFileName').value = fileName;
+                document.getElementById('formRestaurarLocal').submit();
+            };
+
+            const modal = new bootstrap.Modal(document.getElementById('modalConfirmarRestauracion'));
+            modal.show();
+        }
+
+        document.getElementById('btnEjecutarRestauracion').addEventListener('click', function() {
+            if (pendingAction) {
+                this.disabled = true;
+                this.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Restaurando base de datos...';
+                pendingAction();
+            }
+        });
+
+        // ==========================================
+        // GESTIÓN DE ELIMINACIÓN DE RESPALDOS
+        // ==========================================
+        function updateSelectedBackupsState() {
+            const checkboxes = document.querySelectorAll('.backup-checkbox');
+            const checked = document.querySelectorAll('.backup-checkbox:checked');
+            const countSpan = document.getElementById('countSelectedBackups');
+            const bulkBtn = document.getElementById('btnDeleteSelectedBackups');
+            const masterCheck = document.getElementById('checkSelectAllBackups');
+            const lblToggle = document.getElementById('lblToggleSelectAll');
+
+            if (countSpan) countSpan.textContent = checked.length;
+            if (bulkBtn) {
+                if (checked.length > 0) {
+                    bulkBtn.classList.remove('d-none');
+                } else {
+                    bulkBtn.classList.add('d-none');
+                }
+            }
+
+            if (masterCheck && checkboxes.length > 0) {
+                masterCheck.checked = (checked.length === checkboxes.length);
+                masterCheck.indeterminate = (checked.length > 0 && checked.length < checkboxes.length);
+            }
+
+            if (lblToggle) {
+                lblToggle.textContent = (checked.length === checkboxes.length && checkboxes.length > 0) 
+                    ? 'Deseleccionar Todo' 
+                    : 'Seleccionar Todo';
+            }
+        }
+
+        function toggleSelectAllBackups(masterCheckbox) {
+            const checkboxes = document.querySelectorAll('.backup-checkbox');
+            checkboxes.forEach(cb => cb.checked = masterCheckbox.checked);
+            updateSelectedBackupsState();
+        }
+
+        function toggleSelectAllBtn() {
+            const checkboxes = document.querySelectorAll('.backup-checkbox');
+            const checked = document.querySelectorAll('.backup-checkbox:checked');
+            const shouldCheck = (checked.length < checkboxes.length);
+            checkboxes.forEach(cb => cb.checked = shouldCheck);
+            updateSelectedBackupsState();
+        }
+
+        let pendingDeleteFile = null;
+        function confirmarEliminarRespaldoIndividual(fileName) {
+            pendingDeleteFile = fileName;
+            document.getElementById('modalTargetDeleteFile').textContent = fileName;
+            const modal = new bootstrap.Modal(document.getElementById('modalConfirmarEliminarIndividual'));
+            modal.show();
+        }
+
+        document.getElementById('btnEjecutarEliminarIndividual')?.addEventListener('click', function() {
+            if (pendingDeleteFile) {
+                this.disabled = true;
+                this.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Eliminando...';
+                document.getElementById('hiddenDeleteFileName').value = pendingDeleteFile;
+                document.getElementById('formEliminarRespaldoIndividual').submit();
+            }
+        });
+
+        function confirmarEliminarRespaldosSeleccionados() {
+            const checked = document.querySelectorAll('.backup-checkbox:checked');
+            if (checked.length === 0) return;
+
+            document.getElementById('modalCountDeleteMultiples').textContent = checked.length;
+            const listEl = document.getElementById('modalListDeleteMultiples');
+            listEl.innerHTML = '';
+            checked.forEach(cb => {
+                const item = document.createElement('div');
+                item.className = 'text-truncate py-1 border-bottom border-light';
+                item.textContent = '• ' + cb.value;
+                listEl.appendChild(item);
+            });
+
+            const modal = new bootstrap.Modal(document.getElementById('modalConfirmarEliminarMultiples'));
+            modal.show();
+        }
+
+        document.getElementById('btnEjecutarEliminarMultiples')?.addEventListener('click', function() {
+            const checked = document.querySelectorAll('.backup-checkbox:checked');
+            if (checked.length === 0) return;
+
+            this.disabled = true;
+            this.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Eliminando respaldos...';
+
+            const container = document.getElementById('hiddenDeleteFileNamesContainer');
+            container.innerHTML = '';
+            checked.forEach(cb => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'fileNames';
+                input.value = cb.value;
+                container.appendChild(input);
+            });
+
+            document.getElementById('formEliminarRespaldosMultiples').submit();
+        });
+    </script>
+}

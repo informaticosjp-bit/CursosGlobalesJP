@@ -1,0 +1,1082 @@
+﻿[
+    {
+        "File":  "CurriculumUpgrade.CommercialRetail.cs",
+        "Slug":  "sap-business-one-b1-gestion-operativa",
+        "ModIdx":  1,
+        "ModuleTitle":  "MÃ³dulo 1: IntroducciÃ³n a la Arquitectura SAP B1 y Datos Maestros",
+        "OldVideoId":  "5a2rE5r8RkY",
+        "NewVideoId":  "xSrstKkVhE0",
+        "NewVideoTitle":  "Curso rápido de Navegación para SAP Business One",
+        "NewVideoAuthor":  "B1Pro consultoría de Odoo y SAP Business One"
+    },
+    {
+        "File":  "CurriculumUpgrade.CommercialRetail.cs",
+        "Slug":  "sap-business-one-b1-gestion-operativa",
+        "ModIdx":  2,
+        "ModuleTitle":  "MÃ³dulo 2: Circuito de Ventas (Order to Cash) en SAP B1",
+        "OldVideoId":  "PjE1Y5Yk_40",
+        "NewVideoId":  "zA9f721dDj0",
+        "NewVideoTitle":  "Fundamentos SAP Business One - Ejercicio 31 - Crear circuito de ventas",
+        "NewVideoAuthor":  "Itop Consulting"
+    },
+    {
+        "File":  "CurriculumUpgrade.CommercialRetail.cs",
+        "Slug":  "sap-business-one-b1-gestion-operativa",
+        "ModIdx":  3,
+        "ModuleTitle":  "MÃ³dulo 3: Circuito de Compras (Procure to Pay) y RecepciÃ³n de MercancÃ­a",
+        "OldVideoId":  "qg_89pXl7bU",
+        "NewVideoId":  "GMPXAHxoozs",
+        "NewVideoTitle":  "¿En qué consiste el proceso Purchase to pay (P2P)? 🔵 SERES Socios de tu transformación digital",
+        "NewVideoAuthor":  "SERES"
+    },
+    {
+        "File":  "CurriculumUpgrade.CommercialRetail.cs",
+        "Slug":  "sap-business-one-b1-gestion-operativa",
+        "ModIdx":  4,
+        "ModuleTitle":  "MÃ³dulo 4: GestiÃ³n de Inventarios, Almacenes y Traslados",
+        "OldVideoId":  "8vK5l1eKjX4",
+        "NewVideoId":  "N4FbW5yrrY8",
+        "NewVideoTitle":  "Mejora ✅ tu Almacén con el módulo de INVENTARIO de ODOO",
+        "NewVideoAuthor":  "TOH Soluciones Digitales"
+    },
+    {
+        "File":  "CurriculumUpgrade.CommercialRetail.cs",
+        "Slug":  "shopify-comercio-electronico-tiendas-online",
+        "ModIdx":  1,
+        "ModuleTitle":  "MÃ³dulo 1: Arquitectura de Shopify y ConfiguraciÃ³n Inicial de la Tienda",
+        "OldVideoId":  "fD3qPzZpT-w",
+        "NewVideoId":  "9m-2pxDlkqU",
+        "NewVideoTitle":  "Tutorial de Shopify para Principiantes 2026 - Crea Tu Primera Tienda Online",
+        "NewVideoAuthor":  "Darrel Wilson - En Español"
+    },
+    {
+        "File":  "CurriculumUpgrade.CommercialRetail.cs",
+        "Slug":  "shopify-comercio-electronico-tiendas-online",
+        "ModIdx":  2,
+        "ModuleTitle":  "MÃ³dulo 2: CatÃ¡logo de Productos, Variantes, Inventario y Colecciones",
+        "OldVideoId":  "XqJ_5z4YlO4",
+        "NewVideoId":  "RHoDJhFzAyA",
+        "NewVideoTitle":  "Cómo crear variantes de productos | Tallas, colores, precios y stock",
+        "NewVideoAuthor":  "TuKatalogo"
+    },
+    {
+        "File":  "CurriculumUpgrade.CommercialRetail.cs",
+        "Slug":  "shopify-comercio-electronico-tiendas-online",
+        "ModIdx":  3,
+        "ModuleTitle":  "MÃ³dulo 3: Pasarelas de Pago, Tarifas de EnvÃ­o y LogÃ­stica",
+        "OldVideoId":  "9G6k1jD2eZs",
+        "NewVideoId":  "t7uXibObexI",
+        "NewVideoTitle":  "💳 Micro Curso: Pasarelas de Pago - Todo lo que debes saber 🛒",
+        "NewVideoAuthor":  "Tukuy Club"
+    },
+    {
+        "File":  "CurriculumUpgrade.CommercialRetail.cs",
+        "Slug":  "shopify-comercio-electronico-tiendas-online",
+        "ModIdx":  4,
+        "ModuleTitle":  "MÃ³dulo 4: GestiÃ³n de Pedidos, Carritos Abandonados y RetenciÃ³n",
+        "OldVideoId":  "5a2rE5r8RkY",
+        "NewVideoId":  "MWMR1EBeVB4",
+        "NewVideoTitle":  "#53 - Recuperación de Carritos Abandonados en Woocommerce : Recupera Ventas en tu Tienda Online",
+        "NewVideoAuthor":  "Aprendamos E-commerce"
+    },
+    {
+        "File":  "CurriculumUpgrade.CommercialRetail.cs",
+        "Slug":  "asistente-de-ventas-comercial-supervision",
+        "ModIdx":  1,
+        "ModuleTitle":  "MÃ³dulo 1: Operaciones de Caja, POS y Arqueo Diario",
+        "OldVideoId":  "n3WjY7bK8zY",
+        "NewVideoId":  "pdBbhMfaqf4",
+        "NewVideoTitle":  "Cómo hacer un ARQUEO DE CAJA | Asientos contables por Ajuste",
+        "NewVideoAuthor":  "El contador Kenenh"
+    },
+    {
+        "File":  "CurriculumUpgrade.CommercialRetail.cs",
+        "Slug":  "asistente-de-ventas-comercial-supervision",
+        "ModIdx":  2,
+        "ModuleTitle":  "MÃ³dulo 2: TÃ©cnicas de Venta en Piso: Venta Cruzada y ElevaciÃ³n del Ticket",
+        "OldVideoId":  "5U2zBvBv-t4",
+        "NewVideoId":  "5DKWyV21R0U",
+        "NewVideoTitle":  "Cómo potenciar las ventas cruzadas en tu farmacia",
+        "NewVideoAuthor":  "Alphega Farmacia"
+    },
+    {
+        "File":  "CurriculumUpgrade.CommercialRetail.cs",
+        "Slug":  "asistente-de-ventas-comercial-supervision",
+        "ModIdx":  3,
+        "ModuleTitle":  "MÃ³dulo 3: SupervisiÃ³n de Piso de Venta y PrevenciÃ³n de PÃ©rdidas (Merma)",
+        "OldVideoId":  "XqJ_5z4YlO4",
+        "NewVideoId":  "Sl0iAuy_Dto",
+        "NewVideoTitle":  "Diseño de sistema de control de merma sección fruver. Metro",
+        "NewVideoAuthor":  "Viviana Rodriguez"
+    },
+    {
+        "File":  "CurriculumUpgrade.CommercialRetail.cs",
+        "Slug":  "asistente-de-ventas-comercial-supervision",
+        "ModIdx":  4,
+        "ModuleTitle":  "MÃ³dulo 4: GestiÃ³n de Cambios, Devoluciones y Manejo de Clientes DifÃ­ciles",
+        "OldVideoId":  "n3WjY7bK8zY",
+        "NewVideoId":  "4heWWZvAut0",
+        "NewVideoTitle":  "Administración de Devoluciones y Cambios",
+        "NewVideoAuthor":  "MovilPyme"
+    },
+    {
+        "File":  "CurriculumUpgrade.CommercialRetail.cs",
+        "Slug":  "mercaderista-trade-merchandising-punto-venta",
+        "ModIdx":  1,
+        "ModuleTitle":  "MÃ³dulo 1: Fundamentos de Trade Marketing y Niveles de ExhibiciÃ³n",
+        "OldVideoId":  "5U2zBvBv-t4",
+        "NewVideoId":  "FfDLSM_bHiw",
+        "NewVideoTitle":  "Trade Marketing - Qué es y Claves para Triunfar",
+        "NewVideoAuthor":  "Cyberclick • Marketing Digital"
+    },
+    {
+        "File":  "CurriculumUpgrade.CommercialRetail.cs",
+        "Slug":  "mercaderista-trade-merchandising-punto-venta",
+        "ModIdx":  2,
+        "ModuleTitle":  "MÃ³dulo 2: InterpretaciÃ³n y EjecuciÃ³n de Planogramas",
+        "OldVideoId":  "PjE1Y5Yk_40",
+        "NewVideoId":  "5dBEjzExOu0",
+        "NewVideoTitle":  "Visual Merchandising - TUTORIAL COMO EXPORTAR UN PLANOGRAMA",
+        "NewVideoAuthor":  "Koolumbia Asfe"
+    },
+    {
+        "File":  "CurriculumUpgrade.CommercialRetail.cs",
+        "Slug":  "mercaderista-trade-merchandising-punto-venta",
+        "ModIdx":  3,
+        "ModuleTitle":  "MÃ³dulo 3: RotaciÃ³n FEFO/FIFO y Cero Vencimientos",
+        "OldVideoId":  "8vK5l1eKjX4",
+        "NewVideoId":  "nneseq7x5CY",
+        "NewVideoTitle":  "Método FIFO (Primera Entrada, Primera Salida). Valoración de inventarios",
+        "NewVideoAuthor":  "ECONOSUBLIME"
+    },
+    {
+        "File":  "CurriculumUpgrade.CommercialRetail.cs",
+        "Slug":  "mercaderista-trade-merchandising-punto-venta",
+        "ModIdx":  4,
+        "ModuleTitle":  "MÃ³dulo 4: Material POP, Exhibiciones Adicionales y RelaciÃ³n con el Jefe de Piso",
+        "OldVideoId":  "fD3qPzZpT-w",
+        "NewVideoId":  "uf8lW2dan1A",
+        "NewVideoTitle":  "Producción Material POP",
+        "NewVideoAuthor":  "Dpi Digital"
+    },
+    {
+        "File":  "CurriculumUpgrade.CommercialRetail.cs",
+        "Slug":  "ventas-en-linea",
+        "ModIdx":  1,
+        "ModuleTitle":  "MÃ³dulo 1: WhatsApp Business como Motor de Ventas y CRM de Bolsillo",
+        "OldVideoId":  "n3WjY7bK8zY",
+        "NewVideoId":  "ZyIFFFc6odc",
+        "NewVideoTitle":  "WhatsApp Business - Potencia Tu Negocio con Brevo 📢",
+        "NewVideoAuthor":  "Cyberclick • Marketing Digital"
+    },
+    {
+        "File":  "CurriculumUpgrade.CommercialRetail.cs",
+        "Slug":  "ventas-en-linea",
+        "ModIdx":  2,
+        "ModuleTitle":  "MÃ³dulo 2: TÃ©cnicas de Comercio Conversacional y Cierre por Chat",
+        "OldVideoId":  "5U2zBvBv-t4",
+        "NewVideoId":  "v_QIJirOrmA",
+        "NewVideoTitle":  "Más allá de un chatbot  Comercio Conversacional",
+        "NewVideoAuthor":  "Yalo"
+    },
+    {
+        "File":  "CurriculumUpgrade.CommercialRetail.cs",
+        "Slug":  "ventas-en-linea",
+        "ModIdx":  3,
+        "ModuleTitle":  "MÃ³dulo 3: Venta en Marketplaces (Mercado Libre y Facebook Marketplace)",
+        "OldVideoId":  "fD3qPzZpT-w",
+        "NewVideoId":  "kImOYBjqtK8",
+        "NewVideoTitle":  "COMO VENDER MAS EN MARKETPLACE DE FACEBOOK 2026 💰",
+        "NewVideoAuthor":  "Susan Gorbina"
+    },
+    {
+        "File":  "CurriculumUpgrade.CommercialRetail.cs",
+        "Slug":  "ventas-en-linea",
+        "ModIdx":  4,
+        "ModuleTitle":  "MÃ³dulo 4: Embudos Digitales y MÃ©tricas Financieras (CAC, LTV, ROAS)",
+        "OldVideoId":  "XqJ_5z4YlO4",
+        "NewVideoId":  "ABRqXRMLt-8",
+        "NewVideoTitle":  "Qué es el Embudo de Ventas en Marketing Digital",
+        "NewVideoAuthor":  "Cyberclick • Marketing Digital"
+    },
+    {
+        "File":  "CurriculumUpgrade.OfficeData.cs",
+        "Slug":  "office-basico",
+        "ModIdx":  1,
+        "ModuleTitle":  "MÃ³dulo 1: Word Profesional: Formato de Documentos, Estilos y Correspondencia",
+        "OldVideoId":  "S2g4Q_8XkCQ",
+        "NewVideoId":  "XeqAyA6juCg",
+        "NewVideoTitle":  "📝 Word desde CERO: Cómo DAR FORMATO PROFESIONAL con ESTILOS y TABLA Automática 📑",
+        "NewVideoAuthor":  "Educación Digital"
+    },
+    {
+        "File":  "CurriculumUpgrade.OfficeData.cs",
+        "Slug":  "office-basico",
+        "ModIdx":  2,
+        "ModuleTitle":  "MÃ³dulo 2: Excel BÃ¡sico: Estructura de Celdas, Operadores y Formato de Tablas",
+        "OldVideoId":  "5kZXl_Zp_hE",
+        "NewVideoId":  "qtuElizNx9g",
+        "NewVideoTitle":  "Cómo hacer una tabla en Excel y aplicar formatos en celdas",
+        "NewVideoAuthor":  "El Tío Tech"
+    },
+    {
+        "File":  "CurriculumUpgrade.OfficeData.cs",
+        "Slug":  "office-basico",
+        "ModIdx":  3,
+        "ModuleTitle":  "MÃ³dulo 3: Excel Funcional: Funciones Esenciales SUMA, PROMEDIO, CONTAR y Referencias Relativas/Absolutas ($)",
+        "OldVideoId":  "U3l0x_v4y4E",
+        "NewVideoId":  "9eTxxrRVF2Q",
+        "NewVideoTitle":  "EXCEL: Domina las funciones básicas con SUMA, PROMEDIO, MAX, MIN, CONTAR y CONTARA",
+        "NewVideoAuthor":  "The Ramz Channel"
+    },
+    {
+        "File":  "CurriculumUpgrade.OfficeData.cs",
+        "Slug":  "office-basico",
+        "ModIdx":  4,
+        "ModuleTitle":  "MÃ³dulo 4: PowerPoint Efectivo: Estructura de Diapositivas y Presentaciones Ejecutivas",
+        "OldVideoId":  "P6j6h8K5t5U",
+        "NewVideoId":  "LIXfGkAca0g",
+        "NewVideoTitle":  "🔴 Cómo usar PowerPoint [ Guía completa ]",
+        "NewVideoAuthor":  "Saber Programas"
+    },
+    {
+        "File":  "CurriculumUpgrade.OfficeData.cs",
+        "Slug":  "excel-avanzado",
+        "ModIdx":  1,
+        "ModuleTitle":  "MÃ³dulo 1: BÃºsqueda y ExtracciÃ³n Avanzada: De BUSCARV a BUSCARX (XLOOKUP) e ÃNDICE/COINCIDIR",
+        "OldVideoId":  "n42qW4s_k50",
+        "NewVideoId":  "tx9kugxoQRk",
+        "NewVideoTitle":  "Este TRUCO de BUSCARX te permite buscar en varias columnas a la vez (¡y nadie lo usa!)",
+        "NewVideoAuthor":  "Sergio Bazo | Herramientas Digitales"
+    },
+    {
+        "File":  "CurriculumUpgrade.OfficeData.cs",
+        "Slug":  "excel-avanzado",
+        "ModIdx":  2,
+        "ModuleTitle":  "MÃ³dulo 2: LÃ³gica Condicional Multivariable: SI.CONJUNTO, Y, O, y FÃ³rmulas LÃ³gicas Anidadas",
+        "OldVideoId":  "gM27i_e8U3c",
+        "NewVideoId":  "Ua2gMyITt4g",
+        "NewVideoTitle":  "Usar la función SI.CONJUNTO en Excel ✅",
+        "NewVideoAuthor":  "Saber Programas"
+    },
+    {
+        "File":  "CurriculumUpgrade.OfficeData.cs",
+        "Slug":  "excel-avanzado",
+        "ModIdx":  3,
+        "ModuleTitle":  "MÃ³dulo 3: Tablas DinÃ¡micas Profesionales, Segmentadores y Modelado con Power Query",
+        "OldVideoId":  "Jm3tT9I5M3U",
+        "NewVideoId":  "JTSAnYHbPrc",
+        "NewVideoTitle":  "Power Query: la herramienta definitiva para consolidar datos de Excel.",
+        "NewVideoAuthor":  "El Inge Francisco"
+    },
+    {
+        "File":  "CurriculumUpgrade.OfficeData.cs",
+        "Slug":  "excel-avanzado",
+        "ModIdx":  4,
+        "ModuleTitle":  "MÃ³dulo 4: AutomatizaciÃ³n de Tareas Repetitivas con Macros y CÃ³digo VBA BÃ¡sico",
+        "OldVideoId":  "5U2V2dC-w5A",
+        "NewVideoId":  "40Am88JtgIU",
+        "NewVideoTitle":  "Automatizar tareas repetitivas en Excel con Macros – Ejercicio 1.",
+        "NewVideoAuthor":  "Juan Marcelo Yeris  -  Data \u0026 BI"
+    },
+    {
+        "File":  "CurriculumUpgrade.OfficeData.cs",
+        "Slug":  "power-bi",
+        "ModIdx":  1,
+        "ModuleTitle":  "MÃ³dulo 1: Fundamentos de BI y ConexiÃ³n de Datos con Power Query",
+        "OldVideoId":  "AGrl-H87pRU",
+        "NewVideoId":  "xeXfc8Y_y7o",
+        "NewVideoTitle":  "🚩 ¿Que es POWER QUERY? Proceso ETL de la Información | Curso Power Query para Excel y Power BI",
+        "NewVideoAuthor":  "Microsoft Excel a Todo Nivel"
+    },
+    {
+        "File":  "CurriculumUpgrade.OfficeData.cs",
+        "Slug":  "power-bi",
+        "ModIdx":  2,
+        "ModuleTitle":  "MÃ³dulo 2: Modelado Relacional: El Esquema en Estrella (Star Schema)",
+        "OldVideoId":  "c8R4LqG1q78",
+        "NewVideoId":  "6A40lYojW84",
+        "NewVideoTitle":  "Esquema en Estrella (Star Schema): Qué es y por qué sigue siendo clave en BI",
+        "NewVideoAuthor":  " RAHSuarezSQL"
+    },
+    {
+        "File":  "CurriculumUpgrade.OfficeData.cs",
+        "Slug":  "power-bi",
+        "ModIdx":  3,
+        "ModuleTitle":  "MÃ³dulo 3: IntroducciÃ³n a DAX: Columnas Calculadas vs Medidas y la FunciÃ³n CALCULATE",
+        "OldVideoId":  "5aL9_K6B-v8",
+        "NewVideoId":  "iWdHdo58Uos",
+        "NewVideoTitle":  "Columnas Calculadas vs Medidas en Power BI ¿Cuál usar y cuándo? | DAX 2026",
+        "NewVideoAuthor":  "Learning Data"
+    },
+    {
+        "File":  "CurriculumUpgrade.OfficeData.cs",
+        "Slug":  "power-bi",
+        "ModIdx":  4,
+        "ModuleTitle":  "MÃ³dulo 4: DiseÃ±o de Dashboards Ejecutivos y Storytelling con Datos",
+        "OldVideoId":  "Z0pZ1c9a6oM",
+        "NewVideoId":  "JvWjgIJE77M",
+        "NewVideoTitle":  "Data Storytelling: Aprende a contar historias con datos",
+        "NewVideoAuthor":  "Datademia"
+    },
+    {
+        "File":  "CurriculumUpgrade.OfficeData.cs",
+        "Slug":  "ciencia-y-analisis-de-datos",
+        "ModIdx":  1,
+        "ModuleTitle":  "MÃ³dulo 1: SQL para AnÃ¡lisis de Datos: Consultas Avanzadas y Agregaciones",
+        "OldVideoId":  "DFg1V-rO6Pg",
+        "NewVideoId":  "xuASGBwNboU",
+        "NewVideoTitle":  "💥SUBCONSULTAS SQL | CON PRÁCTICA | Bases de Datos | ✅ Explicación FÁCIL | #13",
+        "NewVideoAuthor":  "TodoCode"
+    },
+    {
+        "File":  "CurriculumUpgrade.OfficeData.cs",
+        "Slug":  "ciencia-y-analisis-de-datos",
+        "ModIdx":  2,
+        "ModuleTitle":  "MÃ³dulo 2: Fundamentos de Python para Ciencia de Datos: NumPy y Pandas",
+        "OldVideoId":  "pr-yqFj3Poc",
+        "NewVideoId":  "2KCQQHpi2Qk",
+        "NewVideoTitle":  "CURSO de PYTHON con PANDAS Para Ciencia de Datos",
+        "NewVideoAuthor":  "yacklyon"
+    },
+    {
+        "File":  "CurriculumUpgrade.OfficeData.cs",
+        "Slug":  "ciencia-y-analisis-de-datos",
+        "ModIdx":  3,
+        "ModuleTitle":  "MÃ³dulo 3: AnÃ¡lisis Exploratorio de Datos (EDA) y VisualizaciÃ³n con Matplotlib y Seaborn",
+        "OldVideoId":  "UO85mK09sQY",
+        "NewVideoId":  "CU0C8SK7fTw",
+        "NewVideoTitle":  "Descubre el poder del Análisis Exploratorio de Datos (EDA)",
+        "NewVideoAuthor":  "Nestor Zuleta Montealegre"
+    },
+    {
+        "File":  "CurriculumUpgrade.OfficeData.cs",
+        "Slug":  "ciencia-y-analisis-de-datos",
+        "ModIdx":  4,
+        "ModuleTitle":  "MÃ³dulo 4: IntroducciÃ³n al Modelado Predictivo con Scikit-Learn",
+        "OldVideoId":  "7eh4d6sabA0",
+        "NewVideoId":  "J8VOHBkNIT0",
+        "NewVideoTitle":  "Curso scikit-learn | Temario | Machine Learning Python 01",
+        "NewVideoAuthor":  "Moyete"
+    },
+    {
+        "File":  "CurriculumUpgrade.OfficeData.cs",
+        "Slug":  "office-intermedio",
+        "ModIdx":  1,
+        "ModuleTitle":  "MÃ³dulo 1: CombinaciÃ³n de Correspondencia en Word: Cartas Masivas y Contratos Automatizados",
+        "OldVideoId":  "nU5m69x-k8A",
+        "NewVideoId":  "D1UB0MzVH3M",
+        "NewVideoTitle":  "CREAR UNA COMBINACIÓN DE CORRESPONDENCIA COMBINANDO WORD Y EXCEL",
+        "NewVideoAuthor":  "Informática Integral GT"
+    },
+    {
+        "File":  "CurriculumUpgrade.OfficeData.cs",
+        "Slug":  "office-intermedio",
+        "ModIdx":  2,
+        "ModuleTitle":  "MÃ³dulo 2: Excel Intermedio: Funciones de AgregaciÃ³n Condicional (SUMAR.SI, CONTAR.SI)",
+        "OldVideoId":  "g2qTz9n9I_0",
+        "NewVideoId":  "2P_5nENJXyA",
+        "NewVideoTitle":  "Función CONTAR SI con Excel 2022 #cursosgratis #CursosExcel #SuperExcel",
+        "NewVideoAuthor":  "Super Excel"
+    },
+    {
+        "File":  "CurriculumUpgrade.OfficeData.cs",
+        "Slug":  "office-intermedio",
+        "ModIdx":  3,
+        "ModuleTitle":  "MÃ³dulo 3: VisualizaciÃ³n GrÃ¡fica y MinigrÃ¡ficos en Excel",
+        "OldVideoId":  "Xq-K9lZ1v1g",
+        "NewVideoId":  "ECmDkh50Zz8",
+        "NewVideoTitle":  "Como crear mini gráficos en Excel 🚀",
+        "NewVideoAuthor":  "El Tío Tech"
+    },
+    {
+        "File":  "CurriculumUpgrade.OfficeData.cs",
+        "Slug":  "office-intermedio",
+        "ModIdx":  4,
+        "ModuleTitle":  "MÃ³dulo 4: PowerPoint Intermedio: TransiciÃ³n Morph (TransformaciÃ³n) y Multimedia",
+        "OldVideoId":  "fGkQ5A7n9_o",
+        "NewVideoId":  "2rU_g5WAYGc",
+        "NewVideoTitle":  "😱 La mejor TRANSICIÓN de POWERPOINT ✅ Morph ✅",
+        "NewVideoAuthor":  "Jazz Guzman"
+    },
+    {
+        "File":  "CurriculumUpgrade.OperationsAdmin.cs",
+        "Slug":  "administracion-empresarial-procesos-reportes",
+        "ModIdx":  1,
+        "ModuleTitle":  "MÃ³dulo 1: La Estructura Organizacional y Departamentos Clave",
+        "OldVideoId":  "5a2rE5r8RkY",
+        "NewVideoId":  "NpsflJIWNIg",
+        "NewVideoTitle":  "La estructura organizacional",
+        "NewVideoAuthor":  "Growp"
+    },
+    {
+        "File":  "CurriculumUpgrade.OperationsAdmin.cs",
+        "Slug":  "administracion-empresarial-procesos-reportes",
+        "ModIdx":  2,
+        "ModuleTitle":  "MÃ³dulo 2: El Circuito Administrativo de Compras y Cuentas por Pagar",
+        "OldVideoId":  "qg_89pXl7bU",
+        "NewVideoId":  "WzqqoigQsuk",
+        "NewVideoTitle":  "ZK COMPRAS - 07 APROBAR CUENTA POR PAGAR",
+        "NewVideoAuthor":  "Germán Barba"
+    },
+    {
+        "File":  "CurriculumUpgrade.OperationsAdmin.cs",
+        "Slug":  "administracion-empresarial-procesos-reportes",
+        "ModIdx":  3,
+        "ModuleTitle":  "MÃ³dulo 3: El Circuito Administrativo de Ventas y Cobranzas",
+        "OldVideoId":  "PjE1Y5Yk_40",
+        "NewVideoId":  "8oMGEuH5qT0",
+        "NewVideoTitle":  "SyPdN - C.A. / Introducción",
+        "NewVideoAuthor":  "Grupo GEMIS"
+    },
+    {
+        "File":  "CurriculumUpgrade.OperationsAdmin.cs",
+        "Slug":  "administracion-empresarial-procesos-reportes",
+        "ModIdx":  4,
+        "ModuleTitle":  "MÃ³dulo 4: ElaboraciÃ³n de Reportes Gerenciales y KPIs",
+        "OldVideoId":  "8vK5l1eKjX4",
+        "NewVideoId":  "dzh7faTkHCk",
+        "NewVideoTitle":  "KPI - Qué es + Ejemplos de Indicadores Clave de Rendimiento",
+        "NewVideoAuthor":  "Cyberclick • Marketing Digital"
+    },
+    {
+        "File":  "CurriculumUpgrade.OperationsAdmin.cs",
+        "Slug":  "administracion-de-inventario",
+        "ModIdx":  1,
+        "ModuleTitle":  "MÃ³dulo 1: ClasificaciÃ³n de Inventarios por el MÃ©todo ABC (Principio de Pareto)",
+        "OldVideoId":  "8vK5l1eKjX4",
+        "NewVideoId":  "NMu9evFpGps",
+        "NewVideoTitle":  "Análisis ABC de Inventarios y PARETO - Paso a paso en EXCEL - Explicado para principiantes!",
+        "NewVideoAuthor":  "Kotaro en Español"
+    },
+    {
+        "File":  "CurriculumUpgrade.OperationsAdmin.cs",
+        "Slug":  "administracion-de-inventario",
+        "ModIdx":  2,
+        "ModuleTitle":  "MÃ³dulo 2: Modelos de ReposiciÃ³n: Punto de Reorden (ROP) y Stock de Seguridad",
+        "OldVideoId":  "5a2rE5r8RkY",
+        "NewVideoId":  "3kSM2bu0KkA",
+        "NewVideoTitle":  "Cómo Calcular el PUNTO DE REORDEN en Inventarios 🏪 Qué es el PUNTO DE REORDEN",
+        "NewVideoAuthor":  "Gerencia Retail"
+    },
+    {
+        "File":  "CurriculumUpgrade.OperationsAdmin.cs",
+        "Slug":  "administracion-de-inventario",
+        "ModIdx":  3,
+        "ModuleTitle":  "MÃ³dulo 3: Costos Asociados al Inventario y Lote EconÃ³mico (EOQ)",
+        "OldVideoId":  "qg_89pXl7bU",
+        "NewVideoId":  "ywgGvFw6SDo",
+        "NewVideoTitle":  "INVENTARIOS : MODELO EOQ EJEMPLO 2",
+        "NewVideoAuthor":  "Rodny de la Barra Herrera"
+    },
+    {
+        "File":  "CurriculumUpgrade.OperationsAdmin.cs",
+        "Slug":  "administracion-de-inventario",
+        "ModIdx":  4,
+        "ModuleTitle":  "MÃ³dulo 4: AuditorÃ­a de Inventarios y Conteos CÃ­clicos",
+        "OldVideoId":  "PjE1Y5Yk_40",
+        "NewVideoId":  "YP4584tjhC8",
+        "NewVideoTitle":  "Consejos para aplicar técnicas de conteo cíclico",
+        "NewVideoAuthor":  "Deltech Audit: Auditoría y Tecnología Online"
+    },
+    {
+        "File":  "CurriculumUpgrade.OperationsAdmin.cs",
+        "Slug":  "auxiliar-almacen-inventarios-logistica",
+        "ModIdx":  1,
+        "ModuleTitle":  "MÃ³dulo 1: DistribuciÃ³n FÃ­sica del AlmacÃ©n (Layout) y Zonas Operativas",
+        "OldVideoId":  "n3WjY7bK8zY",
+        "NewVideoId":  "sI2-qTBqY0I",
+        "NewVideoTitle":  "Layout prácticos para analizar los procesos",
+        "NewVideoAuthor":  "Ali Jauregui"
+    },
+    {
+        "File":  "CurriculumUpgrade.OperationsAdmin.cs",
+        "Slug":  "auxiliar-almacen-inventarios-logistica",
+        "ModIdx":  2,
+        "ModuleTitle":  "MÃ³dulo 2: TÃ©cnicas de Picking y Packing (PreparaciÃ³n y Embalaje)",
+        "OldVideoId":  "5U2zBvBv-t4",
+        "NewVideoId":  "C4VwS2_GtOc",
+        "NewVideoTitle":  "¿Qué es el Picking y el Packing? (Guía 2026)",
+        "NewVideoAuthor":  "VECTRAVIA"
+    },
+    {
+        "File":  "CurriculumUpgrade.OperationsAdmin.cs",
+        "Slug":  "auxiliar-almacen-inventarios-logistica",
+        "ModIdx":  3,
+        "ModuleTitle":  "MÃ³dulo 3: Seguridad Industrial, ErgonomÃ­a y Manejo de Cargas",
+        "OldVideoId":  "XqJ_5z4YlO4",
+        "NewVideoId":  "mWyEEykWeTY",
+        "NewVideoTitle":  "MANEJO MANUAL DE CARGA",
+        "NewVideoAuthor":  "SEMINARIO INC Seguridad Industrial"
+    },
+    {
+        "File":  "CurriculumUpgrade.OperationsAdmin.cs",
+        "Slug":  "auxiliar-almacen-inventarios-logistica",
+        "ModIdx":  4,
+        "ModuleTitle":  "MÃ³dulo 4: MetodologÃ­a 5S en Almacenes y Control de Merma",
+        "OldVideoId":  "8vK5l1eKjX4",
+        "NewVideoId":  "7qLRjtCFpig",
+        "NewVideoTitle":  "Aplicación de la Metodología 5S en una Bodega de Almacenamiento (Caso Simulado)",
+        "NewVideoAuthor":  "Kevin Tenesaca"
+    },
+    {
+        "File":  "CurriculumUpgrade.OperationsAdmin.cs",
+        "Slug":  "gestion-proyectos-agile",
+        "ModIdx":  1,
+        "ModuleTitle":  "MÃ³dulo 1: Fundamentos de Agilidad y el Manifiesto Ãgil",
+        "OldVideoId":  "5a2rE5r8RkY",
+        "NewVideoId":  "PozisugkXto",
+        "NewVideoTitle":  "📖 El Manifiesto Ágil: Los 4 Valores y Los 12 Principios que a veces se Ignoran 🤯",
+        "NewVideoAuthor":  "Giovanny Cifuentes"
+    },
+    {
+        "File":  "CurriculumUpgrade.OperationsAdmin.cs",
+        "Slug":  "gestion-proyectos-agile",
+        "ModIdx":  2,
+        "ModuleTitle":  "MÃ³dulo 2: Los Roles en Scrum: Product Owner, Scrum Master y Desarrolladores",
+        "OldVideoId":  "PjE1Y5Yk_40",
+        "NewVideoId":  "X7gh07V6aKo",
+        "NewVideoTitle":  "El Product Owner - Scrum",
+        "NewVideoAuthor":  "Ágil Es Por Cris Rúa"
+    },
+    {
+        "File":  "CurriculumUpgrade.OperationsAdmin.cs",
+        "Slug":  "gestion-proyectos-agile",
+        "ModIdx":  3,
+        "ModuleTitle":  "MÃ³dulo 3: Eventos y Artefactos de Scrum: Sprints, Dailies y Retrospectivas",
+        "OldVideoId":  "qg_89pXl7bU",
+        "NewVideoId":  "yRmK3iWA_r0",
+        "NewVideoTitle":  "Conoce los artefactos de Scrum",
+        "NewVideoAuthor":  "Datasig Services"
+    },
+    {
+        "File":  "CurriculumUpgrade.OperationsAdmin.cs",
+        "Slug":  "gestion-proyectos-agile",
+        "ModIdx":  4,
+        "ModuleTitle":  "MÃ³dulo 4: Tableros Kanban y GestiÃ³n Visual del Flujo de Trabajo",
+        "OldVideoId":  "8vK5l1eKjX4",
+        "NewVideoId":  "B-uwQg7RgH8",
+        "NewVideoTitle":  "Qué es KANBAN y cómo se implementa paso a 🏃 paso + ejemplos prácticos",
+        "NewVideoAuthor":  "Ingenio Empresa"
+    },
+    {
+        "File":  "CurriculumUpgrade.OperationsAdmin.cs",
+        "Slug":  "planificacion-estrategica",
+        "ModIdx":  1,
+        "ModuleTitle":  "MÃ³dulo 1: DiagnÃ³stico EstratÃ©gico: Matrices FODA y AnÃ¡lisis PESTEL",
+        "OldVideoId":  "5a2rE5r8RkY",
+        "NewVideoId":  "PHWo40WdzZo",
+        "NewVideoTitle":  "PESTEL: La CLAVE de los FACTORES EXTERNOS | Plantilla GRATIS de EXCEL",
+        "NewVideoAuthor":  "ISEN Empresas"
+    },
+    {
+        "File":  "CurriculumUpgrade.OperationsAdmin.cs",
+        "Slug":  "planificacion-estrategica",
+        "ModIdx":  2,
+        "ModuleTitle":  "MÃ³dulo 2: AnÃ¡lisis Competitivo y las 5 Fuerzas de Michael Porter",
+        "OldVideoId":  "PjE1Y5Yk_40",
+        "NewVideoId":  "kNOfOmjgOik",
+        "NewVideoTitle":  "Las 5 fuerzas de Porter (explicación sencilla)",
+        "NewVideoAuthor":  "Mr.Enciso"
+    },
+    {
+        "File":  "CurriculumUpgrade.OperationsAdmin.cs",
+        "Slug":  "planificacion-estrategica",
+        "ModIdx":  3,
+        "ModuleTitle":  "MÃ³dulo 3: MetodologÃ­a OKR (Objectives and Key Results)",
+        "OldVideoId":  "8vK5l1eKjX4",
+        "NewVideoId":  "rf0inv6xeAo",
+        "NewVideoTitle":  "¿Qué es la metodología OKR? Objetivos y trabajo en equipo",
+        "NewVideoAuthor":  "Cyberclick • Marketing Digital"
+    },
+    {
+        "File":  "CurriculumUpgrade.OperationsAdmin.cs",
+        "Slug":  "planificacion-estrategica",
+        "ModIdx":  4,
+        "ModuleTitle":  "MÃ³dulo 4: El Cuadro de Mando Integral (Balanced Scorecard)",
+        "OldVideoId":  "qg_89pXl7bU",
+        "NewVideoId":  "dErErlA0hXU",
+        "NewVideoTitle":  "Cuadro de Mando Integral (Balanced Scorecard) + Plantilla excel con caso aplicado | avanzado",
+        "NewVideoAuthor":  "ADN Lean"
+    },
+    {
+        "File":  "CurriculumUpgrade.SoftSkillsHR.cs",
+        "Slug":  "filosofia-empresarial-etica-laboral",
+        "ModIdx":  1,
+        "ModuleTitle":  "MÃ³dulo 1: Identidad Corporativa: MisiÃ³n, VisiÃ³n y Valores en AcciÃ³n",
+        "OldVideoId":  "5a2rE5r8RkY",
+        "NewVideoId":  "RV9YrstWny0",
+        "NewVideoTitle":  "Cómo definir MISIÓN, VISIÓN y VALORES organizacionales PASO a PASO 🎯 +EJEMPLOS prácticos",
+        "NewVideoAuthor":  "Ingenio Empresa"
+    },
+    {
+        "File":  "CurriculumUpgrade.SoftSkillsHR.cs",
+        "Slug":  "filosofia-empresarial-etica-laboral",
+        "ModIdx":  2,
+        "ModuleTitle":  "MÃ³dulo 2: El CÃ³digo de Ã‰tica y Conducta Profesional",
+        "OldVideoId":  "PjE1Y5Yk_40",
+        "NewVideoId":  "v97WAu3ZW7Q",
+        "NewVideoTitle":  "Consejos de Ética Profesional y Valores | Sociedad San José",
+        "NewVideoAuthor":  "Sociedad San José"
+    },
+    {
+        "File":  "CurriculumUpgrade.SoftSkillsHR.cs",
+        "Slug":  "filosofia-empresarial-etica-laboral",
+        "ModIdx":  3,
+        "ModuleTitle":  "MÃ³dulo 3: Confidencialidad de la InformaciÃ³n y Cumplimiento (Compliance)",
+        "OldVideoId":  "qg_89pXl7bU",
+        "NewVideoId":  "iiNkZWuht2s",
+        "NewVideoTitle":  "Protección de datos personales y confidencialidad de la información",
+        "NewVideoAuthor":  "Andrea Morga Ruiz"
+    },
+    {
+        "File":  "CurriculumUpgrade.SoftSkillsHR.cs",
+        "Slug":  "filosofia-empresarial-etica-laboral",
+        "ModIdx":  4,
+        "ModuleTitle":  "MÃ³dulo 4: Responsabilidad Social Empresarial (RSE) y Sostenibilidad",
+        "OldVideoId":  "8vK5l1eKjX4",
+        "NewVideoId":  "CU5CP_JKcfw",
+        "NewVideoTitle":  "Responsabilidad social de la empresa y sus ámbitos de actuación ⊛ | Economía de la empresa 29#",
+        "NewVideoAuthor":  "Economia Desde Casa"
+    },
+    {
+        "File":  "CurriculumUpgrade.SoftSkillsHR.cs",
+        "Slug":  "atencion-al-cliente-presencial-fidelizacion",
+        "ModIdx":  1,
+        "ModuleTitle":  "MÃ³dulo 1: La Primera ImpresiÃ³n y la ComunicaciÃ³n No Verbal",
+        "OldVideoId":  "n3WjY7bK8zY",
+        "NewVideoId":  "yFIZDfSU6Wo",
+        "NewVideoTitle":  "COMUNICACIÓN NO VERBAL: Definición, tipos y funciones 😎🤗",
+        "NewVideoAuthor":  "TeoCom"
+    },
+    {
+        "File":  "CurriculumUpgrade.SoftSkillsHR.cs",
+        "Slug":  "atencion-al-cliente-presencial-fidelizacion",
+        "ModIdx":  2,
+        "ModuleTitle":  "MÃ³dulo 2: ComunicaciÃ³n Asertiva y Escucha Activa",
+        "OldVideoId":  "5U2zBvBv-t4",
+        "NewVideoId":  "la1F2U7YZTY",
+        "NewVideoTitle":  "La Escucha Activa, ¿En Qué Consiste?",
+        "NewVideoAuthor":  "Psicoactiva"
+    },
+    {
+        "File":  "CurriculumUpgrade.SoftSkillsHR.cs",
+        "Slug":  "atencion-al-cliente-presencial-fidelizacion",
+        "ModIdx":  3,
+        "ModuleTitle":  "MÃ³dulo 3: DesactivaciÃ³n de Clientes Enojados y MÃ©todo LAST",
+        "OldVideoId":  "XqJ_5z4YlO4",
+        "NewVideoId":  "nYEU-ZyfNPg",
+        "NewVideoTitle":  "Cómo manejar clientes difíciles / Jorge Martínez Felicidad",
+        "NewVideoAuthor":  "Jorge Martínez Felicidad"
+    },
+    {
+        "File":  "CurriculumUpgrade.SoftSkillsHR.cs",
+        "Slug":  "atencion-al-cliente-presencial-fidelizacion",
+        "ModIdx":  4,
+        "ModuleTitle":  "MÃ³dulo 4: FidelizaciÃ³n, MediciÃ³n del NPS y Efecto WOW",
+        "OldVideoId":  "8vK5l1eKjX4",
+        "NewVideoId":  "-hQNp7xh_8c",
+        "NewVideoTitle":  "Métricas de Customer Experience | Encuesta.com",
+        "NewVideoAuthor":  "Encuestacom"
+    },
+    {
+        "File":  "CurriculumUpgrade.SoftSkillsHR.cs",
+        "Slug":  "atencion-al-cliente",
+        "ModIdx":  1,
+        "ModuleTitle":  "MÃ³dulo 1: La Era Omnicanal y la Consistencia en el Servicio",
+        "OldVideoId":  "5a2rE5r8RkY",
+        "NewVideoId":  "GA2_t6KJCZw",
+        "NewVideoTitle":  "¿Qué es OMNICANALIDAD? 🤔 Implementa una ESTRATEGIA OMNICANAL exitosa",
+        "NewVideoAuthor":  "Shopify - Español"
+    },
+    {
+        "File":  "CurriculumUpgrade.SoftSkillsHR.cs",
+        "Slug":  "atencion-al-cliente",
+        "ModIdx":  2,
+        "ModuleTitle":  "MÃ³dulo 2: Protocolos TelefÃ³nicos: Voz, ModulaciÃ³n y Sonrisa TelefÃ³nica",
+        "OldVideoId":  "PjE1Y5Yk_40",
+        "NewVideoId":  "Fa-ERJaIGvs",
+        "NewVideoTitle":  "Que es la Sonrisa telefónica en la comunicación",
+        "NewVideoAuthor":  "Sistema Escolar USA"
+    },
+    {
+        "File":  "CurriculumUpgrade.SoftSkillsHR.cs",
+        "Slug":  "atencion-al-cliente",
+        "ModIdx":  3,
+        "ModuleTitle":  "MÃ³dulo 3: GestiÃ³n de Tickets, SLAs y la Paradoja de RecuperaciÃ³n",
+        "OldVideoId":  "qg_89pXl7bU",
+        "NewVideoId":  "yl-i5jXsZBw",
+        "NewVideoTitle":  "Osticket v 1.11+ - Niveles de servicio (SLA), gestión de tiempos de respuesta",
+        "NewVideoAuthor":  "Digipime"
+    },
+    {
+        "File":  "CurriculumUpgrade.SoftSkillsHR.cs",
+        "Slug":  "atencion-al-cliente",
+        "ModIdx":  4,
+        "ModuleTitle":  "MÃ³dulo 4: MÃ©tricas de SatisfacciÃ³n: CSAT, CES y FCR",
+        "OldVideoId":  "8vK5l1eKjX4",
+        "NewVideoId":  "2hrbyXdMmqs",
+        "NewVideoTitle":  "Si te interesan tus clientes, mide el FCR, CSAT y NPS",
+        "NewVideoAuthor":  "Databot "
+    },
+    {
+        "File":  "CurriculumUpgrade.SoftSkillsHR.cs",
+        "Slug":  "trabajo-en-equipo-habilidades-blandas-productividad",
+        "ModIdx":  1,
+        "ModuleTitle":  "MÃ³dulo 1: Inteligencia Emocional en el Entorno Laboral",
+        "OldVideoId":  "5a2rE5r8RkY",
+        "NewVideoId":  "LoHw4BkmROY",
+        "NewVideoTitle":  "La inteligencia emocional en el trabajo  | Gabriel Rodríguez González | TEDxBUAP",
+        "NewVideoAuthor":  "TEDx Talks"
+    },
+    {
+        "File":  "CurriculumUpgrade.SoftSkillsHR.cs",
+        "Slug":  "trabajo-en-equipo-habilidades-blandas-productividad",
+        "ModIdx":  2,
+        "ModuleTitle":  "MÃ³dulo 2: Roles de Equipo (MetodologÃ­a Belbin) y Seguridad PsicolÃ³gica",
+        "OldVideoId":  "PjE1Y5Yk_40",
+        "NewVideoId":  "XeCtsvIg5Eo",
+        "NewVideoTitle":  "Trabajo en equipo: roles de BELBIN",
+        "NewVideoAuthor":  "Joaquim Deulofeu"
+    },
+    {
+        "File":  "CurriculumUpgrade.SoftSkillsHR.cs",
+        "Slug":  "trabajo-en-equipo-habilidades-blandas-productividad",
+        "ModIdx":  3,
+        "ModuleTitle":  "MÃ³dulo 3: ComunicaciÃ³n No Violenta (CNV) y el Arte del Feedback",
+        "OldVideoId":  "qg_89pXl7bU",
+        "NewVideoId":  "Gqod-kdSOJk",
+        "NewVideoTitle":  "Mapa mental: La Comunicación No Violenta de Marshall Rosenberg",
+        "NewVideoAuthor":  "Dani Muxi"
+    },
+    {
+        "File":  "CurriculumUpgrade.SoftSkillsHR.cs",
+        "Slug":  "trabajo-en-equipo-habilidades-blandas-productividad",
+        "ModIdx":  4,
+        "ModuleTitle":  "MÃ³dulo 4: Autoliderazgo y Venciendo la ProcrastinaciÃ³n Laboral",
+        "OldVideoId":  "8vK5l1eKjX4",
+        "NewVideoId":  "wExgu4I0jQA",
+        "NewVideoTitle":  "Así Funciona la Mente de un PROCRASTINADOR (y Cómo Resolverlo)",
+        "NewVideoAuthor":  "DR LA ROSA"
+    },
+    {
+        "File":  "CurriculumUpgrade.SoftSkillsHR.cs",
+        "Slug":  "liderazgo-efectivo",
+        "ModIdx":  1,
+        "ModuleTitle":  "MÃ³dulo 1: El Modelo de Liderazgo Situacional (Hersey-Blanchard)",
+        "OldVideoId":  "5a2rE5r8RkY",
+        "NewVideoId":  "XVNpyCENMyY",
+        "NewVideoTitle":  "Modelo de Liderazgo Situacional  Modelo de Hersey Blanchard C.O. Orientación a la tarea la Relación👍",
+        "NewVideoAuthor":  "@ffbonta"
+    },
+    {
+        "File":  "CurriculumUpgrade.SoftSkillsHR.cs",
+        "Slug":  "liderazgo-efectivo",
+        "ModIdx":  2,
+        "ModuleTitle":  "MÃ³dulo 2: Reuniones 1 a 1 (One-on-One) de Alto Rendimiento",
+        "OldVideoId":  "PjE1Y5Yk_40",
+        "NewVideoId":  "DKPb5U13xhA",
+        "NewVideoTitle":  "El poder de las reuniones one to one | Liderazgo | César Piqueras",
+        "NewVideoAuthor":  "César Piqueras"
+    },
+    {
+        "File":  "CurriculumUpgrade.SoftSkillsHR.cs",
+        "Slug":  "liderazgo-efectivo",
+        "ModIdx":  3,
+        "ModuleTitle":  "MÃ³dulo 3: El Arte de Delegar sin Caer en el Micromanagement",
+        "OldVideoId":  "qg_89pXl7bU",
+        "NewVideoId":  "SweH787f9bM",
+        "NewVideoTitle":  "¿Cómo DELEGAR sin perder el control? El proceso en 5 pasos para soltar tareas",
+        "NewVideoAuthor":  "Distrito Emprendedor"
+    },
+    {
+        "File":  "CurriculumUpgrade.SoftSkillsHR.cs",
+        "Slug":  "liderazgo-efectivo",
+        "ModIdx":  4,
+        "ModuleTitle":  "MÃ³dulo 4: Liderazgo en Tiempos de Crisis y GestiÃ³n del Cambio",
+        "OldVideoId":  "8vK5l1eKjX4",
+        "NewVideoId":  "3KBFyFD-TfI",
+        "NewVideoTitle":  "Liderazgo Ágil en Tiempos de Crisis y Cambio",
+        "NewVideoAuthor":  "Webvent"
+    },
+    {
+        "File":  "CurriculumUpgrade.SoftSkillsHR.cs",
+        "Slug":  "tacticas-de-negociacion-efectiva",
+        "ModIdx":  1,
+        "ModuleTitle":  "MÃ³dulo 1: Los 4 Principios Fundamentales del MÃ©todo Harvard",
+        "OldVideoId":  "5a2rE5r8RkY",
+        "NewVideoId":  "3IzqALUN0Do",
+        "NewVideoTitle":  "Curso 011 - Los 4 principios de la técnica Harvard de Negociación",
+        "NewVideoAuthor":  "Cosmic AI"
+    },
+    {
+        "File":  "CurriculumUpgrade.SoftSkillsHR.cs",
+        "Slug":  "tacticas-de-negociacion-efectiva",
+        "ModIdx":  2,
+        "ModuleTitle":  "MÃ³dulo 2: Tu Mayor Fuente de Poder: El MAAN (BATNA)",
+        "OldVideoId":  "PjE1Y5Yk_40",
+        "NewVideoId":  "l5hpmrkIemQ",
+        "NewVideoTitle":  "Tu ENEMIGO es tu MAYOR FUENTE DE PODER 💀🌩️🌪️",
+        "NewVideoAuthor":  "Leonzyr"
+    },
+    {
+        "File":  "CurriculumUpgrade.SoftSkillsHR.cs",
+        "Slug":  "tacticas-de-negociacion-efectiva",
+        "ModIdx":  3,
+        "ModuleTitle":  "MÃ³dulo 3: La ZOPA (Zona de Posible Acuerdo) y el Anclaje PsicolÃ³gico",
+        "OldVideoId":  "qg_89pXl7bU",
+        "NewVideoId":  "0AoQBg-q4HQ",
+        "NewVideoTitle":  "Por qué es importante conocer la ZOPA (Zona de Posible Acuerdo) ?",
+        "NewVideoAuthor":  "NEGOCIANDO ABUNDANCIA"
+    },
+    {
+        "File":  "CurriculumUpgrade.SoftSkillsHR.cs",
+        "Slug":  "tacticas-de-negociacion-efectiva",
+        "ModIdx":  4,
+        "ModuleTitle":  "MÃ³dulo 4: NeutralizaciÃ³n de TÃ¡cticas Sucias y Cierre de Concesiones",
+        "OldVideoId":  "8vK5l1eKjX4",
+        "NewVideoId":  "o5tedjYHam8",
+        "NewVideoTitle":  "Táctica sucia llamada concesiones infladas #negociar #negociación",
+        "NewVideoAuthor":  "PÍLDORAS DE NEGOCIACIÓN"
+    },
+    {
+        "File":  "CurriculumUpgrade.SoftSkillsHR.cs",
+        "Slug":  "gestion-del-tiempo",
+        "ModIdx":  1,
+        "ModuleTitle":  "MÃ³dulo 1: La Matriz de Eisenhower: Urgencia vs. Importancia",
+        "OldVideoId":  "5a2rE5r8RkY",
+        "NewVideoId":  "LHtUrHUPs4E",
+        "NewVideoTitle":  "LA MATRIZ DE EISENHOWER. PRODUCTIVIDAD Y GESTIÓN DE TIEMPO - RESUMEN ANIMADO",
+        "NewVideoAuthor":  "Resumen Animado"
+    },
+    {
+        "File":  "CurriculumUpgrade.SoftSkillsHR.cs",
+        "Slug":  "gestion-del-tiempo",
+        "ModIdx":  2,
+        "ModuleTitle":  "MÃ³dulo 2: Timeblocking y DiseÃ±o del Calendario Ideal",
+        "OldVideoId":  "PjE1Y5Yk_40",
+        "NewVideoId":  "AraCTiT9_64",
+        "NewVideoTitle":  "La mejor técnica para organizar tu día de alta productividad (Bloques de tiempo)",
+        "NewVideoAuthor":  "Adrià Solà Pastor"
+    },
+    {
+        "File":  "CurriculumUpgrade.SoftSkillsHR.cs",
+        "Slug":  "gestion-del-tiempo",
+        "ModIdx":  3,
+        "ModuleTitle":  "MÃ³dulo 3: TÃ©cnica Pomodoro e Hiperenfoque sin Fatiga",
+        "OldVideoId":  "qg_89pXl7bU",
+        "NewVideoId":  "3D0-l2O5k8Y",
+        "NewVideoTitle":  "Técnica poderosa de productividad! - Técnica Pomodoro - animado",
+        "NewVideoAuthor":  "Ser - Hacer Mejor"
+    },
+    {
+        "File":  "CurriculumUpgrade.SoftSkillsHR.cs",
+        "Slug":  "gestion-del-tiempo",
+        "ModIdx":  4,
+        "ModuleTitle":  "MÃ³dulo 4: Trabajo Profundo (Deep Work) y ErradicaciÃ³n de la Multitarea",
+        "OldVideoId":  "8vK5l1eKjX4",
+        "NewVideoId":  "CZURxyoeEXg",
+        "NewVideoTitle":  "Mejorá tu productividad 🤯 | \"Deep Work\" (Céntrate) de Cal Newport",
+        "NewVideoAuthor":  "Estudiar con Manu"
+    },
+    {
+        "File":  "CurriculumUpgrade.SoftSkillsHR.cs",
+        "Slug":  "primeros-auxilios",
+        "ModIdx":  1,
+        "ModuleTitle":  "MÃ³dulo 1: El Protocolo PAS: Proteger, Avisar y Socorrer",
+        "OldVideoId":  "5a2rE5r8RkY",
+        "NewVideoId":  "sN7QnnwoMBs",
+        "NewVideoTitle":  "Conducta PAS: tres palabras que salvan vidas",
+        "NewVideoAuthor":  "Fundación Mapfre"
+    },
+    {
+        "File":  "CurriculumUpgrade.SoftSkillsHR.cs",
+        "Slug":  "primeros-auxilios",
+        "ModIdx":  2,
+        "ModuleTitle":  "MÃ³dulo 2: ReanimaciÃ³n Cardiopulmonar (RCP) en Adultos y Uso de DEA",
+        "OldVideoId":  "PjE1Y5Yk_40",
+        "NewVideoId":  "lG--e0vGX3w",
+        "NewVideoTitle":  "Cómo hacer RCP en adultos(2022) | Doctor Negrete",
+        "NewVideoAuthor":  "Doctor Negrete"
+    },
+    {
+        "File":  "CurriculumUpgrade.SoftSkillsHR.cs",
+        "Slug":  "primeros-auxilios",
+        "ModIdx":  3,
+        "ModuleTitle":  "MÃ³dulo 3: Atragantamiento y la Maniobra de Heimlich",
+        "OldVideoId":  "qg_89pXl7bU",
+        "NewVideoId":  "vBvMbXjCA14",
+        "NewVideoTitle":  "Enfermeras explican cómo realizar la maniobra de Heimlich en caso de atragantamiento",
+        "NewVideoAuthor":  "CODEM Madrid"
+    },
+    {
+        "File":  "CurriculumUpgrade.SoftSkillsHR.cs",
+        "Slug":  "primeros-auxilios",
+        "ModIdx":  4,
+        "ModuleTitle":  "MÃ³dulo 4: Hemorragias, Quemaduras, Fracturas y el BotiquÃ­n Laboral",
+        "OldVideoId":  "8vK5l1eKjX4",
+        "NewVideoId":  "yfTdaIkT5YI",
+        "NewVideoTitle":  "Hemorragias, Fracturas y Quemaduras",
+        "NewVideoAuthor":  "Ministerio Salud PBA"
+    },
+    {
+        "File":  "CurriculumUpgrade.TechAI.cs",
+        "Slug":  "domina-la-ia-con-gemini",
+        "ModIdx":  1,
+        "ModuleTitle":  "MÃ³dulo 1: Arquitectura de LLMs y la AnatomÃ­a del Prompt Perfecto (Framework RTFR)",
+        "OldVideoId":  "jC4v5AS4RIM",
+        "NewVideoId":  "p2PqfRte46k",
+        "NewVideoTitle":  "La Fórmula del Prompt Perfecto para ChatGPT (Guía Definitiva)",
+        "NewVideoAuthor":  "Cyberclick • Marketing Digital"
+    },
+    {
+        "File":  "CurriculumUpgrade.TechAI.cs",
+        "Slug":  "domina-la-ia-con-gemini",
+        "ModIdx":  2,
+        "ModuleTitle":  "MÃ³dulo 2: TÃ©cnicas Avanzadas: Few-Shot Prompting, Chain of Thought y Roles Multidisciplinarios",
+        "OldVideoId":  "bEB_V0Y1D2U",
+        "NewVideoId":  "5wQw3T9tb3c",
+        "NewVideoTitle":  "🎓CURSO PROMPT ENGINEERING  en Español - GRATIS - 🤖CLASE 06- ZERO SHOT, ONE-SHOT, FEW-SHOT PROMPTING",
+        "NewVideoAuthor":  "Joaquín Barberá - Inteligencia Artificial"
+    },
+    {
+        "File":  "CurriculumUpgrade.TechAI.cs",
+        "Slug":  "domina-la-ia-con-gemini",
+        "ModIdx":  3,
+        "ModuleTitle":  "MÃ³dulo 3: Flujos de Trabajo de Oficina: Minutas de ReuniÃ³n, Contratos y FÃ³rmulas Excel",
+        "OldVideoId":  "41X8w1Fq6bM",
+        "NewVideoId":  "ICqv3erKd84",
+        "NewVideoTitle":  "Cómo calcular las horas trabajadas en excel #excel #microsoftexcel #excelfacil #aprenderexcel",
+        "NewVideoAuthor":  "Especialización en Excel"
+    },
+    {
+        "File":  "CurriculumUpgrade.TechAI.cs",
+        "Slug":  "domina-la-ia-con-gemini",
+        "ModIdx":  4,
+        "ModuleTitle":  "MÃ³dulo 4: Seguridad, Privacidad de Datos y Alucinaciones en Entornos Corporativos",
+        "OldVideoId":  "Yq4O1H5U9cM",
+        "NewVideoId":  "zvzwh8r0ABY",
+        "NewVideoTitle":  "Implementación de privacidad y protección de datos - Curso de ética en el análisis de datos",
+        "NewVideoAuthor":  "Edutin Academy"
+    },
+    {
+        "File":  "CurriculumUpgrade.TechAI.cs",
+        "Slug":  "introduccion-ciberseguridad",
+        "ModIdx":  1,
+        "ModuleTitle":  "MÃ³dulo 1: La Triada de la Seguridad (CIA) y Amenazas Modernas: Phishing e IngenierÃ­a Social",
+        "OldVideoId":  "6iQcK4p5o0M",
+        "NewVideoId":  "_MJt0ugOc_E",
+        "NewVideoTitle":  "¿Qué es la triada CIA en ciberseguridad? | Curso CIBERSEGURIDAD desde 0 2025",
+        "NewVideoAuthor":  "RINKU"
+    },
+    {
+        "File":  "CurriculumUpgrade.TechAI.cs",
+        "Slug":  "introduccion-ciberseguridad",
+        "ModIdx":  2,
+        "ModuleTitle":  "MÃ³dulo 2: AutenticaciÃ³n Robusta: ContraseÃ±as Seguras, Gestores y AutenticaciÃ³n Multifactor (MFA)",
+        "OldVideoId":  "jZ_yP2h8O0A",
+        "NewVideoId":  "xkxYPon37eY",
+        "NewVideoTitle":  "Qué es MFA (Autenticación Multifactor) y cómo se usa",
+        "NewVideoAuthor":  "Compuevolución"
+    },
+    {
+        "File":  "CurriculumUpgrade.TechAI.cs",
+        "Slug":  "introduccion-ciberseguridad",
+        "ModIdx":  3,
+        "ModuleTitle":  "MÃ³dulo 3: Amenazas Graves: Ransomware, Criptojacking y Seguridad en Redes Wi-Fi",
+        "OldVideoId":  "kR9wLz5U2uQ",
+        "NewVideoId":  "czuyM80wJJI",
+        "NewVideoTitle":  "💻🚨 Malware: La Amenaza Oculta que Puede Robarte TODO🚨💻",
+        "NewVideoAuthor":  "Luis J Carlos "
+    },
+    {
+        "File":  "CurriculumUpgrade.TechAI.cs",
+        "Slug":  "introduccion-ciberseguridad",
+        "ModIdx":  4,
+        "ModuleTitle":  "MÃ³dulo 4: Estrategia de Respaldo 3-2-1 y Plan de RecuperaciÃ³n ante Desastres (DRP)",
+        "OldVideoId":  "W9lZ7y8B8mI",
+        "NewVideoId":  "Fi1wPlUnh4k",
+        "NewVideoTitle":  "4 claves para asegurar la continuidad de tú negocio con la estrategia DRP en AWS",
+        "NewVideoAuthor":  "TotalCloudMX"
+    },
+    {
+        "File":  "CurriculumUpgrade.TechAI.cs",
+        "Slug":  "servicio-tecnico-informatico-soporte-sistemas",
+        "ModIdx":  1,
+        "ModuleTitle":  "MÃ³dulo 1: Niveles de Soporte TÃ©cnico (L1/L2/L3) y GestiÃ³n de Tickets de Incidencia",
+        "OldVideoId":  "g6Pj3f5kH-M",
+        "NewVideoId":  "7kEM9ZaD7jQ",
+        "NewVideoTitle":  "Soporte Técnico: L1, L2, L3",
+        "NewVideoAuthor":  "Nicolas Fox IT"
+    },
+    {
+        "File":  "CurriculumUpgrade.TechAI.cs",
+        "Slug":  "servicio-tecnico-informatico-soporte-sistemas",
+        "ModIdx":  2,
+        "ModuleTitle":  "MÃ³dulo 2: Mantenimiento Preventivo y Correctivo de Hardware y PerifÃ©ricos",
+        "OldVideoId":  "e_Z6eB0G1Gg",
+        "NewVideoId":  "SRFvGeLt18I",
+        "NewVideoTitle":  "🖥️ Mantenimiento Correctivo en Windows: Repara tu PC Paso a Paso 🔧",
+        "NewVideoAuthor":  "Marcelo PC"
+    },
+    {
+        "File":  "CurriculumUpgrade.TechAI.cs",
+        "Slug":  "servicio-tecnico-informatico-soporte-sistemas",
+        "ModIdx":  3,
+        "ModuleTitle":  "MÃ³dulo 3: Sistemas Operativos Windows: Formateo, InstalaciÃ³n Limpia y Drivers",
+        "OldVideoId":  "bL5I1j5zU1s",
+        "NewVideoId":  "9vA2cI7I-6Q",
+        "NewVideoTitle":  "✅ Cómo FORMATEAR tu PC e INSTALAR Windows 11 desde USB | 2026",
+        "NewVideoAuthor":  "Jesús Puican - Descargandolo"
+    },
+    {
+        "File":  "CurriculumUpgrade.TechAI.cs",
+        "Slug":  "servicio-tecnico-informatico-soporte-sistemas",
+        "ModIdx":  4,
+        "ModuleTitle":  "MÃ³dulo 4: Redes Locales (LAN), Cableado Estructurado UTP y Soporte a CÃ¡maras CCTV",
+        "OldVideoId":  "q0_3A6R4f4w",
+        "NewVideoId":  "laWefp80lz4",
+        "NewVideoTitle":  "¿Qué es el CABLEADO ESTRUCTURADO?",
+        "NewVideoAuthor":  "Novusred"
+    },
+    {
+        "File":  "CurriculumUpgrade.TechAI.cs",
+        "Slug":  "ti-para-el-exito-empresarial",
+        "ModIdx":  1,
+        "ModuleTitle":  "MÃ³dulo 1: La Era de la TransformaciÃ³n Digital: MÃ¡s que TecnologÃ­a, un Cambio Cultural",
+        "OldVideoId":  "g2qF_3j9p8w",
+        "NewVideoId":  "EBe51Q7-62k",
+        "NewVideoTitle":  "La Revolución Digital: Cómo Cambió Todo",
+        "NewVideoAuthor":  "elmondigital"
+    },
+    {
+        "File":  "CurriculumUpgrade.TechAI.cs",
+        "Slug":  "ti-para-el-exito-empresarial",
+        "ModIdx":  2,
+        "ModuleTitle":  "MÃ³dulo 2: ComputaciÃ³n en la Nube (Cloud Computing): SaaS, PaaS, IaaS y Costos TCO",
+        "OldVideoId":  "M988_0lW2pM",
+        "NewVideoId":  "VR8aXePkQ5M",
+        "NewVideoTitle":  "📌CLOUD COMPUTING ¿Qué es IaaS, PaaS y Saas? | Modelos de Servicio Cloud",
+        "NewVideoAuthor":  "AlbertoLopez TECH TIPS"
+    },
+    {
+        "File":  "CurriculumUpgrade.TechAI.cs",
+        "Slug":  "ti-para-el-exito-empresarial",
+        "ModIdx":  3,
+        "ModuleTitle":  "MÃ³dulo 3: Sistemas ERP y CRM: La Columna Vertebral de la OperaciÃ³n Corporativa",
+        "OldVideoId":  "vE1P5g9V2xA",
+        "NewVideoId":  "TLztJtLmKMw",
+        "NewVideoTitle":  "SAP ERP: La Columna Vertebral de la Gestión Empresarial | Aprende con PRIME INSTITUTE",
+        "NewVideoAuthor":  "Prime Institute"
+    },
+    {
+        "File":  "CurriculumUpgrade.TechAI.cs",
+        "Slug":  "ti-para-el-exito-empresarial",
+        "ModIdx":  4,
+        "ModuleTitle":  "MÃ³dulo 4: Ciberseguridad Gerencial y Continuidad de Negocios (BCP/DRP)",
+        "OldVideoId":  "5aL9_K6B-v8",
+        "NewVideoId":  "0IS6CDpBcfs",
+        "NewVideoTitle":  "BCP, DRP y Gestión de Crisis: diferencias explicadas fácil",
+        "NewVideoAuthor":  "CKA Coaching and Consulting"
+    }
+]

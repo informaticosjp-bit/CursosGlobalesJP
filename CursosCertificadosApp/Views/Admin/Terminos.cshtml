@@ -1,0 +1,100 @@
+@model CursosCertificadosApp.Models.Entities.SystemSetting
+@{
+    ViewData["Title"] = "Gestión de Términos y Condiciones Legales";
+}
+
+<div class="container py-4">
+    <!-- Encabezado y Navegación Fija Centralizada -->
+    <partial name="_AdminHeader" />
+
+    <!-- Alerta Informativa sobre Protección Legal -->
+    <div class="alert alert-primary border-0 shadow-sm rounded-4 p-3 mb-4 d-flex align-items-start gap-3">
+        <div class="fs-3 text-primary">
+            <i class="bi bi-shield-shaded"></i>
+        </div>
+        <div>
+            <strong class="d-block text-dark">Protección Jurídica de Inversiones Globales JP 1968, C.A. (RIF: J-41102463-5)</strong>
+            <p class="small text-muted mb-0">
+                Los términos redactados protegen a la empresa frente a reclamos: establecen que el estudiante <strong>debe culminar el curso al 100%</strong> para obtener su certificado, obligan a que el <strong>pago en Bolívares provenga exclusivamente del titular registrado</strong> (exonerando a la empresa si pagan desde cuentas de terceros), y fijan la liquidación a la <strong>tasa oficial del BCV</strong>.
+            </p>
+        </div>
+    </div>
+
+    <!-- Formulario de Edición de Términos y Condiciones -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0 text-dark">Editor del Marco Legal Institucional</h5>
+            <div class="d-flex gap-2">
+                <a asp-controller="Home" asp-action="Terminos" target="_blank" class="btn btn-sm btn-outline-primary fw-semibold">
+                    <i class="bi bi-box-arrow-up-right me-1"></i> Ver Página Pública Actual
+                </a>
+            </div>
+        </div>
+
+        <form asp-action="GuardarTerminos" method="post">
+            @Html.AntiForgeryToken()
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Título del Documento Legal <span class="text-danger">*</span></label>
+                <input type="text" name="title" class="form-control fw-semibold" value="@Model.Title" required maxlength="200" />
+            </div>
+
+            <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <label class="form-label fw-bold mb-0">Contenido Completo (HTML / Texto Enriquecido) <span class="text-danger">*</span></label>
+                    <span class="small text-muted">Última modificación: @Model.UpdatedAt.ToString("dd/MM/yyyy HH:mm")</span>
+                </div>
+
+                <textarea id="terminosContent" name="content" class="form-control font-monospace rounded-bottom-0" rows="18" required>@Model.Content</textarea>
+
+                <!-- Barra de Herramientas para Formato Rápido -->
+                <div class="d-flex flex-wrap align-items-center justify-content-between p-2 bg-light border border-top-0 rounded-bottom">
+                    <div class="d-flex flex-wrap align-items-center gap-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="insertarEnEditor('<h3>Título de Cláusula</h3>\n<p>Explicación legal...</p>\n')">
+                            <i class="bi bi-type-h3"></i> Subtítulo H3
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="insertarEnEditor('<p>Texto de párrafo legal...</p>\n')">
+                            <i class="bi bi-paragraph"></i> Párrafo
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-warning text-dark fw-semibold" onclick="insertarAlertaLegal()">
+                            <i class="bi bi-shield-exclamation me-1"></i> Caja de Alerta Exoneratoria
+                        </button>
+                    </div>
+                    <span class="small text-muted" style="font-size: 0.72rem;">
+                        <i class="bi bi-check2-circle text-success me-1"></i>Se actualiza inmediatamente en el portal
+                    </span>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 border-top pt-3">
+                <button type="submit" class="btn btn-primary btn-lg fw-bold px-4 shadow-sm" onclick="return confirm('¿Guardar y publicar estos Términos y Condiciones en la web?')">
+                    <i class="bi bi-save me-1"></i> Guardar Términos y Condiciones
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function insertarEnEditor(texto) {
+            var el = document.getElementById('terminosContent');
+            if (!el) return;
+            var start = el.selectionStart || el.value.length;
+            var end = el.selectionEnd || el.value.length;
+            var before = el.value.substring(0, start);
+            var after = el.value.substring(end);
+            el.value = before + texto + after;
+            el.focus();
+            el.selectionStart = el.selectionEnd = start + texto.length;
+        }
+
+        function insertarAlertaLegal() {
+            var alerta = '\n<div class="alert alert-warning border-0 p-3 rounded-3 my-3">\n' +
+                '  <strong><i class="bi bi-shield-exclamation me-1"></i> Cláusula Importante:</strong>\n' +
+                '  <p class="mb-0 mt-1">Escribe aquí la condición de exoneración de responsabilidad o norma obligatoria.</p>\n' +
+                '</div>\n';
+            insertarEnEditor(alerta);
+        }
+    </script>
+}

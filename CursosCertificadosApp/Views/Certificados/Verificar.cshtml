@@ -1,0 +1,85 @@
+@model CursosCertificadosApp.Models.Entities.Certificate
+@{
+    ViewData["Title"] = $"Validación Oficial: {Model.VerificationCode}";
+    bool isOfficial = Model.Status == CursosCertificadosApp.Models.Entities.CertificateStatus.Issued;
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden bg-white">
+                <!-- Header de Validación -->
+                <div class="p-4 text-center @(isOfficial ? "bg-success text-white" : "bg-warning text-dark")">
+                    @if (isOfficial)
+                    {
+                        <i class="bi bi-patch-check-fill display-3 d-block mb-2"></i>
+                        <h3 class="fw-bold mb-1">CERTIFICADO AUTÉNTICO Y VÁLIDO</h3>
+                        <p class="mb-0 opacity-90 small">Emitido legalmente por la Dirección Académica de Cursos Globales JP</p>
+                    }
+                    else
+                    {
+                        <i class="bi bi-exclamation-triangle-fill display-3 d-block mb-2"></i>
+                        <h3 class="fw-bold mb-1">CERTIFICADO EN PROCESO DE ACREDITACIÓN</h3>
+                        <p class="mb-0 opacity-90 small">El estudiante culminó los requisitos académicos y se encuentra en etapa de emisión oficial.</p>
+                    }
+                </div>
+
+                <!-- Detalles de la Credencial -->
+                <div class="p-4 p-md-5">
+                    <div class="row g-4 mb-4">
+                        <div class="col-sm-6">
+                            <span class="small text-muted d-block text-uppercase">Estudiante Acreditado</span>
+                            <h4 class="fw-bold text-dark mb-0">@Model.User.FullName</h4>
+                            <span class="small text-muted">Documento: @Model.User.IdentificationNumber</span>
+                        </div>
+                        <div class="col-sm-6">
+                            <span class="small text-muted d-block text-uppercase">Código de Verificación</span>
+                            <code class="fs-5 fw-bold text-primary">@Model.VerificationCode</code>
+                            <span class="d-block small text-muted">ID Criptográfico: @Model.Id[..12]...</span>
+                        </div>
+                    </div>
+
+                    <div class="border-top pt-4 mb-4">
+                        <span class="small text-muted d-block text-uppercase">Programa Formativo Impartido</span>
+                        <h3 class="fw-bold text-primary mb-1">@Model.Course.Title</h3>
+                        <p class="text-secondary small mb-3">@Model.Course.ShortDescription</p>
+
+                        <div class="row g-3">
+                            <div class="col-sm-4">
+                                <div class="p-3 bg-light rounded-3 text-center">
+                                    <span class="small text-muted d-block">Intensidad</span>
+                                    <strong class="text-dark">@Model.Course.EstimatedHours Horas</strong>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="p-3 bg-light rounded-3 text-center">
+                                    <span class="small text-muted d-block">Fecha de Emisión</span>
+                                    <strong class="text-dark">@((Model.IssuedAt ?? Model.CreatedAt).ToString("dd/MM/yyyy"))</strong>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="p-3 bg-light rounded-3 text-center">
+                                    <span class="small text-muted d-block">Modalidad</span>
+                                    <strong class="text-dark">100% Online</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (isOfficial)
+                    {
+                        <div class="d-flex flex-wrap gap-2 justify-content-center">
+                            <a asp-action="Descargar" asp-route-id="@Model.Id" class="btn btn-brand px-4 py-2">
+                                <i class="bi bi-file-earmark-pdf me-1"></i> Ver Documento Oficial (PDF)
+                            </a>
+                        </div>
+                    }
+                </div>
+
+                <div class="bg-light p-3 text-center border-top small text-muted">
+                    Verificación pública consultada el @DateTime.UtcNow.ToString("dd/MM/yyyy HH:mm") UTC en los servidores de Cursos Globales JP.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

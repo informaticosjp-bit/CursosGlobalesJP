@@ -1,0 +1,163 @@
+@model CursosCertificadosApp.Models.Entities.Course
+@{
+    ViewData["Title"] = Model.Title;
+    bool isEnrolled = ViewBag.IsEnrolled == true;
+    decimal progress = ViewBag.Progress is decimal p ? p : 0m;
+}
+
+<div class="container py-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb small">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none">Inicio</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Cursos" asp-action="Index" class="text-decoration-none">Cursos</a></li>
+            <li class="breadcrumb-item active">@Model.Title</li>
+        </ol>
+    </nav>
+
+    <!-- Header del Curso -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 mb-4 text-white" style="background: linear-gradient(135deg, #0b1c36 0%, #153e75 100%);">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-8">
+                <span class="badge bg-warning text-dark px-3 py-1 fw-bold mb-3">
+                    @Model.Category.Name
+                </span>
+                <h1 class="display-5 fw-bold mb-3">@Model.Title</h1>
+                <p class="lead opacity-90 mb-4">
+                    @Model.ShortDescription
+                </p>
+
+                <div class="d-flex flex-wrap gap-4 text-light small mb-4">
+                    <div><i class="bi bi-clock-history me-1 text-warning"></i> @Model.EstimatedHours Horas de estudio</div>
+                    <div><i class="bi bi-bar-chart-steps me-1 text-warning"></i> Nivel: @Model.Level</div>
+                    <div><i class="bi bi-layers me-1 text-warning"></i> @Model.Modules.Count Módulos</div>
+                    <div><i class="bi bi-shield-check me-1 text-warning"></i> Certificado Oficial: <strong>$@Model.Price.ToString("F2") USD</strong></div>
+                </div>
+
+                @if (isEnrolled)
+                {
+                    <div class="bg-white bg-opacity-10 p-3 rounded-3 max-w-500 mb-3">
+                        <div class="d-flex justify-content-between small text-light mb-1">
+                            <span>Tu avance en este curso:</span>
+                            <span class="fw-bold">@progress.ToString("F0")%</span>
+                        </div>
+                        <div class="progress" style="height: 10px;">
+                            <div class="progress-bar progress-bar-custom" style="width: @progress%;"></div>
+                        </div>
+                    </div>
+
+                    <a asp-controller="Aula" asp-action="Aula" asp-route-slug="@Model.Slug" class="btn btn-gold btn-lg fw-bold px-4 py-2">
+                        <i class="bi bi-play-circle-fill me-1"></i> Ir al Aula Virtual
+                    </a>
+                }
+                else
+                {
+                    <form asp-action="Inscribirse" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="courseId" value="@Model.Id" />
+                        <button type="submit" class="btn btn-gold btn-lg fw-bold px-4 py-3 shadow">
+                            <i class="bi bi-pencil-square me-2"></i> Inscribirme 100% Gratis
+                        </button>
+                    </form>
+                }
+            </div>
+
+            <div class="col-lg-4 text-center">
+                <div class="card border-0 shadow rounded-4 p-4 bg-white text-dark">
+                    <div class="badge bg-success bg-opacity-10 text-success p-3 rounded-circle mb-3 d-inline-block">
+                        <i class="bi bi-award-fill fs-1 text-warning"></i>
+                    </div>
+                    <h5 class="fw-bold">Certificación Cursos Globales JP</h5>
+                    <p class="small text-muted mb-3">
+                        Estudias gratis todo el programa. Al completarlo, obtienes tu certificado con validación QR por <strong>$@Model.Price.ToString("F2") USD</strong>.
+                    </p>
+                    <div class="border-top pt-3 text-start small">
+                        <div class="mb-2"><i class="bi bi-check2 text-success me-2"></i>Diploma en PDF de alta resolución</div>
+                        <div class="mb-2"><i class="bi bi-check2 text-success me-2"></i>Código criptográfico irrepetible</div>
+                        <div class="mb-2"><i class="bi bi-check2 text-success me-2"></i>Añadible a tu perfil de LinkedIn</div>
+                        <div><i class="bi bi-check2 text-success me-2"></i>Aprobación inmediata o con Pago Móvil</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Temario y Contenido -->
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+                <h4 class="fw-bold mb-3">Plan de Estudios y Módulos</h4>
+                <p class="text-muted small mb-4">Completa cada una de las sesiones prácticas para alcanzar el 100% y desbloquear tu certificado oficial.</p>
+
+                <div class="accordion" id="accordionModules">
+                    @{ int modIndex = 1; }
+                    @foreach (var mod in Model.Modules.OrderBy(m => m.OrderIndex))
+                    {
+                        <div class="accordion-item border rounded-3 mb-2 overflow-hidden">
+                            <h2 class="accordion-header" id="heading-@mod.Id">
+                                <button class="accordion-button @(modIndex == 1 ? "" : "collapsed") fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-@mod.Id">
+                                    <i class="bi bi-folder2-open me-2 text-primary"></i> @mod.Title
+                                    <span class="badge bg-light text-muted border ms-auto me-2 small">@mod.Lessons.Count temas</span>
+                                </button>
+                            </h2>
+                            <div id="collapse-@mod.Id" class="accordion-collapse collapse @(modIndex == 1 ? "show" : "")" data-bs-parent="#accordionModules">
+                                <div class="accordion-body p-0">
+                                    <ul class="list-group list-group-flush">
+                                        @foreach (var l in mod.Lessons.OrderBy(l => l.OrderIndex))
+                                        {
+                                            <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <i class="bi bi-book-half text-primary"></i>
+                                                    <span>@l.Title</span>
+                                                </div>
+                                                <span class="text-muted small">@l.DurationMinutes min</span>
+                                            </li>
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        modIndex++;
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            @if (!string.IsNullOrWhiteSpace(Model.InstructorName))
+            {
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+                    <h6 class="fw-bold text-muted text-uppercase small mb-3">
+                        <i class="bi bi-person-badge text-primary me-1"></i> Docente / Instructor
+                    </h6>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="rounded-circle bg-primary bg-opacity-10 text-primary fw-bold d-flex align-items-center justify-content-center fs-3" style="width: 52px; height: 52px; min-width: 52px;">
+                            <i class="bi bi-person-workspace"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-0 text-dark">@Model.InstructorName</h6>
+                            @if (!string.IsNullOrWhiteSpace(Model.InstructorTitle))
+                            {
+                                <span class="text-primary small fw-semibold d-block">@Model.InstructorTitle</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+                <h5 class="fw-bold mb-3">Sobre este programa</h5>
+                <p class="small text-muted">
+                    @Model.FullDescription
+                </p>
+                <hr />
+                <h6 class="fw-bold small mb-2">Requisitos:</h6>
+                <ul class="small text-muted ps-3 mb-0">
+                    <li>Conexión a internet estable.</li>
+                    <li>Dispositivo móvil, laptop o computador de escritorio.</li>
+                    <li>Deseo de impulsar tu carrera profesional.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

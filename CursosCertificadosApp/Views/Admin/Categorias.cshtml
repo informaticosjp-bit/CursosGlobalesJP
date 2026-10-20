@@ -1,0 +1,370 @@
+@model List<CursosCertificadosApp.Models.ViewModels.CategoryViewModel>
+@{
+    ViewData["Title"] = "Gestión de Categorías";
+}
+
+<div class="container py-4">
+    <partial name="_AdminHeader" />
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm rounded-3 mb-3" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm rounded-3 mb-3" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Encabezado y acción -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+        <div>
+            <h4 class="fw-bold mb-0 text-dark">
+                <i class="bi bi-tags-fill text-dark me-2"></i>Gestión de Categorías
+            </h4>
+            <span class="text-muted small">Crea, edita y elimina las categorías del catálogo académico</span>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-dark bg-opacity-10 text-dark fs-6 px-3 py-2 fw-semibold">
+                Total: <strong>@Model.Count</strong>
+            </span>
+            <button class="btn btn-success fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#modalCrear">
+                <i class="bi bi-plus-circle me-1"></i> Nueva Categoría
+            </button>
+        </div>
+    </div>
+
+    <!-- Tabla de categorías -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle" id="tablaCategorias">
+                <thead class="table-light">
+                    <tr>
+                        <!-- Orden -->
+                        <th class="user-select-none" style="width:110px; cursor: pointer;" onclick="toggleSortCategorias(0, 'num', event)">
+                            <div class="d-inline-flex align-items-center gap-1">
+                                <span>Orden</span>
+                                <span class="sort-arrows ms-1 d-inline-flex align-items-center bg-white border rounded px-1 py-0 shadow-xs" style="gap: 2px;">
+                                    <span role="button" class="sort-arrow-up text-muted p-0" title="Menor orden primero" onclick="setExplicitSortCategorias(0, 'num', 'asc', event)">
+                                        <i class="bi bi-caret-up-fill" style="font-size: 0.75rem;"></i>
+                                    </span>
+                                    <span role="button" class="sort-arrow-down text-muted p-0" title="Mayor orden primero" onclick="setExplicitSortCategorias(0, 'num', 'desc', event)">
+                                        <i class="bi bi-caret-down-fill" style="font-size: 0.75rem;"></i>
+                                    </span>
+                                </span>
+                            </div>
+                        </th>
+
+                        <!-- Nombre / Slug -->
+                        <th class="user-select-none" style="cursor: pointer;" onclick="toggleSortCategorias(1, 'text', event)">
+                            <div class="d-inline-flex align-items-center gap-1">
+                                <span class="fw-bold">Nombre / Slug</span>
+                                <span class="sort-arrows ms-1 d-inline-flex align-items-center bg-white border rounded px-1 py-0 shadow-xs" style="gap: 2px;">
+                                    <span role="button" class="sort-arrow-up text-muted p-0" title="Ordenar A-Z" onclick="setExplicitSortCategorias(1, 'text', 'asc', event)">
+                                        <i class="bi bi-caret-up-fill" style="font-size: 0.8rem;"></i>
+                                    </span>
+                                    <span role="button" class="sort-arrow-down text-muted p-0" title="Ordenar Z-A" onclick="setExplicitSortCategorias(1, 'text', 'desc', event)">
+                                        <i class="bi bi-caret-down-fill" style="font-size: 0.8rem;"></i>
+                                    </span>
+                                </span>
+                            </div>
+                        </th>
+
+                        <!-- Descripción -->
+                        <th class="user-select-none" style="cursor: pointer;" onclick="toggleSortCategorias(2, 'text', event)">
+                            <div class="d-inline-flex align-items-center gap-1">
+                                <span>Descripción</span>
+                                <span class="sort-arrows ms-1 d-inline-flex align-items-center bg-white border rounded px-1 py-0 shadow-xs" style="gap: 2px;">
+                                    <span role="button" class="sort-arrow-up text-muted p-0" onclick="setExplicitSortCategorias(2, 'text', 'asc', event)">
+                                        <i class="bi bi-caret-up-fill" style="font-size: 0.75rem;"></i>
+                                    </span>
+                                    <span role="button" class="sort-arrow-down text-muted p-0" onclick="setExplicitSortCategorias(2, 'text', 'desc', event)">
+                                        <i class="bi bi-caret-down-fill" style="font-size: 0.75rem;"></i>
+                                    </span>
+                                </span>
+                            </div>
+                        </th>
+
+                        <!-- Cursos -->
+                        <th class="text-center user-select-none" style="cursor: pointer;" onclick="toggleSortCategorias(3, 'num', event)">
+                            <div class="d-inline-flex align-items-center gap-1 justify-content-center">
+                                <span>Cursos</span>
+                                <span class="sort-arrows ms-1 d-inline-flex align-items-center bg-white border rounded px-1 py-0 shadow-xs" style="gap: 2px;">
+                                    <span role="button" class="sort-arrow-up text-muted p-0" title="Menos cursos primero" onclick="setExplicitSortCategorias(3, 'num', 'asc', event)">
+                                        <i class="bi bi-caret-up-fill" style="font-size: 0.75rem;"></i>
+                                    </span>
+                                    <span role="button" class="sort-arrow-down text-muted p-0" title="Más cursos primero" onclick="setExplicitSortCategorias(3, 'num', 'desc', event)">
+                                        <i class="bi bi-caret-down-fill" style="font-size: 0.75rem;"></i>
+                                    </span>
+                                </span>
+                            </div>
+                        </th>
+
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaCategoriasBody">
+                    @foreach (var cat in Model)
+                    {
+                        <tr class="categoria-fila"
+                            data-order="@cat.DisplayOrder"
+                            data-name="@(cat.Name?.ToLowerInvariant() ?? "")"
+                            data-slug="@(cat.Slug?.ToLowerInvariant() ?? "")"
+                            data-desc="@((cat.Description ?? "").ToLowerInvariant())"
+                            data-courses="@cat.CourseCount">
+                            <td class="text-center fw-bold text-muted">@cat.DisplayOrder</td>
+                            <td>
+                                <strong class="d-block">@cat.Name</strong>
+                                <span class="small text-muted font-monospace">/categoria/@cat.Slug</span>
+                            </td>
+                            <td>
+                                <span class="small text-muted">@(string.IsNullOrWhiteSpace(cat.Description) ? "—" : cat.Description)</span>
+                            </td>
+                            <td class="text-center">
+                                @if (cat.CourseCount > 0)
+                                {
+                                    <span class="badge bg-primary">@cat.CourseCount cursos</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-light text-muted border">Sin cursos</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <div class="d-flex justify-content-end gap-1">
+                                    <!-- Botón Editar -->
+                                    <button class="btn btn-sm btn-outline-secondary"
+                                            title="Editar Categoría"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#modalEditar"
+                                            data-id="@cat.Id"
+                                            data-name="@cat.Name"
+                                            data-slug="@cat.Slug"
+                                            data-description="@cat.Description"
+                                            data-icon="@cat.IconClass"
+                                            data-order="@cat.DisplayOrder">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                    <!-- Botón Eliminar -->
+                                    @if (cat.CourseCount == 0)
+                                    {
+                                        <form asp-action="EliminarCategoria" asp-route-id="@cat.Id" method="post" class="d-inline"
+                                              onsubmit="return confirm('¿Eliminar la categoría «@cat.Name»?\n\nEsta acción no se puede deshacer.');">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar Categoría">
+                                                <i class="bi bi-trash-fill"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-sm btn-outline-danger" disabled title="Tiene @cat.CourseCount curso(s) asignado(s). No se puede eliminar.">
+                                            <i class="bi bi-trash-fill"></i>
+                                        </button>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ======================== MODAL: CREAR CATEGORÍA ======================== -->
+<div class="modal fade" id="modalCrear" tabindex="-1" aria-labelledby="modalCrearLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title fw-bold" id="modalCrearLabel">
+                    <i class="bi bi-plus-circle me-2"></i>Nueva Categoría
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-action="CrearCategoria" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="IconClass" value="bi-folder" />
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Nombre <span class="text-danger">*</span></label>
+                            <input type="text" name="Name" class="form-control" placeholder="Ej: Tecnología e IA" required maxlength="100" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Slug <span class="text-muted small">(opcional, se genera automático)</span></label>
+                            <input type="text" name="Slug" class="form-control font-monospace" placeholder="tecnologia-ia" maxlength="120" />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Descripción</label>
+                            <textarea name="Description" class="form-control" rows="2" placeholder="Breve descripción de la categoría..." maxlength="300"></textarea>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold">Orden de Visualización</label>
+                            <input type="number" name="DisplayOrder" class="form-control" value="0" min="0" max="999" />
+                            <div class="form-text">Número menor = aparece primero.</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success fw-bold">
+                        <i class="bi bi-check-circle me-1"></i>Crear Categoría
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ======================== MODAL: EDITAR CATEGORÍA ======================== -->
+<div class="modal fade" id="modalEditar" tabindex="-1" aria-labelledby="modalEditarLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-secondary text-white">
+                <h5 class="modal-title fw-bold" id="modalEditarLabel">
+                    <i class="bi bi-pencil-square me-2"></i>Editar Categoría
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-action="EditarCategoria" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="Id" id="editId" />
+                <input type="hidden" name="IconClass" id="editIcon" />
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Nombre <span class="text-danger">*</span></label>
+                            <input type="text" name="Name" id="editName" class="form-control" required maxlength="100" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Slug</label>
+                            <input type="text" name="Slug" id="editSlug" class="form-control font-monospace" maxlength="120" />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Descripción</label>
+                            <textarea name="Description" id="editDescription" class="form-control" rows="2" maxlength="300"></textarea>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold">Orden de Visualización</label>
+                            <input type="number" name="DisplayOrder" id="editOrder" class="form-control" min="0" max="999" />
+                            <div class="form-text">Número menor = aparece primero.</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-secondary fw-bold">
+                        <i class="bi bi-save me-1"></i>Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    // Poblar el modal de edición con los datos del botón
+    document.getElementById('modalEditar').addEventListener('show.bs.modal', function (event) {
+        var btn = event.relatedTarget;
+        document.getElementById('editId').value          = btn.getAttribute('data-id');
+        document.getElementById('editName').value        = btn.getAttribute('data-name');
+        document.getElementById('editSlug').value        = btn.getAttribute('data-slug');
+        document.getElementById('editDescription').value = btn.getAttribute('data-description');
+        document.getElementById('editOrder').value       = btn.getAttribute('data-order');
+
+        var icon = btn.getAttribute('data-icon') || 'bi-folder';
+        var editIconEl = document.getElementById('editIcon');
+        if (editIconEl) editIconEl.value = icon;
+    });
+
+    let sortStateCategorias = { colIndex: 0, direction: 'asc' };
+
+    function toggleSortCategorias(colIndex, type, event) {
+        if (event.target.closest('.sort-arrow-up') || event.target.closest('.sort-arrow-down')) {
+            return;
+        }
+        let newDir = 'asc';
+        if (sortStateCategorias.colIndex === colIndex) {
+            newDir = (sortStateCategorias.direction === 'asc') ? 'desc' : 'asc';
+        }
+        ejecutarOrdenamientoCategorias(colIndex, type, newDir);
+    }
+
+    function setExplicitSortCategorias(colIndex, type, direction, event) {
+        event.stopPropagation();
+        ejecutarOrdenamientoCategorias(colIndex, type, direction);
+    }
+
+    function ejecutarOrdenamientoCategorias(colIndex, type, direction) {
+        sortStateCategorias = { colIndex: colIndex, direction: direction };
+        actualizarIconosCategorias(colIndex, direction);
+
+        const tbody = document.getElementById('tablaCategoriasBody');
+        if (!tbody) return;
+        const rows = Array.from(tbody.querySelectorAll('tr.categoria-fila'));
+
+        rows.sort((a, b) => {
+            let valA = '';
+            let valB = '';
+
+            switch (colIndex) {
+                case 0: // Orden
+                    valA = parseInt(a.getAttribute('data-order') || '0', 10);
+                    valB = parseInt(b.getAttribute('data-order') || '0', 10);
+                    break;
+                case 1: // Nombre
+                    valA = a.getAttribute('data-name') || '';
+                    valB = b.getAttribute('data-name') || '';
+                    break;
+                case 2: // Descripción
+                    valA = a.getAttribute('data-desc') || '';
+                    valB = b.getAttribute('data-desc') || '';
+                    break;
+                case 3: // Cursos
+                    valA = parseInt(a.getAttribute('data-courses') || '0', 10);
+                    valB = parseInt(b.getAttribute('data-courses') || '0', 10);
+                    break;
+            }
+
+            if (type === 'num') {
+                return direction === 'asc' ? valA - valB : valB - valA;
+            } else {
+                return direction === 'asc'
+                    ? valA.localeCompare(valB, 'es', { sensitivity: 'base' })
+                    : valB.localeCompare(valA, 'es', { sensitivity: 'base' });
+            }
+        });
+
+        rows.forEach(r => tbody.appendChild(r));
+    }
+
+    function actualizarIconosCategorias(activeColIndex, direction) {
+        const ths = document.querySelectorAll('#tablaCategorias thead th');
+        ths.forEach((th, idx) => {
+            const up = th.querySelector('.sort-arrow-up');
+            const down = th.querySelector('.sort-arrow-down');
+            if (!up || !down) return;
+
+            if (idx === activeColIndex) {
+                if (direction === 'asc') {
+                    up.className = 'sort-arrow-up text-primary fw-bold';
+                    down.className = 'sort-arrow-down text-muted opacity-25';
+                } else {
+                    down.className = 'sort-arrow-down text-primary fw-bold';
+                    up.className = 'sort-arrow-up text-muted opacity-25';
+                }
+            } else {
+                up.className = 'sort-arrow-up text-muted';
+                down.className = 'sort-arrow-down text-muted';
+            }
+        });
+    }
+</script>
+}

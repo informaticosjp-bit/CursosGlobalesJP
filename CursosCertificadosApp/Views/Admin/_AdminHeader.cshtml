@@ -1,0 +1,62 @@
+@inject CursosCertificadosApp.Data.AppDbContext Db
+@using Microsoft.EntityFrameworkCore
+@{
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "Index";
+    
+    // Conteos centralizados para que la barra conserve siempre su forma y datos exactos
+    var pendingCount = await Db.Payments.CountAsync(p => p.Status == "Pending");
+    var approvedCount = await Db.Payments.CountAsync(p => p.Status == "Approved");
+    var usersCount = await Db.Users.CountAsync();
+    var coursesCount = await Db.Courses.CountAsync();
+    var categoriesCount = await Db.Categories.CountAsync();
+}
+
+<!-- Encabezado Fijo del Panel de Administración Maestro -->
+<div class="mb-3">
+    <div class="d-flex align-items-center gap-2 mb-1">
+        <h2 class="fw-bold mb-0 text-dark">
+            <i class="bi bi-shield-lock-fill text-danger me-2"></i>Panel de Administración Maestro
+        </h2>
+    </div>
+    <span class="text-muted small">Control integral de ingresos, conciliación de pagos, estudiantes y catálogo académico</span>
+</div>
+
+<!-- Barra Fija e Inmutable de Navegación del Panel Administrativo -->
+<div class="d-flex flex-wrap gap-2 mb-4 pb-3 border-bottom" id="adminNavBar">
+    <a asp-controller="Admin" asp-action="Index" 
+       class="btn btn-sm fw-bold @(currentAction == "Index" ? "btn-danger text-white shadow-sm" : "btn-outline-danger")">
+        <i class="bi bi-clock-history me-1"></i> Pendientes (@pendingCount)
+    </a>
+    <a asp-controller="Admin" asp-action="PagosAprobados" 
+       class="btn btn-sm fw-bold @(currentAction == "PagosAprobados" ? "btn-success text-white shadow-sm" : "btn-outline-success")">
+        <i class="bi bi-check2-all me-1"></i> Pagos Aprobados (@approvedCount)
+    </a>
+    <a asp-controller="Admin" asp-action="Usuarios" 
+       class="btn btn-sm fw-bold @(currentAction == "Usuarios" ? "btn-dark text-white shadow-sm" : "btn-outline-dark")">
+        <i class="bi bi-people-fill me-1"></i> Usuarios (@usersCount)
+    </a>
+    <a asp-controller="Admin" asp-action="Cursos" 
+       class="btn btn-sm fw-bold @(currentAction == "Cursos" || currentAction == "CrearCurso" || currentAction == "EditarCurso" || currentAction == "EditarModulo" ? "btn-primary text-white shadow-sm" : "btn-outline-primary")">
+        <i class="bi bi-book-half me-1"></i> Cursos (@coursesCount)
+    </a>
+    <a asp-controller="Admin" asp-action="Categorias"
+       class="btn btn-sm fw-bold @(currentAction == "Categorias" ? "btn-primary text-white shadow-sm" : "btn-outline-primary")">
+        <i class="bi bi-tags-fill me-1"></i> Categorías (@categoriesCount)
+    </a>
+    <a asp-controller="Admin" asp-action="Anuncios" 
+       class="btn btn-sm fw-bold @(currentAction == "Anuncios" ? "btn-warning text-dark shadow-sm" : "btn-outline-warning text-dark")">
+        <i class="bi bi-megaphone-fill me-1"></i> Anuncios / Popups
+    </a>
+    <a asp-controller="Admin" asp-action="Terminos" 
+       class="btn btn-sm fw-bold @(currentAction == "Terminos" ? "btn-secondary text-white shadow-sm" : "btn-outline-secondary")">
+        <i class="bi bi-shield-check me-1"></i> Términos Legales
+    </a>
+    <a asp-controller="Admin" asp-action="BaseDatos" 
+       class="btn btn-sm fw-bold @(currentAction == "BaseDatos" ? "btn-warning text-dark shadow-sm" : "btn-outline-warning text-dark")">
+        <i class="bi bi-database-fill-gear me-1"></i> Base de Datos
+    </a>
+    <a asp-controller="Admin" asp-action="Personalizacion" 
+       class="btn btn-sm fw-bold @(currentAction == "Personalizacion" ? "btn-info text-dark shadow-sm" : "btn-outline-info text-dark")">
+        <i class="bi bi-palette2 me-1"></i> Identidad y Pie
+    </a>
+</div>

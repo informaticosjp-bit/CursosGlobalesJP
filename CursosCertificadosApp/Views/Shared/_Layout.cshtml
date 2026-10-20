@@ -1,0 +1,724 @@
+@inject CursosCertificadosApp.Services.ISiteSettingService SiteSettingService
+@{
+    var siteConfig = await SiteSettingService.GetSettingsAsync();
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - @siteConfig.SiteName @siteConfig.SiteNameHighlight</title>
+    
+    <!-- Favicon Oficial -->
+    <link rel="icon" type="image/png" href="@siteConfig.LogoUrl" />
+    <link rel="apple-touch-icon" href="@siteConfig.LogoUrl" />
+    
+    <!-- Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Google Fonts: Inter / Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --cgjp-primary: #0f284e;
+            --cgjp-secondary: #f59e0b;
+            --cgjp-accent: #2563eb;
+            --cgjp-bg-light: #f8fafc;
+            --cgjp-red: #e11d48;
+        }
+
+        html, body {
+            overflow-x: hidden;
+            width: 100%;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--cgjp-bg-light);
+            color: #1e293b;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Menú Lateral Móvil Fluido (Offcanvas) */
+        .offcanvas-mobile {
+            max-width: 86vw;
+            width: 320px !important;
+            border-left: 1px solid rgba(0,0,0,0.08);
+            box-shadow: -8px 0 30px rgba(0, 0, 0, 0.12);
+            transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+
+        @@media (max-width: 991.98px) {
+            .offcanvas-mobile .nav-link {
+                padding: 0.65rem 0.85rem !important;
+                border-radius: 10px;
+                font-size: 0.95rem;
+                transition: all 0.15s ease-in-out;
+            }
+            .offcanvas-mobile .nav-link:hover,
+            .offcanvas-mobile .nav-link:active {
+                background-color: #f1f5f9;
+                color: var(--cgjp-primary) !important;
+            }
+            .offcanvas-mobile .offcanvas-body {
+                overflow-y: auto;
+                overflow-x: hidden;
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+
+        .navbar-brand-custom {
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .main-content {
+            flex: 1;
+        }
+
+        .card-course {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            overflow: hidden;
+            background: #ffffff;
+        }
+
+        .card-course:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px -10px rgba(15, 40, 78, 0.15);
+        }
+
+        .progress-bar-custom {
+            background: linear-gradient(90deg, #2563eb 0%, #10b981 100%);
+            border-radius: 10px;
+        }
+
+        .btn-brand {
+            background-color: var(--cgjp-primary);
+            color: #ffffff;
+            font-weight: 600;
+            border: none;
+            padding: 9px 20px;
+            border-radius: 8px;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .btn-brand:hover {
+            background-color: #1a3a6b;
+            color: #ffffff;
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: #ffffff;
+            font-weight: 700;
+            border: none;
+            border-radius: 8px;
+        }
+
+        .btn-gold:hover {
+            background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+            color: #ffffff;
+        }
+
+        .footer-custom {
+            background-color: #0b1c36;
+            color: #94a3b8;
+            padding: 40px 0 20px;
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body>
+    <header class="sticky-top bg-white border-bottom shadow-sm">
+        <nav class="navbar navbar-expand-lg navbar-light container-fluid px-lg-4 px-xl-5 py-2">
+            <a class="navbar-brand navbar-brand-custom py-1 text-nowrap" asp-controller="Home" asp-action="Index">
+                <img src="@siteConfig.LogoUrl" alt="Logo @siteConfig.SiteName" class="rounded-circle shadow-sm" style="width: 44px; height: 44px; object-fit: cover;" onerror="this.src='/images/logo-jp.png';" />
+                <div class="d-flex flex-column justify-content-center">
+                    <span class="fw-bold fs-5 text-dark" style="letter-spacing: -0.3px; line-height: 1.1;">
+                        @siteConfig.SiteName <span style="color: #dc2626; font-weight: 800;">@siteConfig.SiteNameHighlight</span>
+                    </span>
+                    <span class="text-muted fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.2px;">
+                        @siteConfig.SiteSlogan
+                    </span>
+                </div>
+            </a>
+            
+            <!-- Botón Hamburguesa Móvil (3 Rayas) -->
+            <button class="navbar-toggler border-0 shadow-none p-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#navbarOffcanvas" aria-controls="navbarOffcanvas" aria-label="Abrir Menú">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Menú Lateral Fluido (Offcanvas en móvil / Navbar inline en escritorio) -->
+            <div class="offcanvas offcanvas-end offcanvas-mobile" tabindex="-1" id="navbarOffcanvas" aria-labelledby="navbarOffcanvasLabel">
+                <!-- Encabezado del Menú Lateral (Visible solo en móvil) -->
+                <div class="offcanvas-header border-bottom py-3 px-3 d-lg-none bg-white">
+                    <div class="d-flex align-items-center gap-2">
+                        <img src="@siteConfig.LogoUrl" alt="Logo" class="rounded-circle shadow-sm" style="width: 36px; height: 36px; object-fit: cover;" onerror="this.src='/images/logo-jp.png';" />
+                        <div class="d-flex flex-column">
+                            <span class="fw-bold text-dark" style="font-size: 0.95rem; line-height: 1.1;">
+                                @siteConfig.SiteName <span style="color: #dc2626; font-weight: 800;">@siteConfig.SiteNameHighlight</span>
+                            </span>
+                            <span class="text-muted" style="font-size: 0.68rem;">@siteConfig.SiteSlogan</span>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close shadow-none" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+                </div>
+
+                <!-- Cuerpo del Menú Lateral -->
+                <div class="offcanvas-body p-3 p-lg-0">
+                    @{
+                        var currentCtrl = ViewContext.RouteData.Values["controller"]?.ToString();
+                        bool isAdminMode = currentCtrl == "Admin";
+                        bool isCreatorMode = currentCtrl == "Creador";
+                        bool isCreatorRole = User.IsInRole("Creator");
+                        bool isAdminRole = User.IsInRole("Admin");
+
+                        var userPic = User.FindFirst("ProfilePictureUrl")?.Value;
+                        var rawName = User.Identity?.Name ?? "Usuario";
+                        var nameParts = rawName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                        var userInitials = nameParts.Length >= 2 
+                            ? $"{nameParts[0][0]}{nameParts[1][0]}".ToUpper() 
+                            : (nameParts.Length == 1 ? nameParts[0][0].ToString().ToUpper() : "U");
+                    }
+
+                    @* 1. Tarjeta de Usuario en MÓVIL (Visible solo en móvil) *@
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <div class="d-lg-none p-3 mb-3 bg-light rounded-4 border">
+                            <a asp-controller="Account" asp-action="Perfil" class="text-decoration-none text-dark d-flex align-items-center gap-3">
+                                @if (!string.IsNullOrEmpty(userPic))
+                                {
+                                    <img src="@userPic" alt="Avatar" class="rounded-circle shadow-sm border border-light" style="width: 44px; height: 44px; object-fit: cover;" />
+                                }
+                                else
+                                {
+                                    <span class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 44px; height: 44px; font-size: 1rem;">
+                                        @userInitials
+                                    </span>
+                                }
+                                <div class="overflow-hidden flex-grow-1">
+                                    <div class="fw-bold text-dark text-truncate">@rawName</div>
+                                    <div class="text-primary small fw-semibold" style="font-size: 0.75rem;">
+                                        <i class="bi bi-person-badge me-1"></i>ID: @User.FindFirst("IdentificationNumber")?.Value
+                                    </div>
+                                </div>
+                                <i class="bi bi-chevron-right text-muted"></i>
+                            </a>
+
+                            @* Selector de Modo en Móvil *@
+                            @if (isAdminRole)
+                            {
+                                <div class="d-flex align-items-center w-100 p-1 rounded-pill bg-white border shadow-sm mt-3" style="gap: 4px;" role="group">
+                                    <a asp-controller="Account" asp-action="Dashboard" 
+                                       class="btn btn-sm flex-fill rounded-pill fw-bold text-truncate border-0 @(!isAdminMode ? "btn-primary text-white shadow-xs" : "text-secondary")">
+                                        <i class="bi bi-mortarboard-fill me-1"></i> Alumno
+                                    </a>
+                                    <a asp-controller="Admin" asp-action="Index" 
+                                       class="btn btn-sm flex-fill rounded-pill fw-bold text-truncate border-0 @(isAdminMode ? "btn-danger text-white shadow-xs" : "text-secondary")">
+                                        <i class="bi bi-shield-lock-fill me-1"></i> Admin
+                                    </a>
+                                </div>
+                            }
+                            else if (isCreatorRole)
+                            {
+                                <div class="d-flex align-items-center w-100 p-1 rounded-pill bg-white border shadow-sm mt-3" style="gap: 4px;" role="group">
+                                    <a asp-controller="Account" asp-action="Dashboard" 
+                                       class="btn btn-sm flex-fill rounded-pill fw-bold text-truncate border-0 @(!isCreatorMode ? "btn-primary text-white shadow-xs" : "text-secondary")">
+                                        <i class="bi bi-mortarboard-fill me-1"></i> Alumno
+                                    </a>
+                                    <a asp-controller="Creador" asp-action="Cursos" 
+                                       class="btn btn-sm flex-fill rounded-pill fw-bold text-truncate border-0 @(isCreatorMode ? "btn-warning text-dark shadow-xs" : "text-secondary")">
+                                        <i class="bi bi-palette-fill me-1"></i> Creador
+                                    </a>
+                                </div>
+                            }
+                        </div>
+                    }
+
+                    @* 2. Navegación Principal (Izquierda en desktop / Vertical en móvil) *@
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3 align-items-lg-center flex-column flex-lg-row gap-1">
+                        <li class="nav-item">
+                            <a class="nav-link fw-semibold text-nowrap py-2 py-lg-1 px-2 rounded-3" asp-controller="Cursos" asp-action="Index">
+                                <i class="bi bi-grid-fill me-2 me-lg-1 text-primary"></i> Catálogo Completo
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link fw-semibold text-nowrap py-2 py-lg-1 px-2 rounded-3" asp-controller="Curriculum" asp-action="Index">
+                                <i class="bi bi-file-earmark-person-fill me-2 me-lg-1 text-primary"></i> Crear CV con IA <span class="badge bg-success bg-opacity-25 text-success rounded-pill fw-bold" style="font-size: 0.72rem;">$1</span>
+                            </a>
+                        </li>
+                        @if (!isAdminMode && !isCreatorMode)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link fw-semibold text-nowrap py-2 py-lg-1 px-2 rounded-3" asp-controller="Certificados" asp-action="Verificar">
+                                    <i class="bi bi-patch-check-fill me-2 me-lg-1 text-warning"></i> Validar Certificado
+                                </a>
+                            </li>
+                            @if (User.Identity?.IsAuthenticated != true || (!User.IsInRole("Admin") && !User.IsInRole("Creator")))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link fw-bold text-warning text-nowrap py-2 py-lg-1 px-2 rounded-3" asp-controller="Membresia" asp-action="Creador">
+                                        <i class="bi bi-star-fill me-2 me-lg-1"></i> Ser Creador ($10)
+                                    </a>
+                                </li>
+                            }
+                        }
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            @if (isAdminMode)
+                            {
+                                <li class="nav-item d-none d-lg-block ms-1">
+                                    <span class="badge bg-danger bg-opacity-10 text-danger fw-bold px-3 py-1 border border-danger border-opacity-25 rounded-pill text-nowrap">
+                                        <i class="bi bi-shield-lock-fill me-1"></i> Modo Admin
+                                    </span>
+                                </li>
+                            }
+                            else if (isCreatorMode)
+                            {
+                                <li class="nav-item d-none d-lg-block ms-1">
+                                    <span class="badge bg-warning bg-opacity-10 text-warning-emphasis fw-bold px-3 py-1 border border-warning border-opacity-25 rounded-pill text-nowrap">
+                                        <i class="bi bi-palette-fill me-1"></i> Modo Creador
+                                    </span>
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="nav-item d-none d-lg-block ms-1">
+                                    <span class="badge bg-primary bg-opacity-10 text-primary fw-bold px-3 py-1 border border-primary border-opacity-25 rounded-pill text-nowrap">
+                                        <i class="bi bi-mortarboard-fill me-1"></i> Modo Alumno
+                                    </span>
+                                </li>
+                            }
+                        }
+                    </ul>
+
+                    @* 3. Navegación Secundaria (Derecha en desktop / Resto del menú en móvil) *@
+                    <ul class="navbar-nav align-items-lg-center gap-2 flex-column flex-lg-row ms-auto">
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            @if (!isAdminMode)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link fw-bold text-primary text-nowrap py-2 py-lg-1 px-2 rounded-3" asp-controller="Account" asp-action="Dashboard">
+                                        <i class="bi bi-journal-bookmark-fill me-2 me-lg-1"></i> Mis Cursos
+                                    </a>
+                                </li>
+                            }
+                            @if (isAdminRole)
+                            {
+                                <li class="nav-item d-none d-lg-block">
+                                    <div class="d-inline-flex align-items-center p-1 rounded-pill bg-light border shadow-sm" style="gap: 4px;" role="group" aria-label="Selector de Modo">
+                                        <a asp-controller="Account" asp-action="Dashboard" 
+                                           class="btn btn-sm rounded-pill px-3 py-1 fw-bold text-nowrap border-0 @(!isAdminMode ? "btn-primary text-white shadow-sm" : "text-secondary")"
+                                           style="font-size: 0.82rem; transition: all 0.2s ease;"
+                                           title="Modo Alumno: ver mis cursos, catálogo y avance como estudiante">
+                                            <i class="bi bi-mortarboard-fill me-1"></i> Alumno
+                                        </a>
+                                        <a asp-controller="Admin" asp-action="Index" 
+                                           class="btn btn-sm rounded-pill px-3 py-1 fw-bold text-nowrap border-0 @(isAdminMode ? "btn-danger text-white shadow-sm" : "text-secondary")"
+                                           style="font-size: 0.82rem; transition: all 0.2s ease;"
+                                           title="Modo Admin: conciliar pagos, gestionar catálogo y estudiantes">
+                                            <i class="bi bi-shield-lock-fill me-1"></i> Admin
+                                        </a>
+                                    </div>
+                                </li>
+                            }
+                            else if (isCreatorRole)
+                            {
+                                <li class="nav-item d-none d-lg-block">
+                                    <div class="d-inline-flex align-items-center p-1 rounded-pill bg-light border shadow-sm" style="gap: 4px;" role="group" aria-label="Selector de Modo Creador">
+                                        <a asp-controller="Account" asp-action="Dashboard" 
+                                           class="btn btn-sm rounded-pill px-3 py-1 fw-bold text-nowrap border-0 @(!isCreatorMode ? "btn-primary text-white shadow-sm" : "text-secondary")"
+                                           style="font-size: 0.82rem; transition: all 0.2s ease;"
+                                           title="Modo Alumno: ver mis cursos y avance como estudiante">
+                                            <i class="bi bi-mortarboard-fill me-1"></i> Alumno
+                                        </a>
+                                        <a asp-controller="Creador" asp-action="Cursos" 
+                                           class="btn btn-sm rounded-pill px-3 py-1 fw-bold text-nowrap border-0 @(isCreatorMode ? "btn-warning text-dark shadow-sm" : "text-secondary")"
+                                           style="font-size: 0.82rem; transition: all 0.2s ease;"
+                                           title="Modo Creador: crear y editar mis cursos y temarios">
+                                            <i class="bi bi-palette-fill me-1"></i> Creador
+                                        </a>
+                                    </div>
+                                </li>
+                            }
+
+                            @* Enlace a Mis Cursos de Creador en móvil *@
+                            @if (isCreatorRole)
+                            {
+                                <li class="nav-item d-lg-none">
+                                    <a class="nav-link fw-semibold text-primary py-2 px-2 rounded-3" asp-controller="Creador" asp-action="Cursos">
+                                        <i class="bi bi-palette-fill me-2"></i> Mis Cursos de Creador
+                                    </a>
+                                </li>
+                            }
+
+                            @* Enlace a Editar Perfil en móvil *@
+                            <li class="nav-item d-lg-none">
+                                <a class="nav-link fw-semibold text-dark py-2 px-2 rounded-3" asp-controller="Account" asp-action="Perfil">
+                                    <i class="bi bi-person-gear me-2 text-primary"></i> Editar Mi Perfil
+                                </a>
+                            </li>
+
+                            @* Enlace a Generador de CV en móvil *@
+                            <li class="nav-item d-lg-none">
+                                <a class="nav-link fw-semibold text-dark py-2 px-2 rounded-3" asp-controller="Curriculum" asp-action="Index">
+                                    <i class="bi bi-file-earmark-person-fill me-2 text-primary"></i> Crear CV con IA ($1)
+                                </a>
+                            </li>
+
+                            @* Dropdown de Usuario en Desktop *@
+                            <li class="nav-item dropdown d-none d-lg-block">
+                                <a class="nav-link dropdown-toggle fw-semibold d-flex align-items-center gap-2 text-nowrap py-1" href="#" role="button" data-bs-toggle="dropdown">
+                                    @if (!string.IsNullOrEmpty(userPic))
+                                    {
+                                        <img src="@userPic" alt="Avatar" class="rounded-circle shadow-sm border border-light" style="width: 28px; height: 28px; object-fit: cover;" />
+                                    }
+                                    else
+                                    {
+                                        <span class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 28px; height: 28px; font-size: 0.72rem;">
+                                            @userInitials
+                                        </span>
+                                    }
+                                    <span>@rawName</span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end shadow border-0 p-2" style="min-width: 240px;">
+                                    <li>
+                                        <a class="dropdown-item p-2 rounded-3 d-flex align-items-center gap-2" asp-controller="Account" asp-action="Perfil" title="Haz clic para editar tu nombre, cédula, correo, foto y datos personales">
+                                            <div class="bg-primary bg-opacity-10 text-primary rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                                                <i class="bi bi-person-gear fs-5"></i>
+                                            </div>
+                                            <div>
+                                                <span class="d-block fw-bold text-dark small">Editar Mi Perfil</span>
+                                                <span class="d-block text-primary small fw-semibold" style="font-size: 0.75rem;">
+                                                    <i class="bi bi-pencil-square me-1"></i>ID: @User.FindFirst("IdentificationNumber")?.Value
+                                                </span>
+                                            </div>
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider my-2"></li>
+                                    <li>
+                                        <a class="dropdown-item fw-semibold text-dark" asp-controller="Account" asp-action="Dashboard">
+                                            <i class="bi bi-journal-bookmark-fill me-2 text-primary"></i> Mis Cursos
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item fw-semibold text-dark" asp-controller="Curriculum" asp-action="Index">
+                                            <i class="bi bi-file-earmark-person-fill me-2 text-primary"></i> Mi Currículum con IA ($1)
+                                        </a>
+                                    </li>
+                                    @if (User.IsInRole("Creator"))
+                                    {
+                                        <li>
+                                            <a class="dropdown-item fw-semibold text-primary" asp-controller="Creador" asp-action="Cursos">
+                                                <i class="bi bi-palette-fill me-2"></i> Mis Cursos de Creador
+                                            </a>
+                                        </li>
+                                    }
+                                    @if (!User.IsInRole("Admin") && !User.IsInRole("Creator"))
+                                    {
+                                        <li>
+                                            <a class="dropdown-item fw-semibold text-warning" asp-controller="Membresia" asp-action="Creador">
+                                                <i class="bi bi-star-fill me-2"></i> Membresía Creador ($10)
+                                            </a>
+                                        </li>
+                                    }
+                                    <li><hr class="dropdown-divider my-2"></li>
+                                    <li>
+                                        <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="dropdown-item text-danger fw-semibold">
+                                                <i class="bi bi-box-arrow-right me-2"></i> Cerrar Sesión
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+
+                            @* Cerrar Sesión en Móvil (Botón limpio al final del menú lateral) *@
+                            <li class="nav-item d-lg-none mt-3 pt-3 border-top">
+                                <form asp-controller="Account" asp-action="Logout" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-outline-danger w-100 fw-semibold py-2 rounded-3 text-start d-flex align-items-center justify-content-between">
+                                        <span><i class="bi bi-box-arrow-right me-2"></i> Cerrar Sesión</span>
+                                        <i class="bi bi-chevron-right small"></i>
+                                    </button>
+                                </form>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="btn btn-link text-decoration-none fw-semibold text-dark w-100 text-start text-lg-center" asp-controller="Account" asp-action="Login">
+                                    <i class="bi bi-box-arrow-in-right me-1 d-lg-none"></i> Iniciar Sesión
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn btn-brand w-100 text-center" asp-controller="Account" asp-action="Register">
+                                    <i class="bi bi-person-plus me-1"></i> Registrarse Gratis
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="main-content">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="container mt-3">
+                <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm" role="alert">
+                    <i class="bi bi-check-circle-fill me-2"></i> @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="container mt-3">
+                <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["ErrorMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            </div>
+        }
+
+        @RenderBody()
+    </div>
+
+    <footer class="footer-custom">
+        <div class="container">
+            <div class="row g-4 mb-4">
+                <div class="col-lg-4">
+                    <h5 class="text-white fw-bold d-flex align-items-center gap-2 mb-2">
+                        <img src="@siteConfig.LogoUrl" alt="Logo @siteConfig.SiteName" class="rounded-circle shadow-sm" style="width: 38px; height: 38px; object-fit: cover;" onerror="this.src='/images/logo-jp.png';" />
+                        <span>@siteConfig.SiteName <span style="color: #ef4444;">@siteConfig.SiteNameHighlight</span></span>
+                    </h5>
+                    <p class="small text-secondary mb-0">
+                        @siteConfig.FooterDescription
+                    </p>
+                    @if (!string.IsNullOrWhiteSpace(siteConfig.SocialInstagram) || !string.IsNullOrWhiteSpace(siteConfig.SocialWhatsapp))
+                    {
+                        <div class="d-flex gap-2 mt-3">
+                            @if (!string.IsNullOrWhiteSpace(siteConfig.SocialInstagram))
+                            {
+                                <a href="@siteConfig.SocialInstagram" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-light rounded-circle p-1 d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px;" title="Instagram">
+                                    <i class="bi bi-instagram"></i>
+                                </a>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(siteConfig.SocialWhatsapp))
+                            {
+                                var waLink = siteConfig.SocialWhatsapp.StartsWith("http") ? siteConfig.SocialWhatsapp : $"https://wa.me/{siteConfig.SocialWhatsapp.Replace("+", "").Replace(" ", "").Replace("-", "")}";
+                                <a href="@waLink" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-light rounded-circle p-1 d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px;" title="WhatsApp">
+                                    <i class="bi bi-whatsapp"></i>
+                                </a>
+                            }
+                        </div>
+                    }
+                </div>
+                <div class="col-lg-2 col-md-4">
+                    <h6 class="text-white fw-semibold mb-3">Rutas</h6>
+                    <ul class="list-unstyled small d-flex flex-column gap-2">
+                        <li><a href="/Cursos?categoria=tecnologias-e-ia" class="text-secondary text-decoration-none">Tecnología e IA</a></li>
+                        <li><a href="/Cursos?categoria=gestion-empresarial" class="text-secondary text-decoration-none">Gestión Empresarial</a></li>
+                        <li><a href="/Cursos?categoria=ciberseguridad-e-idiomas" class="text-secondary text-decoration-none">Ciberseguridad e Idiomas</a></li>
+                        <li><a href="/Cursos?categoria=habilidades-blandas-y-seguridad" class="text-secondary text-decoration-none">Seguridad y Habilidades Blandas</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-4">
+                    <h6 class="text-white fw-semibold mb-3">Modelo Educativo</h6>
+                    <ul class="list-unstyled small d-flex flex-column gap-2">
+                        <li class="text-secondary"><i class="bi bi-check2 text-success me-1"></i> Contenido 100% Gratuito</li>
+                        <li class="text-secondary"><i class="bi bi-check2 text-success me-1"></i> Certificado Oficial: $1 USD</li>
+                        <li class="text-secondary"><i class="bi bi-check2 text-success me-1"></i> Validación con Código QR</li>
+                        <li class="text-secondary"><i class="bi bi-check2 text-success me-1"></i> Acreditable en LinkedIn y CV</li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-4">
+                    <h6 class="text-white fw-semibold mb-3">Métodos de Pago ($1)</h6>
+                    <p class="small text-secondary mb-2">Aceptamos transferencias y pagos locales e internacionales:</p>
+                    <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                        @foreach (var method in (siteConfig.FooterPaymentMethods ?? "Pago Móvil, Transferencia Bancaria, Binance Pay, USDT").Split(',', StringSplitOptions.RemoveEmptyEntries))
+                        {
+                            <span class="badge bg-secondary">@method.Trim()</span>
+                        }
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(siteConfig.FooterPaymentNote))
+                    {
+                        <div class="small text-warning fw-semibold" style="font-size: 0.75rem;">
+                            <i class="bi bi-info-circle me-1"></i> @siteConfig.FooterPaymentNote
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="border-top border-secondary pt-3 text-center small text-secondary">
+                <div class="fw-semibold text-light mb-1">
+                    @siteConfig.FooterCompanyInfo &bull; <a href="mailto:@siteConfig.FooterContactEmail" class="text-light text-decoration-none"><i class="bi bi-envelope-fill text-warning me-1"></i>@siteConfig.FooterContactEmail</a>
+                </div>
+                <div class="my-2">
+                    <a asp-controller="Home" asp-action="Terminos" class="text-warning text-decoration-none fw-bold me-2">
+                        <i class="bi bi-shield-lock-fill me-1"></i> Términos y Condiciones
+                    </a>
+                    &bull;
+                    <a asp-controller="Certificados" asp-action="Verificar" class="text-light text-decoration-none ms-2 me-2">
+                        <i class="bi bi-patch-check me-1"></i> Validación de Certificados
+                    </a>
+                    @if (!string.IsNullOrWhiteSpace(siteConfig.FooterWebsiteUrl))
+                    {
+                        var displayUrl = siteConfig.FooterWebsiteUrl.Replace("https://", "").Replace("http://", "").TrimEnd('/');
+                        @:&bull;
+                        <a href="@siteConfig.FooterWebsiteUrl" target="_blank" rel="noopener noreferrer" class="text-light text-decoration-none ms-2">
+                            <i class="bi bi-globe me-1"></i> @displayUrl
+                        </a>
+                    }
+                </div>
+                <div>
+                    &copy; @DateTime.UtcNow.Year @siteConfig.FooterCopyright
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Toggle visualización de contraseñas (ojito en campos password)
+        document.addEventListener('click', function (e) {
+            const btn = e.target.closest('.toggle-password');
+            if (!btn) return;
+            e.preventDefault();
+            const group = btn.closest('.input-group');
+            if (!group) return;
+            const input = group.querySelector('input');
+            if (!input) return;
+            const icon = btn.querySelector('i');
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                if (icon) {
+                    icon.classList.remove('bi-eye');
+                    icon.classList.add('bi-eye-slash');
+                }
+            } else {
+                input.type = 'password';
+                if (icon) {
+                    icon.classList.remove('bi-eye-slash');
+                    icon.classList.add('bi-eye');
+                }
+            }
+        });
+    </script>
+
+    @{
+        var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+        var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+        var currentPath = Context.Request.Path.Value ?? "/";
+        var isHomePage = (string.Equals(currentController, "Home", StringComparison.OrdinalIgnoreCase) && 
+                          string.Equals(currentAction, "Index", StringComparison.OrdinalIgnoreCase))
+                         || currentPath == "/"
+                         || string.Equals(currentPath, "/Home", StringComparison.OrdinalIgnoreCase)
+                         || string.Equals(currentPath, "/Home/Index", StringComparison.OrdinalIgnoreCase);
+    }
+
+    @if (isHomePage && siteConfig.PopupIsEnabled && !string.IsNullOrWhiteSpace(siteConfig.PopupMessage))
+    {
+        <!-- Modal Global de Popup / Anuncio para Visitantes (Exclusivo Página de Inicio) -->
+        <div class="modal fade" id="modalAnuncioGlobal" tabindex="-1" aria-labelledby="modalAnuncioGlobalLabel" aria-hidden="true" data-bs-backdrop="static">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                    <div class="modal-header @siteConfig.PopupHeaderClass border-0 py-3">
+                        <h5 class="modal-title fw-bold d-flex align-items-center gap-2 mb-0" id="modalAnuncioGlobalLabel">
+                            <i class="bi @siteConfig.PopupIconClass fs-4"></i>
+                            <span>@(string.IsNullOrWhiteSpace(siteConfig.PopupTitle) ? "Aviso Importante" : siteConfig.PopupTitle)</span>
+                        </h5>
+                        <button type="button" class="btn-close @(siteConfig.PopupType == "warning" || siteConfig.PopupType == "info" ? "" : "btn-close-white")" data-bs-dismiss="modal" aria-label="Close" onclick="marcarAnuncioVisto()"></button>
+                    </div>
+                    <div class="modal-body p-4 bg-white text-dark">
+                        <div style="font-size: 0.95rem; line-height: 1.6; white-space: pre-line;">@siteConfig.PopupMessage</div>
+                    </div>
+                    <div class="modal-footer bg-light border-0 py-2 d-flex justify-content-between align-items-center">
+                        <span class="small text-muted" style="font-size: 0.75rem;">
+                            <i class="bi bi-broadcast text-primary me-1"></i>Comunicado Oficial
+                        </span>
+                        <div class="d-flex gap-2">
+                            @if (!string.IsNullOrWhiteSpace(siteConfig.PopupActionUrl))
+                            {
+                                <a href="@siteConfig.PopupActionUrl" class="btn btn-sm btn-outline-primary fw-semibold" target="_blank">
+                                    @(string.IsNullOrWhiteSpace(siteConfig.PopupActionText) ? "Más información" : siteConfig.PopupActionText)
+                                    <i class="bi bi-box-arrow-up-right ms-1"></i>
+                                </a>
+                            }
+                            <button type="button" class="btn btn-sm btn-dark fw-bold px-3" data-bs-dismiss="modal" onclick="marcarAnuncioVisto()">
+                                @(string.IsNullOrWhiteSpace(siteConfig.PopupButtonText) ? "Entendido" : siteConfig.PopupButtonText)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            (function () {
+                // Validación estricta de ruta en frontend: Solo ejecutar en la página de inicio
+                var pathname = window.location.pathname.toLowerCase();
+                if (pathname !== '/' && pathname !== '/home' && pathname !== '/home/index') {
+                    return; // No ejecuta la ventana emergente en rutas secundarias
+                }
+
+                var popupVersion = "@siteConfig.PopupVersion";
+                var showOnce = @(siteConfig.PopupShowOnce ? "true" : "false");
+                var storageKey = "cgjp_popup_seen_" + popupVersion;
+
+                window.marcarAnuncioVisto = function () {
+                    if (showOnce) {
+                        try {
+                            localStorage.setItem(storageKey, "true");
+                        } catch (e) { }
+                    }
+                };
+
+                function abrirModal() {
+                    var el = document.getElementById("modalAnuncioGlobal");
+                    if (!el) return;
+                    if (typeof bootstrap !== "undefined" && bootstrap.Modal) {
+                        var modal = bootstrap.Modal.getInstance(el) || new bootstrap.Modal(el);
+                        modal.show();
+                    } else if (typeof jQuery !== "undefined" && jQuery(el).modal) {
+                        jQuery(el).modal('show');
+                    } else {
+                        setTimeout(abrirModal, 200);
+                    }
+                }
+
+                function inicializarPopup() {
+                    if (!showOnce || !localStorage.getItem(storageKey)) {
+                        setTimeout(abrirModal, 400);
+                    }
+                }
+
+                if (document.readyState === "complete" || document.readyState === "interactive") {
+                    inicializarPopup();
+                } else {
+                    window.addEventListener("DOMContentLoaded", inicializarPopup);
+                }
+            })();
+        </script>
+    }
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

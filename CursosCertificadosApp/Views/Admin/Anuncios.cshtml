@@ -1,0 +1,460 @@
+@model CursosCertificadosApp.Models.ViewModels.PopupSettingViewModel
+@{
+    ViewData["Title"] = "Gestión de Popups y Anuncios - Administración";
+}
+
+<div class="container py-4">
+    <!-- Encabezado y Navegación Fija Centralizada -->
+    <partial name="_AdminHeader" />
+
+    <!-- Barra de Título y Estado Actual -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3 p-3 bg-light rounded-4 border">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <h4 class="fw-bold mb-0 text-dark">
+                    <i class="bi bi-megaphone-fill text-warning me-2"></i>Gestión de Popups y Anuncios
+                </h4>
+                @if (Model.IsEnabled)
+                {
+                    <span class="badge bg-success-subtle text-success border border-success px-2 py-1">
+                        <i class="bi bi-broadcast me-1"></i>ACTIVO Y VISIBLE
+                    </span>
+                }
+                else
+                {
+                    <span class="badge bg-secondary-subtle text-muted border px-2 py-1">
+                        <i class="bi bi-eye-slash me-1"></i>INACTIVO / DESACTIVADO
+                    </span>
+                }
+            </div>
+            <p class="text-muted small mb-0">
+                Configura comunicados y avisos emergentes automáticos para cuando los visitantes ingresen a la plataforma (mantenimiento, novedades o alertas).
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <button type="button" class="btn btn-outline-dark btn-sm fw-bold px-3 shadow-xs" onclick="probarPopupEnPantalla()">
+                <i class="bi bi-play-circle-fill text-primary me-1"></i> Probar en Pantalla
+            </button>
+        </div>
+    </div>
+
+    <!-- Plantillas Rápidas con 1 Clic -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4 bg-white">
+        <div class="card-body p-3">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-primary bg-opacity-10 text-primary p-2 rounded-circle">
+                        <i class="bi bi-magic fs-6"></i>
+                    </span>
+                    <div>
+                        <strong class="d-block text-dark small" style="line-height: 1.2;">Plantillas Rápidas de Mensajes</strong>
+                        <span class="text-muted" style="font-size: 0.75rem;">Haz clic para cargar textos y estilos preconfigurados con un solo toque:</span>
+                    </div>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-warning text-dark fw-semibold" onclick="cargarPlantilla('mantenimiento')">
+                        <i class="bi bi-tools me-1"></i> Mantenimiento
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-info text-dark fw-semibold" onclick="cargarPlantilla('informativo')">
+                        <i class="bi bi-info-circle me-1"></i> Informativo
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-danger fw-semibold" onclick="cargarPlantilla('urgente')">
+                        <i class="bi bi-exclamation-triangle me-1"></i> Urgente / Interrupción
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-success fw-semibold" onclick="cargarPlantilla('novedad')">
+                        <i class="bi bi-stars me-1"></i> Novedad / Cursos
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulario Principal -->
+    <form asp-action="GuardarAnuncios" method="post" id="formAnuncios">
+        @Html.AntiForgeryToken()
+
+        <div class="row g-4">
+            <!-- ==========================================
+                 COLUMNA IZQUIERDA: CONFIGURACIÓN Y MENSAJE
+                 ========================================== -->
+            <div class="col-lg-7">
+                <!-- Tarjeta 1: Control de Estado y Frecuencia -->
+                <div class="card border-0 shadow-sm rounded-4 mb-4 bg-white">
+                    <div class="card-header bg-white py-3 border-bottom">
+                        <h6 class="fw-bold mb-0 text-dark">
+                            <i class="bi bi-toggle-on text-primary me-2"></i>1. Control de Publicación y Frecuencia
+                        </h6>
+                    </div>
+                    <div class="card-body p-4">
+                        <!-- Switch Principal de Activación -->
+                        <div class="p-3 bg-light rounded-3 border mb-3">
+                            <div class="form-check form-switch fs-5 d-flex align-items-center justify-content-between p-0 m-0">
+                                <label class="form-check-label fw-bold text-dark cursor-pointer mb-0 me-3" for="checkIsEnabled">
+                                    <span class="d-block fs-6">Activar Popup / Anuncio en la Plataforma</span>
+                                    <span class="text-muted fw-normal d-block" style="font-size: 0.78rem;">
+                                        Al estar activo, los visitantes verán la ventana emergente al entrar al sitio web.
+                                    </span>
+                                </label>
+                                <input class="form-check-input ms-auto" type="checkbox" name="IsEnabled" value="true" id="checkIsEnabled" @(Model.IsEnabled ? "checked" : "") onchange="actualizarVistaPrevia()" style="width: 2.8em; height: 1.5em; cursor: pointer;">
+                            </div>
+                        </div>
+
+                        <!-- Frecuencia de Aparición (Exclusiva de Página de Inicio) -->
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="form-label fw-bold text-secondary small mb-0">Frecuencia de Visualización (Solo en Página de Inicio):</label>
+                            <span class="badge bg-light text-muted border" style="font-size: 0.70rem;">
+                                <i class="bi bi-house-door-fill text-primary me-1"></i>Aplica solo en Home
+                            </span>
+                        </div>
+                        <div class="row g-2">
+                            <div class="col-md-6">
+                                <div class="form-check p-3 bg-light rounded-3 border h-100">
+                                    <input class="form-check-input" type="radio" name="ShowOnce" id="radioShowOnceFalse" value="false" @(!Model.ShowOnce ? "checked" : "")>
+                                    <label class="form-check-label small" for="radioShowOnceFalse">
+                                        <strong class="d-block text-dark">En cada Carga de Página (Predeterminado)</strong>
+                                        <span class="text-muted" style="font-size: 0.75rem;">Se muestra al ingresar o recargar la página principal. Ideal para avisos de mantenimiento.</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check p-3 bg-light rounded-3 border h-100">
+                                    <input class="form-check-input" type="radio" name="ShowOnce" id="radioShowOnceTrue" value="true" @(Model.ShowOnce ? "checked" : "")>
+                                    <label class="form-check-label small" for="radioShowOnceTrue">
+                                        <strong class="d-block text-dark">Solo en la 1ª Visita</strong>
+                                        <span class="text-muted" style="font-size: 0.75rem;">Aparece al entrar por primera vez y se recuerda su cierre en el navegador (localStorage).</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tarjeta 2: Contenido y Estilo del Anuncio -->
+                <div class="card border-0 shadow-sm rounded-4 bg-white">
+                    <div class="card-header bg-white py-3 border-bottom">
+                        <h6 class="fw-bold mb-0 text-dark">
+                            <i class="bi bi-pencil-square text-primary me-2"></i>2. Contenido y Apariencia del Aviso
+                        </h6>
+                    </div>
+                    <div class="card-body p-4">
+                        <!-- Tipo / Nivel de Alerta -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-secondary small">Tipo de Aviso / Estilo Visual:</label>
+                            <select name="Type" id="selectType" class="form-select" onchange="actualizarVistaPrevia()">
+                                <option value="warning" selected="@(Model.Type == "warning")">⚠️ Advertencia / Mantenimiento (Amarillo)</option>
+                                <option value="info" selected="@(Model.Type == "info")">ℹ️ Informativo / Comunicado (Azul Claro)</option>
+                                <option value="danger" selected="@(Model.Type == "danger")">🚨 Urgente / Interrupción Crítica (Rojo)</option>
+                                <option value="success" selected="@(Model.Type == "success")">✨ Novedad / Lanzamiento de Cursos (Verde)</option>
+                                <option value="primary" selected="@(Model.Type == "primary")">📢 Institucional / Estándar (Azul Marino)</option>
+                            </select>
+                        </div>
+
+                        <!-- Título del Anuncio -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-secondary small">
+                                Título del Anuncio <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" name="Title" id="inputTitle" class="form-control" value="@Model.Title" required maxlength="150" placeholder="Ej: Aviso de Mantenimiento Programado" oninput="actualizarVistaPrevia()" />
+                        </div>
+
+                        <!-- Mensaje / Contenido -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-secondary small">
+                                Mensaje del Anuncio <span class="text-danger">*</span>
+                            </label>
+                            <textarea name="Message" id="inputMessage" class="form-control" rows="5" required placeholder="Escribe el comunicado para los usuarios..." oninput="actualizarVistaPrevia()">@Model.Message</textarea>
+                            <div class="form-text" style="font-size: 0.75rem;">
+                                Puedes escribir en múltiples párrafos usando la tecla Enter. Los saltos de línea se respetarán en pantalla.
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <!-- Botón de Cierre -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-secondary small">Texto Botón de Cierre:</label>
+                                <input type="text" name="ButtonText" id="inputButtonText" class="form-control" value="@Model.ButtonText" maxlength="50" placeholder="Entendido" oninput="actualizarVistaPrevia()" />
+                            </div>
+
+                            <!-- Texto del Enlace Opcional -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-secondary small">Texto Enlace Opcional:</label>
+                                <input type="text" name="ActionText" id="inputActionText" class="form-control" value="@Model.ActionText" maxlength="50" placeholder="Ej: Ver canal de soporte" oninput="actualizarVistaPrevia()" />
+                            </div>
+
+                            <!-- URL Enlace Opcional -->
+                            <div class="col-12">
+                                <label class="form-label fw-bold text-secondary small">URL Enlace Opcional (Link):</label>
+                                <input type="url" name="ActionUrl" id="inputActionUrl" class="form-control font-monospace" value="@Model.ActionUrl" maxlength="300" placeholder="https://..." oninput="actualizarVistaPrevia()" />
+                                <div class="form-text" style="font-size: 0.75rem;">Opcional: agrega un enlace a WhatsApp, Telegram o a una página de cursos si aplica.</div>
+                            </div>
+                        </div>
+
+                        <!-- Botones de Guardar -->
+                        <div class="d-flex flex-wrap gap-2 pt-3 border-top justify-content-between align-items-center">
+                            <div>
+                                <button type="submit" class="btn btn-primary fw-bold px-4 shadow-sm">
+                                    <i class="bi bi-save me-1"></i> Guardar y Aplicar Cambios
+                                </button>
+                            </div>
+                            @if (Model.IsEnabled)
+                            {
+                                <button type="button" class="btn btn-outline-danger btn-sm" onclick="desactivarRapido()">
+                                    <i class="bi bi-power me-1"></i> Desactivar Anuncio Ahora
+                                </button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==========================================
+                 COLUMNA DERECHA: VISTA PREVIA EN TIEMPO REAL
+                 ========================================== -->
+            <div class="col-lg-5">
+                <div class="card border-0 shadow-sm rounded-4 bg-white sticky-top" style="top: 20px;">
+                    <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between">
+                        <span class="fw-bold text-dark small text-uppercase">
+                            <i class="bi bi-eye-fill text-primary me-2"></i>Vista Previa en Vivo
+                        </span>
+                        <span id="previewStatusBadge" class="badge @(Model.IsEnabled ? "bg-success" : "bg-secondary")">
+                            @(Model.IsEnabled ? "Activo" : "Inactivo")
+                        </span>
+                    </div>
+                    <div class="card-body bg-light p-3">
+                        <p class="text-muted small mb-3 text-center" style="font-size: 0.78rem;">
+                            Así es exactamente como verán los visitantes el popup en su pantalla:
+                        </p>
+
+                        <!-- Simulación del Modal -->
+                        <div class="border rounded-4 shadow-sm bg-white overflow-hidden mx-auto" style="max-width: 420px;">
+                            <!-- Header de simulación -->
+                            <div id="simHeader" class="py-3 px-3 d-flex align-items-center justify-content-between text-dark bg-warning">
+                                <h6 class="fw-bold mb-0 d-flex align-items-center gap-2" id="simTitleContainer">
+                                    <i id="simIcon" class="bi bi-tools fs-5"></i>
+                                    <span id="simTitle">@Model.Title</span>
+                                </h6>
+                                <button type="button" class="btn-close" disabled></button>
+                            </div>
+
+                            <!-- Body de simulación -->
+                            <div class="p-3 bg-white text-dark">
+                                <div id="simMessage" style="font-size: 0.85rem; line-height: 1.5; white-space: pre-line;">@Model.Message</div>
+                            </div>
+
+                            <!-- Footer de simulación -->
+                            <div class="py-2 px-3 bg-light border-top d-flex justify-content-between align-items-center">
+                                <span class="small text-muted" style="font-size: 0.70rem;">
+                                    <i class="bi bi-broadcast text-primary me-1"></i>Comunicado
+                                </span>
+                                <div class="d-flex gap-1">
+                                    <span id="simActionBtn" class="btn btn-sm btn-outline-primary py-0 px-2 fw-semibold @(string.IsNullOrWhiteSpace(Model.ActionUrl) ? "d-none" : "")" style="font-size: 0.75rem;">
+                                        <span id="simActionText">@(string.IsNullOrWhiteSpace(Model.ActionText) ? "Más info" : Model.ActionText)</span>
+                                        <i class="bi bi-box-arrow-up-right ms-1"></i>
+                                    </span>
+                                    <button type="button" class="btn btn-sm btn-dark py-0 px-2 fw-bold" style="font-size: 0.75rem;" id="simButtonText">
+                                        @Model.ButtonText
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-3 text-center">
+                            <button type="button" class="btn btn-sm btn-outline-dark fw-bold" onclick="probarPopupEnPantalla()">
+                                <i class="bi bi-arrows-fullscreen me-1"></i> Abrir Modal de Prueba Completo
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- ======================== MODAL DE PRUEBA EN PANTALLA ======================== -->
+<div class="modal fade" id="modalPruebaAdmin" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div id="modalPruebaHeader" class="modal-header py-3 border-0 bg-warning text-dark">
+                <h5 class="modal-title fw-bold d-flex align-items-center gap-2 mb-0">
+                    <i id="modalPruebaIcon" class="bi bi-tools fs-4"></i>
+                    <span id="modalPruebaTitle">@Model.Title</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4 bg-white text-dark">
+                <div id="modalPruebaMessage" style="font-size: 0.95rem; line-height: 1.6; white-space: pre-line;">@Model.Message</div>
+            </div>
+            <div class="modal-footer bg-light border-0 py-2 d-flex justify-content-between align-items-center">
+                <span class="small text-muted" style="font-size: 0.75rem;">
+                    <i class="bi bi-broadcast text-primary me-1"></i>Comunicado Oficial (Modo Prueba)
+                </span>
+                <div class="d-flex gap-2">
+                    <a href="#" id="modalPruebaActionBtn" class="btn btn-sm btn-outline-primary fw-semibold d-none" target="_blank">
+                        <span id="modalPruebaActionText">Más información</span>
+                        <i class="bi bi-box-arrow-up-right ms-1"></i>
+                    </a>
+                    <button type="button" class="btn btn-sm btn-dark fw-bold px-3" data-bs-dismiss="modal" id="modalPruebaBtnClose">
+                        @Model.ButtonText
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    const estilosMap = {
+        warning: {
+            headerClass: "bg-warning text-dark",
+            iconClass: "bi-tools",
+            btnColor: "btn-close"
+        },
+        info: {
+            headerClass: "bg-info text-dark",
+            iconClass: "bi-info-circle-fill",
+            btnColor: "btn-close"
+        },
+        danger: {
+            headerClass: "bg-danger text-white",
+            iconClass: "bi-exclamation-octagon-fill",
+            btnColor: "btn-close btn-close-white"
+        },
+        success: {
+            headerClass: "bg-success text-white",
+            iconClass: "bi-stars",
+            btnColor: "btn-close btn-close-white"
+        },
+        primary: {
+            headerClass: "bg-primary text-white",
+            iconClass: "bi-megaphone-fill",
+            btnColor: "btn-close btn-close-white"
+        }
+    };
+
+    function actualizarVistaPrevia() {
+        const isEnabled = document.getElementById('checkIsEnabled').checked;
+        const type = document.getElementById('selectType').value;
+        const title = document.getElementById('inputTitle').value || 'Aviso Importante';
+        const message = document.getElementById('inputMessage').value || 'Sin contenido de mensaje.';
+        const btnText = document.getElementById('inputButtonText').value || 'Entendido';
+        const actionUrl = document.getElementById('inputActionUrl').value.trim();
+        const actionText = document.getElementById('inputActionText').value.trim() || 'Más información';
+
+        // Badge de estado
+        const badge = document.getElementById('previewStatusBadge');
+        if (badge) {
+            badge.className = isEnabled ? "badge bg-success" : "badge bg-secondary";
+            badge.innerText = isEnabled ? "Activo" : "Inactivo";
+        }
+
+        // Estilos según tipo
+        const cfg = estilosMap[type] || estilosMap.warning;
+        const simHeader = document.getElementById('simHeader');
+        if (simHeader) {
+            simHeader.className = "py-3 px-3 d-flex align-items-center justify-content-between " + cfg.headerClass;
+        }
+
+        const simIcon = document.getElementById('simIcon');
+        if (simIcon) {
+            simIcon.className = "bi " + cfg.iconClass + " fs-5";
+        }
+
+        document.getElementById('simTitle').innerText = title;
+        document.getElementById('simMessage').innerText = message;
+        document.getElementById('simButtonText').innerText = btnText;
+
+        const actionBtn = document.getElementById('simActionBtn');
+        if (actionBtn) {
+            if (actionUrl) {
+                actionBtn.classList.remove('d-none');
+                document.getElementById('simActionText').innerText = actionText;
+            } else {
+                actionBtn.classList.add('d-none');
+            }
+        }
+    }
+
+    function cargarPlantilla(nombre) {
+        if (nombre === 'mantenimiento') {
+            document.getElementById('selectType').value = 'warning';
+            document.getElementById('inputTitle').value = 'Mantenimiento Programado del Sistema';
+            document.getElementById('inputMessage').value = 'Estimados usuarios y estudiantes:\n\nNos encontramos realizando labores de mantenimiento técnico y actualización en los servidores de la plataforma.\n\nDurante este breve período algunos accesos podrían experimentar demoras temporales. El servicio volverá a operar con total normalidad a la brevedad.\n\nAgradecemos su valiosa comprensión.';
+            document.getElementById('inputButtonText').value = 'Entendido';
+            document.getElementById('inputActionUrl').value = '';
+            document.getElementById('inputActionText').value = '';
+            document.getElementById('checkIsEnabled').checked = true;
+            document.getElementById('radioShowOnceFalse').checked = true;
+        } else if (nombre === 'informativo') {
+            document.getElementById('selectType').value = 'info';
+            document.getElementById('inputTitle').value = 'Comunicado Oficial a la Comunidad';
+            document.getElementById('inputMessage').value = 'Estimados alumnos y creadores:\n\nLes informamos que ya se encuentran habilitados los nuevos métodos de validación instantánea de certificados digitales mediante código QR oficial.\n\nPueden verificar cualquier diploma emitido las 24 horas del día.';
+            document.getElementById('inputButtonText').value = 'Aceptar';
+            document.getElementById('inputActionUrl').value = '/Certificados/Verificar';
+            document.getElementById('inputActionText').value = 'Validar Certificado';
+            document.getElementById('checkIsEnabled').checked = true;
+        } else if (nombre === 'urgente') {
+            document.getElementById('selectType').value = 'danger';
+            document.getElementById('inputTitle').value = 'Suspensión Temporal de Servicios';
+            document.getElementById('inputMessage').value = 'ATENCIÓN:\n\nDebido a trabajos de emergencia en la base de datos, el procesamiento de pagos y las evaluaciones estarán en pausa durante los próximos 30 minutos.\n\nPor favor no realices nuevos intentos hasta que se restablezca el sistema.';
+            document.getElementById('inputButtonText').value = 'Comprendido';
+            document.getElementById('inputActionUrl').value = '';
+            document.getElementById('inputActionText').value = '';
+            document.getElementById('checkIsEnabled').checked = true;
+            document.getElementById('radioShowOnceFalse').checked = true;
+        } else if (nombre === 'novedad') {
+            document.getElementById('selectType').value = 'success';
+            document.getElementById('inputTitle').value = '¡Nuevos Cursos Disponibles con Certificado!';
+            document.getElementById('inputMessage').value = '¡Tenemos grandes noticias para ti!\n\nHemos incorporado nuevos programas de formación profesional técnica y digital con acceso a lecciones 100% gratuitas y diploma oficial por tan solo $1 USD.\n\n¡Comienza a estudiar hoy mismo y capacítate!';
+            document.getElementById('inputButtonText').value = 'Ver Cursos';
+            document.getElementById('inputActionUrl').value = '/';
+            document.getElementById('inputActionText').value = 'Explorar Catálogo';
+            document.getElementById('checkIsEnabled').checked = true;
+            document.getElementById('radioShowOnceTrue').checked = true;
+        }
+
+        actualizarVistaPrevia();
+    }
+
+    function probarPopupEnPantalla() {
+        const type = document.getElementById('selectType').value;
+        const title = document.getElementById('inputTitle').value || 'Aviso Importante';
+        const message = document.getElementById('inputMessage').value || 'Sin contenido de mensaje.';
+        const btnText = document.getElementById('inputButtonText').value || 'Entendido';
+        const actionUrl = document.getElementById('inputActionUrl').value.trim();
+        const actionText = document.getElementById('inputActionText').value.trim() || 'Más información';
+
+        const cfg = estilosMap[type] || estilosMap.warning;
+        const modalHeader = document.getElementById('modalPruebaHeader');
+        modalHeader.className = "modal-header py-3 border-0 " + cfg.headerClass;
+
+        document.getElementById('modalPruebaIcon').className = "bi " + cfg.iconClass + " fs-4";
+        document.getElementById('modalPruebaTitle').innerText = title;
+        document.getElementById('modalPruebaMessage').innerText = message;
+        document.getElementById('modalPruebaBtnClose').innerText = btnText;
+
+        const actionBtn = document.getElementById('modalPruebaActionBtn');
+        if (actionUrl) {
+            actionBtn.href = actionUrl;
+            document.getElementById('modalPruebaActionText').innerText = actionText;
+            actionBtn.classList.remove('d-none');
+        } else {
+            actionBtn.classList.add('d-none');
+        }
+
+        const modal = new bootstrap.Modal(document.getElementById('modalPruebaAdmin'));
+        modal.show();
+    }
+
+    function desactivarRapido() {
+        if (confirm('¿Deseas desactivar el popup de inmediato para todos los visitantes?')) {
+            document.getElementById('checkIsEnabled').checked = false;
+            document.getElementById('formAnuncios').submit();
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        actualizarVistaPrevia();
+    });
+</script>
+}

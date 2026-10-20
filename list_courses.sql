@@ -1,0 +1,1 @@
+SELECT "Id", "Slug", "Title" FROM "Courses" ORDER BY "Id";

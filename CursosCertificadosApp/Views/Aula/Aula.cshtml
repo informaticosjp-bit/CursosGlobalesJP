@@ -1,0 +1,201 @@
+@model CursosCertificadosApp.Services.CourseStudySessionViewModel
+@{
+    ViewData["Title"] = $"{Model.CurrentLesson?.Title ?? "Contenido"} - {Model.Course.Title}";
+    var isCurrentCompleted = Model.CurrentLesson != null && Model.CompletedLessonIds.Contains(Model.CurrentLesson.Id);
+}
+
+<div class="container-fluid px-lg-4 py-3">
+    <!-- Barra Superior de Navegación del Aula -->
+    <div class="card border-0 shadow-sm rounded-3 p-3 mb-3 bg-white">
+        <div class="row align-items-center g-3">
+            <div class="col-md-6 d-flex align-items-center gap-3">
+                <a asp-controller="Account" asp-action="Dashboard" class="btn btn-outline-secondary btn-sm" title="Volver a Mis Cursos">
+                    <i class="bi bi-arrow-left"></i>
+                </a>
+                <div>
+                    <span class="badge bg-primary bg-opacity-10 text-primary small">@Model.Course.Category.Name</span>
+                    <h5 class="fw-bold mb-0 text-truncate" style="max-width: 450px;">@Model.Course.Title</h5>
+                </div>
+            </div>
+
+            <div class="col-md-6 d-flex align-items-center justify-content-md-end gap-3">
+                <div class="text-end d-none d-sm-block">
+                    <span class="small text-muted">Avance de Lecturas:</span>
+                    <strong class="text-primary d-block">@Model.Enrollment.ProgressPercentage.ToString("F0")%</strong>
+                </div>
+                <div class="progress flex-grow-1 flex-md-grow-0" style="width: 140px; height: 10px;">
+                    <div class="progress-bar progress-bar-custom" style="width: @Model.Enrollment.ProgressPercentage%;"></div>
+                </div>
+
+                @if (Model.Enrollment.QuizPassed && Model.Certificate != null)
+                {
+                    <a asp-controller="Certificados" asp-action="Completado" asp-route-id="@Model.Certificate.Id" class="btn btn-gold btn-sm fw-bold">
+                        <i class="bi bi-award-fill me-1"></i> Ver Certificado ($1)
+                    </a>
+                }
+                else if (Model.AllReadingsCompleted)
+                {
+                    <a asp-action="Evaluacion" asp-route-slug="@Model.Course.Slug" class="btn btn-warning btn-sm text-dark fw-bold">
+                        <i class="bi bi-pencil-square me-1"></i> Presentar Examen
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Área de Estudio (Lecturas Interactivas + Temario Lateral) -->
+    <div class="row g-3">
+        <!-- Columna Izquierda: Visor de Lectura Interactiva / Presentación (70%) -->
+        <div class="col-lg-8">
+            @if (Model.CurrentLesson != null)
+            {
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white mb-3">
+                    <!-- Header de la Lectura -->
+                    <div class="p-4 border-bottom bg-light d-flex flex-wrap justify-content-between align-items-center gap-2">
+                        <div>
+                            <span class="badge @(Model.CurrentLesson.ContentType == "Presentation" ? "bg-info" : "bg-primary") text-white me-2">
+                                <i class="bi @(Model.CurrentLesson.ContentType == "Presentation" ? "bi-easel2" : "bi-book") me-1"></i>
+                                @(Model.CurrentLesson.ContentType == "Presentation" ? "Presentación Visual" : "Guía Teórica de Estudio")
+                            </span>
+                            <span class="small text-muted"><i class="bi bi-clock me-1"></i> @Model.CurrentLesson.DurationMinutes min de lectura</span>
+                            <h2 class="fw-bold mt-2 mb-0">@Model.CurrentLesson.Title</h2>
+                        </div>
+
+                        <!-- Botón para completar -->
+                        <form asp-action="CompletarLeccion" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="lessonId" value="@Model.CurrentLesson.Id" />
+                            <input type="hidden" name="courseSlug" value="@Model.Course.Slug" />
+
+                            @if (isCurrentCompleted)
+                            {
+                                <button type="submit" class="btn btn-outline-success fw-bold px-3 py-2">
+                                    <i class="bi bi-check-circle-fill me-1"></i> Lectura Leída (Siguiente)
+                                </button>
+                            }
+                            else
+                            {
+                                <button type="submit" class="btn btn-gold fw-bold px-4 py-2 shadow-sm">
+                                    <i class="bi bi-check2 me-1"></i> Marcar como Leída y Avanzar
+                                </button>
+                            }
+                        </form>
+                    </div>
+
+                    <!-- Contenido Enriquecido de la Lectura -->
+                    <div class="p-4 p-md-5" style="font-size: 1.05rem; line-height: 1.8;">
+                        @Html.Raw(Model.CurrentLesson.ContentHtml)
+
+                        @if (!string.IsNullOrEmpty(Model.CurrentLesson.Summary))
+                        {
+                            <div class="card border-0 bg-light p-3 rounded-3 mt-4 border-start border-4 border-primary">
+                                <h6 class="fw-bold text-primary mb-1"><i class="bi bi-lightbulb-fill me-2"></i>Punto Clave de Aprendizaje:</h6>
+                                <p class="small text-dark mb-0">@Model.CurrentLesson.Summary</p>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Pie de la Lectura -->
+                    <div class="p-3 bg-light border-top text-end">
+                        <form asp-action="CompletarLeccion" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="lessonId" value="@Model.CurrentLesson.Id" />
+                            <input type="hidden" name="courseSlug" value="@Model.Course.Slug" />
+                            <button type="submit" class="btn btn-brand px-4 py-2 fw-semibold">
+                                Siguiente Tema <i class="bi bi-arrow-right ms-1"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="card border-0 shadow-sm rounded-4 p-5 text-center bg-white">
+                    <i class="bi bi-check-circle-fill display-1 text-success mb-3"></i>
+                    <h3 class="fw-bold">¡Has completado todas las lecturas del curso!</h3>
+                    <p class="text-muted mb-4">El siguiente paso para obtener tu Certificado Oficial es superar la evaluación corta de opción múltiple.</p>
+                    <a asp-action="Evaluacion" asp-route-slug="@Model.Course.Slug" class="btn btn-gold btn-lg fw-bold px-4">
+                        <i class="bi bi-pencil-square me-2"></i> Comenzar Evaluación Corta
+                    </a>
+                </div>
+            }
+        </div>
+
+        <!-- Columna Derecha: Sidebar de Módulos y Evaluación (30%) -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white sticky-top" style="top: 80px; max-height: calc(100vh - 100px); overflow-y: auto;">
+                <h5 class="fw-bold mb-3 d-flex align-items-center justify-content-between">
+                    <span><i class="bi bi-journal-bookmark-fill text-primary me-2"></i>Guías de Estudio</span>
+                    <span class="badge bg-light text-muted border small">@Model.CompletedLessonIds.Count de @Model.Course.Modules.SelectMany(m => m.Lessons).Count()</span>
+                </h5>
+
+                <div class="accordion mb-3" id="sidebarModules">
+                    @foreach (var mod in Model.Course.Modules.OrderBy(m => m.OrderIndex))
+                    {
+                        var isCurrentMod = Model.CurrentLesson != null && mod.Lessons.Any(l => l.Id == Model.CurrentLesson.Id);
+                        <div class="accordion-item border rounded-3 mb-2 overflow-hidden">
+                            <h2 class="accordion-header" id="heading-side-@mod.Id">
+                                <button class="accordion-button @(isCurrentMod ? "" : "collapsed") py-2 small fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-side-@mod.Id">
+                                    @mod.Title
+                                </button>
+                            </h2>
+                            <div id="collapse-side-@mod.Id" class="accordion-collapse collapse @(isCurrentMod ? "show" : "")" data-bs-parent="#sidebarModules">
+                                <div class="accordion-body p-0">
+                                    <div class="list-group list-group-flush small">
+                                        @foreach (var l in mod.Lessons.OrderBy(l => l.OrderIndex))
+                                        {
+                                            var isDone = Model.CompletedLessonIds.Contains(l.Id);
+                                            var isActive = Model.CurrentLesson != null && l.Id == Model.CurrentLesson.Id;
+
+                                            <a asp-action="Aula" asp-route-slug="@Model.Course.Slug" asp-route-lessonId="@l.Id"
+                                               class="list-group-item list-group-item-action d-flex align-items-center justify-content-between py-2 @(isActive ? "active text-white" : "")">
+                                                <div class="d-flex align-items-center gap-2 text-truncate">
+                                                    @if (isDone)
+                                                    {
+                                                        <i class="bi bi-check-circle-fill text-success fs-6"></i>
+                                                    }
+                                                    else
+                                                    {
+                                                        <i class="bi bi-circle text-muted fs-6"></i>
+                                                    }
+                                                    <span class="text-truncate">@l.Title</span>
+                                                </div>
+                                                <span class="small @(isActive ? "text-light" : "text-muted")">@l.DurationMinutes m</span>
+                                            </a>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Bloque de Evaluación Final -->
+                <div class="card border @(Model.AllReadingsCompleted ? "border-warning bg-warning bg-opacity-10" : "bg-light") p-3 rounded-3 text-center">
+                    <i class="bi bi-award-fill fs-2 @(Model.AllReadingsCompleted ? "text-warning" : "text-muted") mb-1"></i>
+                    <h6 class="fw-bold mb-1">Evaluación Final del Curso</h6>
+                    <p class="small text-muted mb-2">Prueba de opción múltiple (Requiere 70% para aprobar y certificar).</p>
+
+                    @if (Model.Enrollment.QuizPassed)
+                    {
+                        <span class="badge bg-success p-2 mb-2 d-block">
+                            <i class="bi bi-check-all me-1"></i> Examen Aprobado con @Model.Enrollment.QuizScore.ToString("F0")%
+                        </span>
+                    }
+                    else if (Model.AllReadingsCompleted)
+                    {
+                        <a asp-action="Evaluacion" asp-route-slug="@Model.Course.Slug" class="btn btn-gold btn-sm fw-bold w-100">
+                            Presentar Examen Ahora
+                        </a>
+                    }
+                    else
+                    {
+                        <button class="btn btn-secondary btn-sm w-100" disabled>
+                            <i class="bi bi-lock-fill me-1"></i> Completa las lecturas primero
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

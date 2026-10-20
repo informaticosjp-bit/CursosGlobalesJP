@@ -1,0 +1,675 @@
+@model List<CursosCertificadosApp.Models.ViewModels.UserManagementViewModel>
+@{
+    ViewData["Title"] = "Gestión de Usuarios y Roles";
+    var currentRole = ViewBag.CurrentRole as string ?? "All";
+}
+
+<div class="container py-4">
+    <!-- Encabezado y Navegación Fija Centralizada -->
+    <partial name="_AdminHeader" />
+
+    <!-- Barra de Título de la Sección y Acción de Crear Usuario -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-3">
+        <div>
+            <h4 class="fw-bold mb-0 text-dark">
+                <i class="bi bi-people-fill text-primary me-2"></i>Directorio de Usuarios
+            </h4>
+            <span class="text-muted small">Visualiza usuarios, filtra por rol (Alumno, Creador, Administrador) y gestiona cuentas y perfiles</span>
+        </div>
+        <div>
+            <button type="button" class="btn btn-success fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#modalCrearUsuario">
+                <i class="bi bi-person-plus-fill me-1"></i> + Crear Usuario
+            </button>
+        </div>
+    </div>
+
+    <!-- Píldoras de Filtro por Rol -->
+    <div class="d-flex flex-wrap gap-2 mb-3">
+        <a asp-action="Usuarios" asp-route-role="All" asp-route-search="@ViewBag.SearchTerm" 
+           class="btn btn-sm fw-bold rounded-pill @(currentRole == "All" ? "btn-dark text-white shadow-sm" : "btn-outline-secondary")">
+            <i class="bi bi-people-fill me-1"></i> Todos (@ViewBag.TotalUsers)
+        </a>
+        <a asp-action="Usuarios" asp-route-role="Student" asp-route-search="@ViewBag.SearchTerm" 
+           class="btn btn-sm fw-bold rounded-pill @(currentRole == "Student" ? "btn-primary text-white shadow-sm" : "btn-outline-primary")">
+            <i class="bi bi-mortarboard-fill me-1"></i> Alumnos (@ViewBag.StudentCount)
+        </a>
+        <a asp-action="Usuarios" asp-route-role="Creator" asp-route-search="@ViewBag.SearchTerm" 
+           class="btn btn-sm fw-bold rounded-pill @(currentRole == "Creator" ? "btn-warning text-dark shadow-sm" : "btn-outline-warning text-dark")">
+            <i class="bi bi-palette-fill me-1"></i> Creadores (@ViewBag.CreatorCount)
+        </a>
+        <a asp-action="Usuarios" asp-route-role="Admin" asp-route-search="@ViewBag.SearchTerm" 
+           class="btn btn-sm fw-bold rounded-pill @(currentRole == "Admin" ? "btn-danger text-white shadow-sm" : "btn-outline-danger")">
+            <i class="bi bi-shield-lock-fill me-1"></i> Administradores (@ViewBag.AdminCount)
+        </a>
+    </div>
+
+    <!-- Buscador y Filtro -->
+    <div class="card border-0 shadow-sm rounded-4 p-3 mb-4 bg-white">
+        <form method="get" asp-action="Usuarios" class="row g-2 align-items-center">
+            <input type="hidden" name="role" value="@currentRole" />
+            <div class="col-md-9">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0">
+                        <i class="bi bi-search text-muted"></i>
+                    </span>
+                    <input type="text" name="search" class="form-control border-start-0" 
+                           placeholder="Buscar por nombre, correo, cédula/DNI o teléfono..." 
+                           value="@ViewBag.SearchTerm" />
+                </div>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-primary fw-semibold w-100">
+                    <i class="bi bi-filter me-1"></i> Buscar
+                </button>
+                @if (!string.IsNullOrEmpty(ViewBag.SearchTerm as string))
+                {
+                    <a asp-action="Usuarios" asp-route-role="@currentRole" class="btn btn-outline-secondary">Limpiar</a>
+                }
+            </div>
+        </form>
+    </div>
+
+    <!-- Tabla Detallada de Estudiantes -->
+    <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0" style="font-size: 1rem;">Total de Registros: @Model.Count</h5>
+            <span class="small text-muted" style="font-size: 0.75rem;">Datos verificados para emisión de diplomas</span>
+        </div>
+
+        @if (!Model.Any())
+        {
+            <div class="alert alert-info text-center py-4 my-2 border-0">
+                <i class="bi bi-info-circle fs-2 d-block mb-2"></i>
+                No se encontraron estudiantes con los criterios de búsqueda especificados.
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-sm table-hover align-middle mb-0" id="tablaUsuarios" style="font-size: 0.80rem;">
+                    <thead class="table-light text-nowrap" style="font-size: 0.78rem;">
+                        <tr>
+                            <!-- Usuario / Nombre -->
+                            <th class="user-select-none" style="cursor: pointer;" onclick="toggleSortUsuarios(0, 'text', event)">
+                                <div class="d-inline-flex align-items-center gap-1">
+                                    <span class="fw-bold">Usuario / Nombre</span>
+                                    <span class="sort-arrows ms-1 d-inline-flex align-items-center bg-white border rounded px-1 py-0 shadow-xs" style="gap: 2px;">
+                                        <span role="button" class="sort-arrow-up text-muted p-0" title="Ordenar A-Z" onclick="setExplicitSortUsuarios(0, 'text', 'asc', event)">
+                                            <i class="bi bi-caret-up-fill" style="font-size: 0.75rem;"></i>
+                                        </span>
+                                        <span role="button" class="sort-arrow-down text-muted p-0" title="Ordenar Z-A" onclick="setExplicitSortUsuarios(0, 'text', 'desc', event)">
+                                            <i class="bi bi-caret-down-fill" style="font-size: 0.75rem;"></i>
+                                        </span>
+                                    </span>
+                                </div>
+                            </th>
+
+                            <!-- Rol -->
+                            <th class="user-select-none" style="cursor: pointer;" onclick="toggleSortUsuarios(1, 'text', event)">
+                                <div class="d-inline-flex align-items-center gap-1">
+                                    <span class="fw-bold">Rol</span>
+                                    <span class="sort-arrows ms-1 d-inline-flex align-items-center bg-white border rounded px-1 py-0 shadow-xs" style="gap: 2px;">
+                                        <span role="button" class="sort-arrow-up text-muted p-0" title="Ordenar Rol A-Z" onclick="setExplicitSortUsuarios(1, 'text', 'asc', event)">
+                                            <i class="bi bi-caret-up-fill" style="font-size: 0.75rem;"></i>
+                                        </span>
+                                        <span role="button" class="sort-arrow-down text-muted p-0" title="Ordenar Rol Z-A" onclick="setExplicitSortUsuarios(1, 'text', 'desc', event)">
+                                            <i class="bi bi-caret-down-fill" style="font-size: 0.75rem;"></i>
+                                        </span>
+                                    </span>
+                                </div>
+                            </th>
+
+                            <!-- Cédula / RIF -->
+                            <th class="user-select-none" style="cursor: pointer;" onclick="toggleSortUsuarios(2, 'text', event)">
+                                <div class="d-inline-flex align-items-center gap-1">
+                                    <span>Cédula / RIF</span>
+                                    <span class="sort-arrows ms-1 d-inline-flex align-items-center bg-white border rounded px-1 py-0 shadow-xs" style="gap: 2px;">
+                                        <span role="button" class="sort-arrow-up text-muted p-0" onclick="setExplicitSortUsuarios(2, 'text', 'asc', event)">
+                                            <i class="bi bi-caret-up-fill" style="font-size: 0.70rem;"></i>
+                                        </span>
+                                        <span role="button" class="sort-arrow-down text-muted p-0" onclick="setExplicitSortUsuarios(2, 'text', 'desc', event)">
+                                            <i class="bi bi-caret-down-fill" style="font-size: 0.70rem;"></i>
+                                        </span>
+                                    </span>
+                                </div>
+                            </th>
+
+                            <!-- Correo Electrónico -->
+                            <th class="user-select-none" style="cursor: pointer;" onclick="toggleSortUsuarios(3, 'text', event)">
+                                <div class="d-inline-flex align-items-center gap-1">
+                                    <span>Correo Electrónico</span>
+                                    <span class="sort-arrows ms-1 d-inline-flex align-items-center bg-white border rounded px-1 py-0 shadow-xs" style="gap: 2px;">
+                                        <span role="button" class="sort-arrow-up text-muted p-0" onclick="setExplicitSortUsuarios(3, 'text', 'asc', event)">
+                                            <i class="bi bi-caret-up-fill" style="font-size: 0.70rem;"></i>
+                                        </span>
+                                        <span role="button" class="sort-arrow-down text-muted p-0" onclick="setExplicitSortUsuarios(3, 'text', 'desc', event)">
+                                            <i class="bi bi-caret-down-fill" style="font-size: 0.70rem;"></i>
+                                        </span>
+                                    </span>
+                                </div>
+                            </th>
+
+                            <!-- Edad -->
+                            <th class="user-select-none text-center" style="cursor: pointer;" onclick="toggleSortUsuarios(4, 'num', event)">
+                                <div class="d-inline-flex align-items-center gap-1 justify-content-center">
+                                    <span>Edad</span>
+                                    <span class="sort-arrows ms-1 d-inline-flex align-items-center bg-white border rounded px-1 py-0 shadow-xs" style="gap: 2px;">
+                                        <span role="button" class="sort-arrow-up text-muted p-0" onclick="setExplicitSortUsuarios(4, 'num', 'asc', event)">
+                                            <i class="bi bi-caret-up-fill" style="font-size: 0.70rem;"></i>
+                                        </span>
+                                        <span role="button" class="sort-arrow-down text-muted p-0" onclick="setExplicitSortUsuarios(4, 'num', 'desc', event)">
+                                            <i class="bi bi-caret-down-fill" style="font-size: 0.70rem;"></i>
+                                        </span>
+                                    </span>
+                                </div>
+                            </th>
+
+                            <!-- Teléfono / WhatsApp -->
+                            <th>Teléfono / WhatsApp</th>
+
+                            <!-- Cursos -->
+                            <th class="user-select-none" style="cursor: pointer;" onclick="toggleSortUsuarios(6, 'num', event)">
+                                <div class="d-inline-flex align-items-center gap-1">
+                                    <span>Cursos</span>
+                                    <span class="sort-arrows ms-1 d-inline-flex align-items-center bg-white border rounded px-1 py-0 shadow-xs" style="gap: 2px;">
+                                        <span role="button" class="sort-arrow-up text-muted p-0" onclick="setExplicitSortUsuarios(6, 'num', 'asc', event)">
+                                            <i class="bi bi-caret-up-fill" style="font-size: 0.70rem;"></i>
+                                        </span>
+                                        <span role="button" class="sort-arrow-down text-muted p-0" onclick="setExplicitSortUsuarios(6, 'num', 'desc', event)">
+                                            <i class="bi bi-caret-down-fill" style="font-size: 0.70rem;"></i>
+                                        </span>
+                                    </span>
+                                </div>
+                            </th>
+
+                            <!-- Certificados -->
+                            <th class="user-select-none text-center" style="cursor: pointer;" onclick="toggleSortUsuarios(7, 'num', event)">
+                                <div class="d-inline-flex align-items-center gap-1 justify-content-center">
+                                    <span>Certificados</span>
+                                    <span class="sort-arrows ms-1 d-inline-flex align-items-center bg-white border rounded px-1 py-0 shadow-xs" style="gap: 2px;">
+                                        <span role="button" class="sort-arrow-up text-muted p-0" onclick="setExplicitSortUsuarios(7, 'num', 'asc', event)">
+                                            <i class="bi bi-caret-up-fill" style="font-size: 0.70rem;"></i>
+                                        </span>
+                                        <span role="button" class="sort-arrow-down text-muted p-0" onclick="setExplicitSortUsuarios(7, 'num', 'desc', event)">
+                                            <i class="bi bi-caret-down-fill" style="font-size: 0.70rem;"></i>
+                                        </span>
+                                    </span>
+                                </div>
+                            </th>
+
+                            <!-- Fecha Registro -->
+                            <th class="user-select-none" style="cursor: pointer;" onclick="toggleSortUsuarios(8, 'date', event)">
+                                <div class="d-inline-flex align-items-center gap-1">
+                                    <span>Fecha Reg.</span>
+                                    <span class="sort-arrows ms-1 d-inline-flex align-items-center bg-white border rounded px-1 py-0 shadow-xs" style="gap: 2px;">
+                                        <span role="button" class="sort-arrow-up text-muted p-0" onclick="setExplicitSortUsuarios(8, 'date', 'asc', event)">
+                                            <i class="bi bi-caret-up-fill" style="font-size: 0.70rem;"></i>
+                                        </span>
+                                        <span role="button" class="sort-arrow-down text-muted p-0" onclick="setExplicitSortUsuarios(8, 'date', 'desc', event)">
+                                            <i class="bi bi-caret-down-fill" style="font-size: 0.70rem;"></i>
+                                        </span>
+                                    </span>
+                                </div>
+                            </th>
+
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaUsuariosBody">
+                        @foreach (var user in Model)
+                        {
+                            <tr class="usuario-fila"
+                                data-name="@user.FullName.ToLowerInvariant()"
+                                data-role="@user.Role.ToLowerInvariant()"
+                                data-idnumber="@user.IdentificationNumber.ToLowerInvariant()"
+                                data-email="@user.Email.ToLowerInvariant()"
+                                data-age="@(user.Age ?? 0)"
+                                data-courses="@user.TotalEnrolledCourses"
+                                data-certificates="@user.IssuedCertificatesCount"
+                                data-date="@user.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")">
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="rounded-circle bg-primary bg-opacity-10 text-primary fw-bold d-flex align-items-center justify-content-center flex-shrink-0" style="width: 28px; height: 28px; font-size: 0.75rem;">
+                                            @user.FullName.Substring(0, 1).ToUpper()
+                                        </div>
+                                        <div class="text-truncate" style="max-width: 160px;">
+                                            <strong class="d-block text-dark usuario-nombre-txt text-truncate" style="font-size: 0.80rem; line-height: 1.2;" title="@user.FullName">@user.FullName</strong>
+                                            @if (user.IsMaster)
+                                            {
+                                                <span class="badge bg-secondary py-0" style="font-size: 0.60rem;"><i class="bi bi-shield-lock-fill me-1"></i>MASTER</span>
+                                            }
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    @if (user.Role == "Admin")
+                                    {
+                                        <span class="badge bg-danger py-1 px-1" style="font-size: 0.68rem;">ADMIN</span>
+                                    }
+                                    else if (user.Role == "Creator")
+                                    {
+                                        <span class="badge bg-warning text-dark border border-warning py-1 px-1" style="font-size: 0.68rem;"><i class="bi bi-palette-fill me-1"></i>CREADOR</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 py-1 px-1" style="font-size: 0.68rem;">ALUMNO</span>
+                                    }
+                                </td>
+                                <td><span class="font-monospace text-nowrap" style="font-size: 0.78rem;">@user.IdentificationNumber</span></td>
+                                <td><a href="mailto:@user.Email" class="text-decoration-none text-muted text-nowrap" style="font-size: 0.78rem;" title="@user.Email">@user.Email</a></td>
+                                <td class="text-center">
+                                    @if (user.Age.HasValue)
+                                    {
+                                        <span class="badge bg-light text-dark border py-0 px-1" style="font-size: 0.70rem;">@user.Age a</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted" style="font-size: 0.75rem;">—</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(user.PhoneNumber))
+                                    {
+                                        <a href="https://wa.me/@user.PhoneNumber.Replace("-", "").Replace(" ", "")" target="_blank" class="badge bg-success text-decoration-none py-1 px-1 text-nowrap" style="font-size: 0.68rem;">
+                                            <i class="bi bi-whatsapp me-1"></i>@user.PhoneNumber
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted" style="font-size: 0.75rem;">—</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-1 text-nowrap">
+                                        <span class="badge bg-primary py-0 px-1" style="font-size: 0.68rem;" title="Inscritos">@user.TotalEnrolledCourses ins.</span>
+                                        <span class="badge bg-info text-dark py-0 px-1" style="font-size: 0.68rem;" title="Completados">@user.CompletedCoursesCount ok</span>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    @if (user.IssuedCertificatesCount > 0)
+                                    {
+                                        <span class="badge bg-success py-1 px-1 text-nowrap" style="font-size: 0.68rem;">
+                                            <i class="bi bi-patch-check-fill me-1"></i>@user.IssuedCertificatesCount
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-light text-muted border py-0 px-1" style="font-size: 0.68rem;">0</span>
+                                    }
+                                </td>
+                                <td><span class="text-muted text-nowrap" style="font-size: 0.75rem;">@user.CreatedAt.ToString("dd/MM/yyyy")</span></td>
+                                <td class="text-end text-nowrap">
+                                    <div class="d-inline-flex align-items-center gap-1">
+                                        <!-- Botón para ver Ficha Académica del Usuario en Modal -->
+                                        <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2" data-bs-toggle="modal" data-bs-target="#modalUser_@user.Id" title="Ver Ficha Académica" style="font-size: 0.72rem;">
+                                            <i class="bi bi-person-lines-fill me-1"></i>Ficha
+                                        </button>
+
+                                        @if (user.IsMaster)
+                                        {
+                                            <span class="badge bg-light text-muted border px-1 py-1" style="font-size: 0.65rem;" title="El Administrador Master es el usuario principal protegido y no puede ser eliminado">
+                                                <i class="bi bi-lock-fill text-danger"></i>
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <button type="button" class="btn btn-sm btn-outline-danger py-0 px-2"
+                                                    onclick="confirmarEliminarUsuario('@user.Id', '@Html.Raw(user.FullName.Replace("'", "\\'"))', '@user.Email', '@user.IdentificationNumber', '@user.Role')"
+                                                    title="Eliminar usuario del sistema" style="font-size: 0.72rem;">
+                                                <i class="bi bi-trash-fill"></i>
+                                            </button>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
+    <!-- Modales de Ficha Académica (fuera de la tabla para evitar conflicto de z-index con backdrop) -->
+    @foreach (var user in Model)
+    {
+        <div class="modal fade" id="modalUser_@user.Id" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content text-start rounded-4 border-0 shadow">
+                    <div class="modal-header bg-light rounded-top-4">
+                        <h5 class="modal-title fw-bold">
+                            <i class="bi bi-person-badge me-1 text-primary"></i> Ficha Académica: @user.FullName
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <!-- Resumen Personal -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <div class="p-3 bg-light rounded-3">
+                                    <h6 class="fw-bold text-dark border-bottom pb-2 mb-2">Datos Personales y de Contacto</h6>
+                                    <div class="small mb-1"><span class="text-muted">Nombre:</span> <strong>@user.FullName</strong></div>
+                                    <div class="small mb-1"><span class="text-muted">Cédula / Documento:</span> <strong>@user.IdentificationNumber</strong></div>
+                                    <div class="small mb-1"><span class="text-muted">Correo Electrónico:</span> @user.Email</div>
+                                    <div class="small mb-1"><span class="text-muted">Edad:</span> @(user.Age.HasValue ? $"{user.Age} años" : "No registrada")</div>
+                                    <div class="small mb-1"><span class="text-muted">Teléfono / WhatsApp:</span> @(user.PhoneNumber ?? "No registrado")</div>
+                                    <div class="small"><span class="text-muted">Miembro desde:</span> @user.CreatedAt.ToString("dd/MM/yyyy HH:mm")</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 bg-light rounded-3 h-100">
+                                    <h6 class="fw-bold text-dark border-bottom pb-2 mb-2">Métricas y Pagos Registrados</h6>
+                                    <div class="small mb-1"><span class="text-muted">Cursos Inscritos:</span> <strong>@user.TotalEnrolledCourses</strong></div>
+                                    <div class="small mb-1"><span class="text-muted">Cursos Aprobados al 100%:</span> <strong>@user.CompletedCoursesCount</strong></div>
+                                    <div class="small mb-1"><span class="text-muted">Diplomas Oficiales Emitidos:</span> <span class="badge bg-success">@user.IssuedCertificatesCount</span></div>
+                                    <div class="small mb-1"><span class="text-muted">Total de Pagos Reportados:</span> @user.TotalPaymentsCount</div>
+                                    <div class="small"><span class="text-muted">Total Pagado Aprobado:</span> <strong class="text-success">$@user.TotalPaidAmount.ToString("F2") USD</strong></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Historial de Cursos Inscritos -->
+                        <h6 class="fw-bold text-dark mb-2">
+                            <i class="bi bi-journal-check me-1 text-primary"></i> Avance por Cursos Inscritos:
+                        </h6>
+                        @if (!user.Enrollments.Any())
+                        {
+                            <p class="small text-muted">El estudiante aún no se ha inscrito en cursos del catálogo.</p>
+                        }
+                        else
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered">
+                                    <thead class="table-light small">
+                                        <tr>
+                                            <th>Curso</th>
+                                            <th>Progreso</th>
+                                            <th>Estado Académico</th>
+                                            <th>Certificado Oficial</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="small">
+                                        @foreach (var e in user.Enrollments)
+                                        {
+                                            <tr>
+                                                <td class="fw-semibold">@e.CourseTitle</td>
+                                                <td>
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <div class="progress flex-grow-1" style="height: 6px;">
+                                                            <div class="progress-bar bg-success" style="width: @e.ProgressPercentage%;"></div>
+                                                        </div>
+                                                        <span class="small">@e.ProgressPercentage.ToString("F0")%</span>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    @if (e.IsCompleted)
+                                                    {
+                                                        <span class="badge bg-success">Completado (@(e.CompletedAt?.ToString("dd/MM/yy") ?? "Listo"))</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-secondary">En progreso</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    @if (!string.IsNullOrEmpty(e.CertificateCode))
+                                                    {
+                                                        @if (e.CertificateStatus == "Issued")
+                                                        {
+                                                            <span class="badge bg-success">Emitido (<code>@e.CertificateCode</code>)</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="badge bg-warning text-dark">Pendiente Pago $1 (<code>@e.CertificateCode</code>)</span>
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">No generado</span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </div>
+                    <div class="modal-footer bg-light rounded-bottom-4">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar Ficha</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Modal Único de Confirmación para Eliminar Usuario -->
+    <div class="modal fade" id="modalEliminarUsuario" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow text-start rounded-4">
+                <div class="modal-header bg-danger text-white rounded-top-4">
+                    <h5 class="modal-title fw-bold">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>Eliminar Usuario
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="mb-3">¿Estás seguro de que deseas eliminar permanentemente al siguiente usuario del sistema?</p>
+                    <div class="p-3 bg-light rounded-3 mb-3 border">
+                        <div class="fw-bold fs-6 text-dark" id="delUserNombre">Nombre</div>
+                        <div class="text-muted small"><span id="delUserEmail">correo</span> &bull; Cédula/RIF: <span id="delUserIdNumber">V-00000000</span></div>
+                        <div class="mt-2">
+                            <span class="badge bg-primary" id="delUserRoleBadge">Rol</span>
+                        </div>
+                    </div>
+                    <div class="alert alert-warning border-0 small mb-0">
+                        <i class="bi bi-shield-exclamation me-1"></i> <strong>Aviso importante:</strong> Esta acción borrará permanentemente sus matrículas de cursos, progresos, certificados emitidos y pagos asociados. Esta acción no se puede deshacer.
+                    </div>
+                </div>
+                <div class="modal-footer bg-light rounded-bottom-4">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <form asp-action="EliminarUsuario" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" id="delUserId" value="" />
+                        <button type="submit" class="btn btn-danger fw-bold px-3">
+                            <i class="bi bi-trash-fill me-1"></i> Sí, Eliminar Permanentemente
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Crear Nuevo Usuario -->
+    <div class="modal fade" id="modalCrearUsuario" tabindex="-1" aria-labelledby="modalCrearUsuarioLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow">
+                <div class="modal-header bg-primary text-white rounded-top-4">
+                    <h5 class="modal-title fw-bold" id="modalCrearUsuarioLabel">
+                        <i class="bi bi-person-plus-fill me-2"></i>Crear Nuevo Usuario
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form asp-action="CrearUsuario" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Nombre Completo <span class="text-danger">*</span></label>
+                            <input type="text" name="FullName" class="form-control" placeholder="Ej. Carlos Mendoza" required maxlength="150" />
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Cédula / RIF / DNI <span class="text-danger">*</span></label>
+                                <input type="text" name="IdentificationNumber" class="form-control" placeholder="V-12345678" required maxlength="50" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Rol en el Sistema <span class="text-danger">*</span></label>
+                                <select name="Role" class="form-select fw-semibold" required>
+                                    <option value="Student">🎓 Alumno / Estudiante</option>
+                                    <option value="Creator">🎨 Creador de Cursos</option>
+                                    <option value="Admin">🛡️ Administrador</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Correo Electrónico <span class="text-danger">*</span></label>
+                            <input type="email" name="Email" class="form-control" placeholder="usuario@gmail.com" required />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Contraseña Inicial <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="bi bi-key"></i></span>
+                                <input type="password" name="Password" class="form-control" placeholder="Mínimo 6 caracteres" required minlength="6" />
+                                <button class="btn btn-outline-secondary toggle-password" type="button" tabindex="-1" title="Mostrar/Ocultar contraseña">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="row g-2">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Edad (Opcional)</label>
+                                <input type="number" name="Age" class="form-control" min="10" max="120" placeholder="Ej. 28" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Teléfono / WhatsApp</label>
+                                <input type="text" name="PhoneNumber" class="form-control" placeholder="+58 412..." maxlength="30" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light rounded-bottom-4">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary fw-bold px-4">
+                            <i class="bi bi-check-circle me-1"></i> Crear y Guardar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    let sortStateUsuarios = { colIndex: null, direction: 'asc' };
+
+    function toggleSortUsuarios(colIndex, type, event) {
+        if (event.target.closest('.sort-arrow-up') || event.target.closest('.sort-arrow-down')) {
+            return;
+        }
+        let newDir = 'asc';
+        if (sortStateUsuarios.colIndex === colIndex) {
+            newDir = (sortStateUsuarios.direction === 'asc') ? 'desc' : 'asc';
+        }
+        ejecutarOrdenamientoUsuarios(colIndex, type, newDir);
+    }
+
+    function setExplicitSortUsuarios(colIndex, type, direction, event) {
+        event.stopPropagation();
+        ejecutarOrdenamientoUsuarios(colIndex, type, direction);
+    }
+
+    function ejecutarOrdenamientoUsuarios(colIndex, type, direction) {
+        sortStateUsuarios = { colIndex: colIndex, direction: direction };
+        actualizarIconosUsuarios(colIndex, direction);
+
+        const tbody = document.getElementById('tablaUsuariosBody');
+        if (!tbody) return;
+        const rows = Array.from(tbody.querySelectorAll('tr.usuario-fila'));
+
+        rows.sort((a, b) => {
+            let valA = '';
+            let valB = '';
+
+            switch (colIndex) {
+                case 0: // Nombre
+                    valA = a.getAttribute('data-name') || '';
+                    valB = b.getAttribute('data-name') || '';
+                    break;
+                case 1: // Rol
+                    valA = a.getAttribute('data-role') || '';
+                    valB = b.getAttribute('data-role') || '';
+                    break;
+                case 2: // Cédula
+                    valA = a.getAttribute('data-idnumber') || '';
+                    valB = b.getAttribute('data-idnumber') || '';
+                    break;
+                case 3: // Correo
+                    valA = a.getAttribute('data-email') || '';
+                    valB = b.getAttribute('data-email') || '';
+                    break;
+                case 4: // Edad
+                    valA = parseFloat(a.getAttribute('data-age') || '0');
+                    valB = parseFloat(b.getAttribute('data-age') || '0');
+                    break;
+                case 6: // Cursos
+                    valA = parseInt(a.getAttribute('data-courses') || '0', 10);
+                    valB = parseInt(b.getAttribute('data-courses') || '0', 10);
+                    break;
+                case 7: // Certificados
+                    valA = parseInt(a.getAttribute('data-certificates') || '0', 10);
+                    valB = parseInt(b.getAttribute('data-certificates') || '0', 10);
+                    break;
+                case 8: // Fecha Registro
+                    valA = a.getAttribute('data-date') || '';
+                    valB = b.getAttribute('data-date') || '';
+                    break;
+            }
+
+            if (type === 'num') {
+                return direction === 'asc' ? valA - valB : valB - valA;
+            } else {
+                return direction === 'asc'
+                    ? valA.localeCompare(valB, 'es', { sensitivity: 'base' })
+                    : valB.localeCompare(valA, 'es', { sensitivity: 'base' });
+            }
+        });
+
+        rows.forEach(r => tbody.appendChild(r));
+    }
+
+    function actualizarIconosUsuarios(activeColIndex, direction) {
+        const ths = document.querySelectorAll('#tablaUsuarios thead th');
+        ths.forEach((th, idx) => {
+            const up = th.querySelector('.sort-arrow-up');
+            const down = th.querySelector('.sort-arrow-down');
+            if (!up || !down) return;
+
+            if (idx === activeColIndex) {
+                if (direction === 'asc') {
+                    up.className = 'sort-arrow-up text-primary fw-bold';
+                    down.className = 'sort-arrow-down text-muted opacity-25';
+                } else {
+                    down.className = 'sort-arrow-down text-primary fw-bold';
+                    up.className = 'sort-arrow-up text-muted opacity-25';
+                }
+            } else {
+                up.className = 'sort-arrow-up text-muted';
+                down.className = 'sort-arrow-down text-muted';
+            }
+        });
+    }
+
+    function confirmarEliminarUsuario(id, nombre, email, idNumber, role) {
+        document.getElementById('delUserId').value = id;
+        document.getElementById('delUserNombre').textContent = nombre;
+        document.getElementById('delUserEmail').textContent = email;
+        document.getElementById('delUserIdNumber').textContent = idNumber || 'No registrada';
+
+        const roleBadge = document.getElementById('delUserRoleBadge');
+        if (role === 'Admin') {
+            roleBadge.className = 'badge bg-danger';
+            roleBadge.textContent = 'Rol: Administrador';
+        } else if (role === 'Creator') {
+            roleBadge.className = 'badge bg-warning text-dark';
+            roleBadge.textContent = 'Rol: Creador de Cursos';
+        } else {
+            roleBadge.className = 'badge bg-primary';
+            roleBadge.textContent = 'Rol: Alumno / Estudiante';
+        }
+
+        const modalEl = document.getElementById('modalEliminarUsuario');
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modal.show();
+    }
+</script>
+}
+

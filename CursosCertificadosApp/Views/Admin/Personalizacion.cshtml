@@ -1,0 +1,292 @@
+@model CursosCertificadosApp.Models.ViewModels.SiteCustomizationViewModel
+@{
+    ViewData["Title"] = "Identidad y Pie de Página - Administración";
+}
+
+<div class="container py-4">
+    <!-- Encabezado y Barra Fija del Admin -->
+    @await Html.PartialAsync("_AdminHeader")
+
+    <form asp-controller="Admin" asp-action="GuardarPersonalizacion" method="post" enctype="multipart/form-data" id="formPersonalizacion">
+        @Html.AntiForgeryToken()
+
+        <!-- Fila de Acciones Principales y Vista Previa -->
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4 p-3 bg-light rounded-4 border">
+            <div>
+                <h4 class="fw-bold mb-1 text-dark">
+                    <i class="bi bi-brush-fill text-info me-2"></i>Personalización de Identidad y Pie de Página
+                </h4>
+                <p class="text-muted small mb-0">
+                    Modifica el nombre del portal, logotipo, eslogan y todos los textos e informaciones del pie de página global.
+                </p>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-outline-secondary btn-sm fw-bold px-3" data-bs-toggle="modal" data-bs-target="#modalRestablecer">
+                    <i class="bi bi-arrow-counterclockwise me-1"></i> Restablecer Valores
+                </button>
+                <button type="submit" class="btn btn-primary btn-sm fw-bold px-4 shadow-sm">
+                    <i class="bi bi-check2-circle me-1"></i> Guardar Cambios
+                </button>
+            </div>
+        </div>
+
+        <!-- Vista Previa en Vivo de la Cabecera -->
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+            <div class="card-header bg-white py-3 border-bottom">
+                <div class="d-flex align-items-center justify-content-between">
+                    <span class="fw-bold text-dark small text-uppercase">
+                        <i class="bi bi-eye-fill text-primary me-2"></i>Vista Previa en Tiempo Real de la Cabecera
+                    </span>
+                    <span class="badge bg-light text-muted border">Simulación del Navbar</span>
+                </div>
+            </div>
+            <div class="card-body bg-light p-4">
+                <div class="bg-white p-3 rounded-3 border shadow-sm d-inline-flex align-items-center gap-3">
+                    <img id="previewLogo" src="@Model.LogoUrl" alt="Logo Previo" class="rounded-circle shadow-sm" style="width: 48px; height: 48px; object-fit: cover;" onerror="this.src='/images/logo-jp.png';" />
+                    <div class="d-flex flex-column justify-content-center">
+                        <span class="fw-bold fs-5 text-dark" style="letter-spacing: -0.3px; line-height: 1.1;">
+                            <span id="previewSiteName">@Model.SiteName</span> 
+                            <span id="previewSiteHighlight" style="color: #dc2626; font-weight: 800;">@Model.SiteNameHighlight</span>
+                        </span>
+                        <span id="previewSiteSlogan" class="text-muted fw-semibold" style="font-size: 0.75rem; letter-spacing: 0.2px;">
+                            @Model.SiteSlogan
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- ==========================================
+                 COLUMNA 1: IDENTIDAD DE MARCA Y LOGO
+                 ========================================== -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm rounded-4 h-100">
+                    <div class="card-header bg-white py-3 border-bottom">
+                        <h5 class="fw-bold mb-0 text-dark">
+                            <i class="bi bi-badge-ad-fill text-primary me-2"></i>1. Identidad de Marca y Logo
+                        </h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <!-- Nombre del Sitio y Siglas -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-8">
+                                <label asp-for="SiteName" class="form-label fw-bold text-secondary small"></label>
+                                <input asp-for="SiteName" class="form-control" id="inputSiteName" placeholder="Ej: CURSOS GLOBALES" required />
+                                <span asp-validation-for="SiteName" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="SiteNameHighlight" class="form-label fw-bold text-secondary small"></label>
+                                <input asp-for="SiteNameHighlight" class="form-control" id="inputSiteHighlight" placeholder="Ej: JP" />
+                                <span class="text-muted" style="font-size: 0.72rem;">Texto destacado en rojo</span>
+                            </div>
+                        </div>
+
+                        <!-- Lema o Eslogan -->
+                        <div class="mb-4">
+                            <label asp-for="SiteSlogan" class="form-label fw-bold text-secondary small"></label>
+                            <input asp-for="SiteSlogan" class="form-control" id="inputSiteSlogan" placeholder="Ej: Aprende Gratis · Certifícate por $1 USD" />
+                            <span asp-validation-for="SiteSlogan" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Carga de Logo -->
+                        <div class="border rounded-3 p-3 bg-light mb-3">
+                            <label class="form-label fw-bold text-dark small mb-2">
+                                <i class="bi bi-image text-primary me-1"></i>Logotipo Oficial
+                            </label>
+                            
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <img id="currentLogoImg" src="@Model.LogoUrl" alt="Logo Actual" class="rounded-circle shadow-sm border bg-white" style="width: 58px; height: 58px; object-fit: cover;" onerror="this.src='/images/logo-jp.png';" />
+                                <div>
+                                    <span class="d-block fw-semibold text-dark small">Archivo o Enlace Actual:</span>
+                                    <code class="small text-break" id="currentLogoPath">@Model.LogoUrl</code>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="LogoFile" class="form-label fw-semibold text-secondary small"></label>
+                                <input asp-for="LogoFile" type="file" class="form-control" id="inputLogoFile" accept="image/png,image/jpeg,image/svg+xml,image/webp,image/x-icon" />
+                                <div class="form-text small">Sube una imagen cuadrada (PNG, JPG, SVG, WebP). Tamaño recomendado: 200x200 px.</div>
+                            </div>
+
+                            <div>
+                                <label asp-for="LogoUrl" class="form-label fw-semibold text-secondary small">O especificar URL directa del logo:</label>
+                                <input asp-for="LogoUrl" class="form-control form-control-sm" id="inputLogoUrl" placeholder="/images/logo-jp.png" />
+                            </div>
+                        </div>
+
+                        <!-- Canales de Contacto Opcionales -->
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label asp-for="SocialInstagram" class="form-label fw-bold text-secondary small">
+                                    <i class="bi bi-instagram text-danger me-1"></i>Instagram (Opcional)
+                                </label>
+                                <input asp-for="SocialInstagram" class="form-control form-control-sm" placeholder="https://instagram.com/..." />
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="SocialWhatsapp" class="form-label fw-bold text-secondary small">
+                                    <i class="bi bi-whatsapp text-success me-1"></i>WhatsApp (Opcional)
+                                </label>
+                                <input asp-for="SocialWhatsapp" class="form-control form-control-sm" placeholder="+58 412..." />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==========================================
+                 COLUMNA 2: PIE DE PÁGINA (FOOTER)
+                 ========================================== -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm rounded-4 h-100">
+                    <div class="card-header bg-white py-3 border-bottom">
+                        <h5 class="fw-bold mb-0 text-dark">
+                            <i class="bi bi-layout-text-window-reverse text-success me-2"></i>2. Información del Pie de Página
+                        </h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <!-- Descripción Breve -->
+                        <div class="mb-3">
+                            <label asp-for="FooterDescription" class="form-label fw-bold text-secondary small"></label>
+                            <textarea asp-for="FooterDescription" class="form-control" rows="3" placeholder="Resumen del modelo educativo y misión institucional..."></textarea>
+                            <span asp-validation-for="FooterDescription" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Razón Social y RIF -->
+                        <div class="mb-3">
+                            <label asp-for="FooterCompanyInfo" class="form-label fw-bold text-secondary small"></label>
+                            <input asp-for="FooterCompanyInfo" class="form-control" placeholder="Ej: Inversiones Globales JP 1968, C.A. • RIF: J-41102463-5" />
+                            <span asp-validation-for="FooterCompanyInfo" class="text-danger small"></span>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <!-- Correo de Soporte -->
+                            <div class="col-md-6">
+                                <label asp-for="FooterContactEmail" class="form-label fw-bold text-secondary small"></label>
+                                <input asp-for="FooterContactEmail" type="email" class="form-control" placeholder="soporte@globalesjp.net" />
+                                <span asp-validation-for="FooterContactEmail" class="text-danger small"></span>
+                            </div>
+                            <!-- Sitio Web -->
+                            <div class="col-md-6">
+                                <label asp-for="FooterWebsiteUrl" class="form-label fw-bold text-secondary small"></label>
+                                <input asp-for="FooterWebsiteUrl" class="form-control" placeholder="https://globalesjp.net" />
+                            </div>
+                        </div>
+
+                        <!-- Métodos de Pago y Nota BCV -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="FooterPaymentMethods" class="form-label fw-bold text-secondary small"></label>
+                                <input asp-for="FooterPaymentMethods" class="form-control" placeholder="Pago Móvil, Transferencia, Binance Pay..." />
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="FooterPaymentNote" class="form-label fw-bold text-secondary small"></label>
+                                <input asp-for="FooterPaymentNote" class="form-control" placeholder="Pagos en bolívares a la tasa oficial del BCV" />
+                            </div>
+                        </div>
+
+                        <!-- Copyright -->
+                        <div class="mb-2">
+                            <label asp-for="FooterCopyright" class="form-label fw-bold text-secondary small"></label>
+                            <input asp-for="FooterCopyright" class="form-control" placeholder="© 2026 Cursos Globales JP..." />
+                            <span class="text-muted" style="font-size: 0.72rem;">El año (@DateTime.UtcNow.Year) se actualiza de manera automática.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botones de Acción Inferiores -->
+        <div class="d-flex justify-content-end gap-2 mt-4">
+            <a asp-controller="Admin" asp-action="Index" class="btn btn-outline-secondary px-4">
+                Cancelar
+            </a>
+            <button type="submit" class="btn btn-primary px-5 fw-bold shadow-sm">
+                <i class="bi bi-save me-1"></i> Guardar Todos los Cambios
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Modal para Confirmar Restablecimiento -->
+<div class="modal fade" id="modalRestablecer" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-light border-0">
+                <h5 class="modal-title fw-bold text-dark">
+                    <i class="bi bi-arrow-counterclockwise text-warning me-2"></i>Restablecer a Valores Originales
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4 text-center">
+                <p class="text-muted mb-3">
+                    ¿Estás seguro de que deseas restablecer el nombre del sitio, logo y textos del pie de página a la configuración original por defecto?
+                </p>
+                <div class="alert alert-warning border-0 small text-start mb-0">
+                    <i class="bi bi-info-circle-fill me-1"></i> Se restaurarán los textos de <strong>Cursos Globales JP</strong> y el logo inicial <code>/images/logo-jp.png</code>.
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                <form asp-controller="Admin" asp-action="RestablecerPersonalizacion" method="post">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-warning fw-bold text-dark px-4">
+                        <i class="bi bi-check-lg me-1"></i> Sí, Restablecer
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Actualización en tiempo real de la vista previa
+        const inputName = document.getElementById('inputSiteName');
+        const inputHighlight = document.getElementById('inputSiteHighlight');
+        const inputSlogan = document.getElementById('inputSiteSlogan');
+        const inputUrl = document.getElementById('inputLogoUrl');
+        const inputFile = document.getElementById('inputLogoFile');
+
+        const prevName = document.getElementById('previewSiteName');
+        const prevHighlight = document.getElementById('previewSiteHighlight');
+        const prevSlogan = document.getElementById('previewSiteSlogan');
+        const prevLogo = document.getElementById('previewLogo');
+        const currentLogoImg = document.getElementById('currentLogoImg');
+        const currentLogoPath = document.getElementById('currentLogoPath');
+
+        inputName.addEventListener('input', () => {
+            prevName.textContent = inputName.value || 'CURSOS GLOBALES';
+        });
+
+        inputHighlight.addEventListener('input', () => {
+            prevHighlight.textContent = inputHighlight.value;
+        });
+
+        inputSlogan.addEventListener('input', () => {
+            prevSlogan.textContent = inputSlogan.value || 'Aprende Gratis · Certifícate por $1 USD';
+        });
+
+        inputUrl.addEventListener('input', () => {
+            if (inputUrl.value.trim()) {
+                prevLogo.src = inputUrl.value.trim();
+                currentLogoImg.src = inputUrl.value.trim();
+                currentLogoPath.textContent = inputUrl.value.trim();
+            }
+        });
+
+        inputFile.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    prevLogo.src = event.target.result;
+                    currentLogoImg.src = event.target.result;
+                    currentLogoPath.textContent = file.name + ' (Listo para subir)';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
+}

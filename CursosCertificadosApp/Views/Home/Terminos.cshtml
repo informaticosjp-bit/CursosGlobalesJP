@@ -1,0 +1,101 @@
+@model CursosCertificadosApp.Models.Entities.SystemSetting
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="container py-5">
+    <div class="max-w-900 mx-auto">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb small">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none">Inicio</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Términos y Condiciones</li>
+            </ol>
+        </nav>
+
+        <!-- Cabecera Institucional -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 mb-4 text-white" style="background: linear-gradient(135deg, #0b1c36 0%, #153e75 100%);">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <div>
+                    <span class="badge bg-warning text-dark px-3 py-1 fw-bold mb-3">
+                        <i class="bi bi-shield-check me-1"></i> MARCO LEGAL Y CONDICIONES DE SERVICIO
+                    </span>
+                    <h1 class="display-6 fw-extrabold mb-2">@Model.Title</h1>
+                    <p class="mb-0 text-light opacity-90 small">
+                        Inversiones Globales JP 1968, C.A. · RIF: <strong>J-41102463-5</strong>
+                    </p>
+                </div>
+                <div class="text-md-end text-light opacity-75 small">
+                    <div>Última actualización:</div>
+                    <strong class="text-white">@Model.UpdatedAt.ToString("dd/MM/yyyy")</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resumen de Puntos Clave de Protección Legal -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="bi bi-book-half text-primary fs-4"></i>
+                        <h6 class="fw-bold mb-0 text-dark">Culminación del 100%</h6>
+                    </div>
+                    <p class="small text-muted mb-0">
+                        Los cursos son gratuitos. Para solicitar certificado es obligatorio completar todos los módulos y aprobar la evaluación.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100 border-start border-4 border-warning">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="bi bi-person-check-fill text-warning fs-4"></i>
+                        <h6 class="fw-bold mb-0 text-dark">Titularidad Bancaria</h6>
+                    </div>
+                    <p class="small text-muted mb-0">
+                        El pago debe ser emitido desde una cuenta a nombre del mismo titular registrado. No se procesan pagos de terceros.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="bi bi-currency-exchange text-success fs-4"></i>
+                        <h6 class="fw-bold mb-0 text-dark">Tasa Oficial BCV</h6>
+                    </div>
+                    <p class="small text-muted mb-0">
+                        Los pagos en Bolívares se calculan a la tasa oficial del día emitida por el Banco Central de Venezuela (BCV).
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contenido Completo del Documento Legal -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white mb-4">
+            <div class="legal-content text-dark" style="line-height: 1.8;">
+                @Html.Raw(Model.Content)
+            </div>
+
+            <hr class="my-4" />
+
+            <!-- Firma Institucional y Pie Legal -->
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 pt-2">
+                <div>
+                    <h6 class="fw-bold mb-0 text-dark">Inversiones Globales JP 1968, C.A.</h6>
+                    <span class="small text-muted d-block">RIF: J-41102463-5 · Dominio Oficial: <a href="https://globalesjp.net" target="_blank" class="fw-semibold text-primary">globalesjp.net</a></span>
+                    <span class="small text-muted">Canal Oficial de Soporte: <a href="mailto:soporte@globalesjp.net" class="fw-bold text-dark">soporte@globalesjp.net</a></span>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="mailto:soporte@globalesjp.net" class="btn btn-warning btn-sm fw-bold px-3 text-dark">
+                        <i class="bi bi-envelope-fill me-1"></i> Contactar Soporte
+                    </a>
+                    <a asp-controller="Cursos" asp-action="Index" class="btn btn-primary btn-sm fw-bold px-3">
+                        <i class="bi bi-grid-fill me-1"></i> Ir al Catálogo
+                    </a>
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-house me-1"></i> Inicio
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

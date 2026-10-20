@@ -1,0 +1,100 @@
+@model List<CursosCertificadosApp.Models.Entities.Course>
+@{
+    ViewData["Title"] = "Catálogo de Cursos y Capacitaciones Gratuitas";
+    var categories = ViewBag.Categories as List<CursosCertificadosApp.Models.Entities.Category> ?? new();
+    var currentCat = ViewBag.CurrentCategory as string;
+    var searchTerm = ViewBag.SearchTerm as string;
+}
+
+<div class="container py-4">
+    <!-- Header del Catálogo -->
+    <div class="text-center py-4 max-w-700 mx-auto">
+        <h1 class="fw-bold mb-2">Explora Nuestras Rutas Formativas</h1>
+        <p class="text-muted">Capacitación digital de alto impacto sin barreras. Estudia gratis y acredita tus competencias con certificación oficial verificable por solo <strong>$1 USD</strong>.</p>
+
+        <!-- Buscador -->
+        <form method="get" asp-action="Index" class="d-flex justify-content-center mt-3">
+            <div class="input-group" style="max-width: 550px;">
+                <input type="text" name="q" value="@searchTerm" class="form-control" placeholder="Buscar curso (ej: Gemini, Power BI, Excel, Agile, Ciberseguridad)..." />
+                @if (!string.IsNullOrEmpty(currentCat))
+                {
+                    <input type="hidden" name="categoria" value="@currentCat" />
+                }
+                <button type="submit" class="btn btn-brand">
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Píldoras de Categorías -->
+    <div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
+        <a href="/Cursos" class="btn btn-sm rounded-pill @(string.IsNullOrEmpty(currentCat) ? "btn-dark fw-bold" : "btn-outline-secondary")">
+            Todos (@Model.Count)
+        </a>
+        @foreach (var cat in categories)
+        {
+            <a href="/Cursos?categoria=@cat.Slug" class="btn btn-sm rounded-pill @(currentCat == cat.Slug ? "btn-dark fw-bold" : "btn-outline-secondary")">
+                <i class="bi @cat.IconClass me-1"></i> @cat.Name
+            </a>
+        }
+    </div>
+
+    <!-- Grid de Cursos -->
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5">
+            <i class="bi bi-search fs-1 text-muted mb-2 d-inline-block"></i>
+            <h5 class="fw-bold text-muted">No se encontraron cursos con ese criterio</h5>
+            <a href="/Cursos" class="btn btn-outline-primary btn-sm mt-2">Limpiar filtros</a>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var course in Model)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card card-course h-100 shadow-sm d-flex flex-column">
+                        <div class="p-4 flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-primary bg-opacity-10 text-primary fw-bold">@course.Category.Name</span>
+                                <span class="badge bg-light text-dark border">
+                                    <i class="bi bi-clock me-1"></i> @course.EstimatedHours hrs
+                                </span>
+                            </div>
+                            <h5 class="fw-bold mt-2 mb-2">
+                                <a asp-action="Detalle" asp-route-slug="@course.Slug" class="text-decoration-none text-dark">
+                                    @course.Title
+                                </a>
+                            </h5>
+                            <p class="text-muted small mb-3">
+                                @course.ShortDescription
+                            </p>
+                            <div class="d-flex flex-wrap gap-2 align-items-center">
+                                <span class="badge bg-light text-secondary border small">@course.Level</span>
+                                <span class="badge bg-light text-secondary border small">@course.Modules.Count Módulos</span>
+                                @if (!string.IsNullOrWhiteSpace(course.InstructorName))
+                                {
+                                    <span class="badge bg-light text-primary border small">
+                                        <i class="bi bi-person me-1"></i>@course.InstructorName
+                                    </span>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="border-top px-3 py-2.5 bg-light d-flex justify-content-between align-items-center gap-2">
+                            <div class="d-flex align-items-center gap-1 gap-sm-2 text-nowrap" style="white-space: nowrap;">
+                                <span class="badge bg-success bg-opacity-10 text-success fw-bold">Gratis</span>
+                                <span class="text-muted small fw-semibold">Cert: $@course.Price.ToString("F2") USD</span>
+                            </div>
+                            <a asp-action="Detalle" asp-route-slug="@course.Slug" class="btn btn-sm btn-brand text-nowrap flex-shrink-0" style="white-space: nowrap;">
+                                Ver Curso <i class="bi bi-chevron-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

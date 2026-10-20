@@ -1,0 +1,246 @@
+@model CursosCertificadosApp.Models.Entities.User
+@{
+    ViewData["Title"] = "Membresía de Creador de Cursos Oficial";
+    bool isCreator = ViewBag.IsCreator == true;
+    var pendingPayment = ViewBag.PendingPayment as CursosCertificadosApp.Models.Entities.Payment;
+    var bcv = ViewBag.BcvRate as CursosCertificadosApp.Services.BcvRateResult;
+    var tasaBcv = bcv?.UsdRate ?? 881.07m;
+    var montoBs = (10.00m * tasaBcv).ToString("N2");
+    var fechaBcv = bcv?.ValueDate ?? DateTime.Now.ToString("dd/MM/yyyy");
+}
+
+<div class="container py-4">
+    <div class="max-w-900 mx-auto">
+        <!-- Hero Banner Membresía -->
+        <div class="card border-0 shadow rounded-4 p-4 p-md-5 mb-4 text-white position-relative overflow-hidden" 
+             style="background: linear-gradient(135deg, #0b1c36 0%, #1e3a8a 100%);">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <span class="badge bg-warning text-dark px-3 py-1 fw-bold mb-3">
+                        <i class="bi bi-star-fill me-1"></i> PROGRAMA DE DOCENTES Y CREADORES OFICIALES
+                    </span>
+                    <h1 class="display-6 fw-extrabold mb-2">Conviértete en Creador de Cursos</h1>
+                    <p class="lead opacity-90 mb-3 small">
+                        Publica tus formaciones en Cursos Globales JP, fija libremente el costo de certificación de tus cursos y genera ingresos recurrentes recibiendo el <strong>80% del precio por cada certificado oficial emitido</strong>.
+                    </p>
+                    <div class="d-flex flex-wrap gap-3 small text-light">
+                        <div><i class="bi bi-check-circle-fill text-warning me-1"></i> $10 USD membresía anual única</div>
+                        <div><i class="bi bi-check-circle-fill text-warning me-1"></i> Editor interactivo con videos e imágenes</div>
+                        <div><i class="bi bi-check-circle-fill text-warning me-1"></i> Panel exclusivo 'Modo Creador'</div>
+                    </div>
+                </div>
+                <div class="col-lg-4 text-center mt-3 mt-lg-0">
+                    <div class="p-3 rounded-4 bg-white bg-opacity-10 backdrop-blur border border-white border-opacity-25">
+                        <span class="text-uppercase small text-light opacity-75 d-block">Membresía Anual</span>
+                        <div class="display-5 fw-extrabold text-warning my-1">$10 <span class="fs-6 text-light">USD/año</span></div>
+                        <span class="badge bg-success">Ganas el 80% por certificación</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if (isCreator)
+        {
+            <!-- YA ES CREADOR -->
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white text-center mb-4">
+                <div class="badge bg-success bg-opacity-10 text-success p-3 rounded-circle mb-3 d-inline-block">
+                    <i class="bi bi-palette-fill fs-1 text-primary"></i>
+                </div>
+                <h3 class="fw-bold text-dark">¡Tu Membresía de Creador está Activa!</h3>
+                <p class="text-muted max-w-600 mx-auto mb-4">
+                    Tienes habilitado el acceso completo a la herramienta de creación de cursos, estructuración de temarios, carga de videos y subida de recursos multimedia.
+                </p>
+                <div class="d-flex justify-content-center gap-3">
+                    <a asp-controller="Creador" asp-action="Cursos" class="btn btn-primary btn-lg fw-bold px-4 shadow-sm">
+                        <i class="bi bi-palette me-2"></i> Ir al Panel de Modo Creador
+                    </a>
+                    <a asp-controller="Account" asp-action="Dashboard" class="btn btn-outline-secondary btn-lg fw-semibold">
+                        <i class="bi bi-person me-1"></i> Mi Panel de Estudiante
+                    </a>
+                </div>
+            </div>
+        }
+        else if (pendingPayment != null)
+        {
+            <!-- SOLICITUD EN PROCESO DE APROBACIÓN -->
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white text-center mb-4">
+                <div class="badge bg-warning bg-opacity-10 text-warning p-3 rounded-circle mb-3 d-inline-block">
+                    <i class="bi bi-hourglass-split fs-1 text-warning"></i>
+                </div>
+                <h3 class="fw-bold text-dark">Solicitud de Membresía en Proceso de Validación</h3>
+                <p class="text-muted max-w-600 mx-auto mb-3">
+                    Hemos recibido satisfactoriamente tu reporte de pago de <strong>$10 USD</strong> con referencia <strong>@pendingPayment.TransactionReference</strong> (@pendingPayment.PaymentMethod).
+                </p>
+                <div class="alert alert-light border small text-start max-w-500 mx-auto mb-4">
+                    <div class="mb-1"><span class="text-muted">Titular Registrado:</span> <strong>@Model.FullName</strong></div>
+                    <div class="mb-1"><span class="text-muted">Documento:</span> <strong>@Model.IdentificationNumber</strong></div>
+                    <div class="mb-1"><span class="text-muted">Fecha del Reporte:</span> <strong>@pendingPayment.CreatedAt.ToString("dd/MM/yyyy HH:mm")</strong></div>
+                    <div class="mt-2 text-primary fw-semibold">
+                        <i class="bi bi-info-circle me-1"></i> El administrador está conciliando el comprobante. Una vez aprobado, recibirás una notificación en tu cuenta y se desbloqueará el botón "Modo Creador".
+                    </div>
+                </div>
+                <a asp-controller="Account" asp-action="Dashboard" class="btn btn-outline-primary fw-semibold px-4">
+                    <i class="bi bi-arrow-left me-1"></i> Volver a Mi Panel de Estudiante
+                </a>
+            </div>
+        }
+        else
+        {
+            <!-- CHECKOUT Y FORMULARIO DE PAGO DE MEMBRESÍA -->
+            <div class="row g-4">
+                <!-- Columna Izquierda: Datos Bancarios y Tasa BCV -->
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+                        <h5 class="fw-bold text-dark mb-3">
+                            <i class="bi bi-currency-exchange text-primary me-2"></i>Tarifa y Coordenadas Oficiales
+                        </h5>
+
+                        <!-- Cuadro Tasa BCV -->
+                        <div class="card border-0 bg-primary bg-opacity-10 rounded-3 p-3 mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="small fw-bold text-primary">
+                                    <i class="bi bi-bank me-1"></i> TASA OFICIAL BCV DEL DÍA
+                                </span>
+                                <a href="https://www.bcv.org.ve/" target="_blank" class="badge bg-primary text-decoration-none small">
+                                    bcv.org.ve
+                                </a>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-baseline">
+                                <span class="fs-5 fw-extrabold text-dark">1 USD = Bs. @tasaBcv.ToString("N2")</span>
+                                <span class="badge bg-success fs-6 fw-bold">Membresía: Bs. @montoBs</span>
+                            </div>
+                            <div class="small text-muted mt-1" style="font-size: 0.72rem;">
+                                <i class="bi bi-clock-history me-1"></i> Fecha Valor BCV: <strong>@fechaBcv</strong> · Tasa oficial del Banco Central de Venezuela.
+                            </div>
+                        </div>
+
+                        <!-- Métodos de Pago Disponibles -->
+                        <div class="alert alert-warning border-0 p-3 small mb-3 rounded-3" style="background-color: #fffbeb; border-left: 4px solid #f59e0b !important;">
+                            <h6 class="fw-bold text-dark mb-2"><i class="bi bi-shield-check text-warning me-1"></i> Coordenadas Bancarias de la Empresa:</h6>
+                            
+                            <div class="mb-2 p-2 bg-white rounded border">
+                                <span class="d-block text-muted small">Titular de la Cuenta:</span>
+                                <strong class="text-dark">Inversiones Globales JP 1968, C.A.</strong>
+                                <span class="d-block text-muted small mt-1">RIF de la Empresa:</span>
+                                <strong class="text-dark">J-41102463-5</strong>
+                            </div>
+
+                            <div class="mb-2 p-2 bg-white rounded border">
+                                <div class="fw-bold text-primary mb-1">
+                                    <i class="bi bi-phone me-1"></i> Pago Móvil Interbancario (BDV):
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span>Banco:</span> <strong>0102 - Banco de Venezuela</strong>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span>Teléfono:</span> <strong>0412-5884084</strong>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span>RIF:</span> <strong>J-41102463-5</strong>
+                                </div>
+                            </div>
+
+                            <div class="p-2 bg-white rounded border mb-2">
+                                <div class="fw-bold text-primary mb-1">
+                                    <i class="bi bi-bank me-1"></i> Transferencia Bancaria Directa:
+                                </div>
+                                <div class="d-flex justify-content-between small">
+                                    <span>Banco:</span> <strong>Banco de Venezuela</strong>
+                                </div>
+                                <span class="d-block text-muted small mt-1">Número de Cuenta Corriente:</span>
+                                <strong class="text-dark font-monospace" style="font-size: 0.85rem;">0102-0456-9300-0333-3382</strong>
+                            </div>
+
+                            <div class="p-3 bg-white rounded border border-warning mb-2" style="background-color: #fffdf5 !important;">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="fw-bold text-dark">
+                                        <i class="bi bi-wallet2 text-warning me-1"></i> Binance Pay (USDT)
+                                    </span>
+                                    <span class="badge bg-warning text-dark fw-bold">$10.00 USDT</span>
+                                </div>
+                                <div class="alert alert-danger py-1 px-2 border-0 small fw-bold mb-2 text-center" style="font-size: 0.74rem;">
+                                    <i class="bi bi-exclamation-octagon-fill me-1"></i> NOTA: Solo se aceptan transferencias en USDT
+                                </div>
+                                <div class="small text-muted mb-2" style="font-size: 0.78rem;">
+                                    Ingresa con el enlace directo para pagar desde tu app o cuenta de Binance:
+                                </div>
+                                <a href="https://app.binance.com/uni-qr/8iQAbhFk" target="_blank" rel="noopener noreferrer" class="btn btn-warning btn-sm w-100 fw-bold text-dark shadow-sm">
+                                    <i class="bi bi-box-arrow-up-right me-1"></i> Abrir Enlace de Pago en Binance
+                                </a>
+                                <div class="text-center mt-1 small text-muted font-monospace" style="font-size: 0.70rem;">
+                                    app.binance.com/uni-qr/8iQAbhFk
+                                </div>
+                            </div>
+
+                            <div class="mt-2 text-danger fw-semibold" style="font-size: 0.73rem;">
+                                <i class="bi bi-exclamation-triangle-fill me-1"></i> IMPORTANTE: Por políticas de seguridad, los pagos en Bolívares se calculan a la tasa oficial BCV del día.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Columna Derecha: Formulario de Registro de Pago -->
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+                        <h5 class="fw-bold text-dark mb-3">
+                            <i class="bi bi-card-checklist text-success me-2"></i>Reportar Pago de Membresía
+                        </h5>
+                        <p class="text-muted small mb-3">
+                            Ingresa los datos del pago realizado. Una vez recibido y validado por nuestro equipo de administración, se activará tu rol de creador de cursos.
+                        </p>
+
+                        <form asp-action="PagarMembresia" method="post" enctype="multipart/form-data">
+                            @Html.AntiForgeryToken()
+
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">Método de Pago Utilizado <span class="text-danger">*</span></label>
+                                <select name="paymentMethod" class="form-select fw-semibold" required>
+                                    <option value="Pago Móvil (BDV)">📱 Pago Móvil (Banco de Venezuela - Tasa BCV)</option>
+                                    <option value="Transferencia Bancaria (BDV)">🏦 Transferencia Bancaria (BDV - Tasa BCV)</option>
+                                    <option value="Binance Pay">🟡 Binance Pay (Solo USDT - $10 USD)</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">Titular Registrado (Titular de la Cuenta)</label>
+                                <input type="text" class="form-control bg-light" value="@Model.FullName" readonly />
+                                <div class="form-text small" style="font-size: 0.72rem;">
+                                    El pago debe provenir de una cuenta a nombre del mismo titular registrado.
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">Cédula / Documento de Identidad</label>
+                                <input type="text" class="form-control bg-light" value="@Model.IdentificationNumber" readonly />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">Número de Referencia Bancaria <span class="text-danger">*</span></label>
+                                <input type="text" name="transactionReference" class="form-control font-monospace" placeholder="Ej. 00481920394" required />
+                                <div class="form-text small">Ingresa los dígitos de la referencia de la operación.</div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label small fw-bold">Captura o Comprobante de Pago <span class="text-danger">*</span></label>
+                                <input type="file" name="proofFile" class="form-control" accept="image/*,.pdf" required />
+                                <div class="form-text small">Adjunta la captura legible de la transferencia, Pago Móvil o recibo.</div>
+                            </div>
+
+                            <!-- Declaración Jurada y Aceptación de Términos -->
+                            <div class="form-check mb-3 p-2 bg-light rounded border">
+                                <input class="form-check-input ms-1 me-2" type="checkbox" id="checkTitularMembresia" required />
+                                <label class="form-check-label small text-muted" for="checkTitularMembresia" style="font-size: 0.74rem; line-height: 1.3;">
+                                    <strong>Declaración Jurada:</strong> Certifico que el pago fue realizado desde una cuenta bancaria a mi nombre (titular registrado: <strong>@Model.FullName - @Model.IdentificationNumber</strong>) y acepto los <a asp-controller="Home" asp-action="Terminos" target="_blank" class="text-decoration-underline fw-bold text-primary">Términos y Condiciones</a> legales de Inversiones Globales JP 1968, C.A.
+                                </label>
+                            </div>
+
+                            <button type="submit" class="btn btn-warning text-dark btn-lg w-100 fw-bold py-3 shadow">
+                                <i class="bi bi-send-check-fill me-2"></i> Enviar Comprobante para Aprobación
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

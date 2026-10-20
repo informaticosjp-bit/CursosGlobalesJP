@@ -1,0 +1,327 @@
+@model List<CursosCertificadosApp.Models.Entities.Payment>
+@{
+    ViewData["Title"] = "Historial de Pagos Aprobados y Certificados Emitidos";
+}
+
+<div class="container py-4">
+    <!-- Encabezado y Navegación Fija Centralizada -->
+    <partial name="_AdminHeader" />
+
+    <!-- Indicador de Ingresos Totales Aprobados -->
+    <div class="card border-0 shadow-sm rounded-4 p-3 mb-4 bg-white" style="border-left: 5px solid #198754 !important;">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="p-3 bg-success bg-opacity-10 text-success rounded-3 fs-3">
+                    <i class="bi bi-cash-stack"></i>
+                </div>
+                <div>
+                    <h5 class="fw-bold mb-0 text-dark">Recaudación Total Aprobada: $@ViewBag.TotalRevenue.ToString("F2") USD</h5>
+                    <span class="text-muted small">Total de Diplomas y Certificaciones Oficiales Liberadas: <strong>@Model.Count</strong></span>
+                </div>
+            </div>
+            <div>
+                <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i> Volver a Pagos Pendientes
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla Detallada de Pagos Aprobados -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+        @if (!Model.Any())
+        {
+            <div class="alert alert-light border small text-muted text-center py-5 mb-0">
+                <i class="bi bi-journal-x fs-1 d-block mb-2 text-muted"></i>
+                <strong>Aún no hay pagos aprobados en el historial.</strong>
+                <p class="small text-muted mt-1">Los pagos que apruebes en la cola de conciliación aparecerán registrados permanentemente aquí.</p>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle" id="tablaPagosAprobados">
+                    <thead class="table-light">
+                        <tr>
+                            <!-- Fecha de Aprobación -->
+                            <th class="user-select-none" style="cursor: pointer;" onclick="toggleSortAprobados(0, 'date', event)">
+                                <div class="d-inline-flex align-items-center gap-1">
+                                    <span class="fw-bold">Fecha de Aprobación</span>
+                                    <span class="sort-arrows ms-1 d-inline-flex align-items-center bg-white border rounded px-1 py-0 shadow-xs" style="gap: 2px;">
+                                        <span role="button" class="sort-arrow-up text-muted p-0" title="Más antiguos primero" onclick="setExplicitSortAprobados(0, 'date', 'asc', event)">
+                                            <i class="bi bi-caret-up-fill" style="font-size: 0.8rem;"></i>
+                                        </span>
+                                        <span role="button" class="sort-arrow-down text-muted p-0" title="Más recientes primero" onclick="setExplicitSortAprobados(0, 'date', 'desc', event)">
+                                            <i class="bi bi-caret-down-fill" style="font-size: 0.8rem;"></i>
+                                        </span>
+                                    </span>
+                                </div>
+                            </th>
+
+                            <!-- Estudiante (Titular) -->
+                            <th class="user-select-none" style="cursor: pointer;" onclick="toggleSortAprobados(1, 'text', event)">
+                                <div class="d-inline-flex align-items-center gap-1">
+                                    <span class="fw-bold">Estudiante (Titular)</span>
+                                    <span class="sort-arrows ms-1 d-inline-flex align-items-center bg-white border rounded px-1 py-0 shadow-xs" style="gap: 2px;">
+                                        <span role="button" class="sort-arrow-up text-muted p-0" title="Ordenar A-Z" onclick="setExplicitSortAprobados(1, 'text', 'asc', event)">
+                                            <i class="bi bi-caret-up-fill" style="font-size: 0.8rem;"></i>
+                                        </span>
+                                        <span role="button" class="sort-arrow-down text-muted p-0" title="Ordenar Z-A" onclick="setExplicitSortAprobados(1, 'text', 'desc', event)">
+                                            <i class="bi bi-caret-down-fill" style="font-size: 0.8rem;"></i>
+                                        </span>
+                                    </span>
+                                </div>
+                            </th>
+
+                            <!-- Curso Certificado -->
+                            <th class="user-select-none" style="cursor: pointer;" onclick="toggleSortAprobados(2, 'text', event)">
+                                <div class="d-inline-flex align-items-center gap-1">
+                                    <span class="fw-bold">Curso Certificado</span>
+                                    <span class="sort-arrows ms-1 d-inline-flex align-items-center bg-white border rounded px-1 py-0 shadow-xs" style="gap: 2px;">
+                                        <span role="button" class="sort-arrow-up text-muted p-0" title="Ordenar A-Z" onclick="setExplicitSortAprobados(2, 'text', 'asc', event)">
+                                            <i class="bi bi-caret-up-fill" style="font-size: 0.8rem;"></i>
+                                        </span>
+                                        <span role="button" class="sort-arrow-down text-muted p-0" title="Ordenar Z-A" onclick="setExplicitSortAprobados(2, 'text', 'desc', event)">
+                                            <i class="bi bi-caret-down-fill" style="font-size: 0.8rem;"></i>
+                                        </span>
+                                    </span>
+                                </div>
+                            </th>
+
+                            <!-- Método y Referencia -->
+                            <th class="user-select-none" style="cursor: pointer;" onclick="toggleSortAprobados(3, 'text', event)">
+                                <div class="d-inline-flex align-items-center gap-1">
+                                    <span>Método y Referencia</span>
+                                    <span class="sort-arrows ms-1 d-inline-flex align-items-center bg-white border rounded px-1 py-0 shadow-xs" style="gap: 2px;">
+                                        <span role="button" class="sort-arrow-up text-muted p-0" onclick="setExplicitSortAprobados(3, 'text', 'asc', event)">
+                                            <i class="bi bi-caret-up-fill" style="font-size: 0.75rem;"></i>
+                                        </span>
+                                        <span role="button" class="sort-arrow-down text-muted p-0" onclick="setExplicitSortAprobados(3, 'text', 'desc', event)">
+                                            <i class="bi bi-caret-down-fill" style="font-size: 0.75rem;"></i>
+                                        </span>
+                                    </span>
+                                </div>
+                            </th>
+
+                            <th>Comprobante</th>
+
+                            <!-- Código Certificado -->
+                            <th class="user-select-none" style="cursor: pointer;" onclick="toggleSortAprobados(5, 'text', event)">
+                                <div class="d-inline-flex align-items-center gap-1">
+                                    <span>Código Certificado</span>
+                                    <span class="sort-arrows ms-1 d-inline-flex align-items-center bg-white border rounded px-1 py-0 shadow-xs" style="gap: 2px;">
+                                        <span role="button" class="sort-arrow-up text-muted p-0" onclick="setExplicitSortAprobados(5, 'text', 'asc', event)">
+                                            <i class="bi bi-caret-up-fill" style="font-size: 0.75rem;"></i>
+                                        </span>
+                                        <span role="button" class="sort-arrow-down text-muted p-0" onclick="setExplicitSortAprobados(5, 'text', 'desc', event)">
+                                            <i class="bi bi-caret-down-fill" style="font-size: 0.75rem;"></i>
+                                        </span>
+                                    </span>
+                                </div>
+                            </th>
+
+                            <th class="text-end">Descarga Oficial</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaPagosAprobadosBody">
+                        @foreach (var p in Model)
+                        {
+                            <tr class="pago-aprobado-fila"
+                                data-date="@((p.ProcessedAt ?? p.CreatedAt).ToString("yyyy-MM-dd HH:mm:ss"))"
+                                data-student="@p.User.FullName.ToLowerInvariant()"
+                                data-course="@(p.PaymentType == "CreatorMembership" || p.Certificate == null ? "membresia creador" : p.Certificate.Course.Title.ToLowerInvariant())"
+                                data-method="@(p.PaymentMethod?.ToLowerInvariant() ?? "")"
+                                data-code="@(p.Certificate?.VerificationCode?.ToLowerInvariant() ?? "")">
+                                <td class="small text-muted">@((p.ProcessedAt ?? p.CreatedAt).ToString("dd/MM/yyyy HH:mm"))</td>
+                                <td>
+                                    <strong class="d-block text-dark">@p.User.FullName</strong>
+                                    <span class="small text-muted">C.I. @p.User.IdentificationNumber | @p.User.Email</span>
+                                    @if (!string.IsNullOrEmpty(p.User.PhoneNumber))
+                                    {
+                                        <span class="badge bg-light text-dark border small d-inline-block mt-1">
+                                            <i class="bi bi-whatsapp text-success me-1"></i>@p.User.PhoneNumber
+                                        </span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (p.PaymentType == "CreatorMembership")
+                                    {
+                                        <span class="badge bg-warning text-dark mb-1"><i class="bi bi-star-fill me-1"></i> Membresía Creador</span>
+                                        <span class="d-block small text-muted">Acceso Anual ($10.00 USD)</span>
+                                    }
+                                    else if (p.PaymentType == "CvGenerator")
+                                    {
+                                        <span class="badge bg-info text-dark mb-1"><i class="bi bi-file-earmark-person-fill me-1"></i> Generador de CV</span>
+                                        <span class="d-block small text-muted">Descarga Oficial PDF ($1.00 USD)</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="fw-semibold text-primary">@(p.Certificate?.Course?.Title ?? "Certificado Oficial")</span>
+                                        <span class="d-block small text-muted">Intensidad: @(p.Certificate?.Course?.EstimatedHours ?? 20) horas</span>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">@p.PaymentMethod</span>
+                                    <span class="d-block fw-mono small mt-1">Ref: <strong>@p.TransactionReference</strong></span>
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(p.ProofImageUrl))
+                                    {
+                                        <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#modalVoucher_@p.Id">
+                                            <i class="bi bi-image"></i> Ver Capture
+                                        </button>
+
+                                        <!-- Modal Voucher -->
+                                        <div class="modal fade" id="modalVoucher_@p.Id" tabindex="-1" aria-hidden="true">
+                                            <div class="modal-dialog modal-md modal-dialog-centered">
+                                                <div class="modal-content text-start">
+                                                    <div class="modal-header bg-light">
+                                                        <h6 class="modal-title fw-bold">Capture de Pago Aprobado #@p.Id</h6>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                    </div>
+                                                    <div class="modal-body text-center p-3">
+                                                        <img src="@p.ProofImageUrl" alt="Voucher" class="img-fluid rounded border mb-2 shadow-sm" style="max-height: 420px;" />
+                                                        <div class="small text-muted">Titular: <strong>@p.User.FullName</strong> | Ref: <strong>@p.TransactionReference</strong></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-light text-muted border">Digital</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (p.Certificate != null)
+                                    {
+                                        <code class="fw-bold text-dark">@p.Certificate.VerificationCode</code>
+                                    }
+                                    else if (p.PaymentType == "CvGenerator")
+                                    {
+                                        <span class="badge bg-info text-dark">CV Aprobado</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-light text-muted border">Membresía Activa</span>
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    <div class="d-flex justify-content-end gap-1">
+                                        @if (p.Certificate != null)
+                                        {
+                                            <!-- Descarga directa del diploma PDF por el propio Administrador -->
+                                            <a asp-controller="Certificados" asp-action="Descargar" asp-route-id="@p.CertificateId" class="btn btn-sm btn-success fw-bold" title="Descargar Diploma Oficial en PDF">
+                                                <i class="bi bi-file-earmark-pdf-fill me-1"></i> Descargar PDF
+                                            </a>
+                                            <a asp-controller="Certificados" asp-action="Verificar" asp-route-id="@p.Certificate.VerificationCode" target="_blank" class="btn btn-sm btn-outline-primary" title="Validar Certificado">
+                                                <i class="bi bi-patch-check"></i>
+                                            </a>
+                                        }
+                                        else if (p.PaymentType == "CvGenerator")
+                                        {
+                                            <a asp-controller="Curriculum" asp-action="VerCv" asp-route-userId="@p.UserId" target="_blank" class="btn btn-sm btn-outline-info fw-bold" title="Ver Currículum Vitae del Estudiante">
+                                                <i class="bi bi-file-earmark-person-fill me-1"></i> Ver CV
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success py-2 px-3"><i class="bi bi-check2-circle me-1"></i> Rol Creador Activo</span>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    let sortStateAprobados = { colIndex: null, direction: 'desc' };
+
+    function toggleSortAprobados(colIndex, type, event) {
+        if (event.target.closest('.sort-arrow-up') || event.target.closest('.sort-arrow-down')) {
+            return;
+        }
+        let newDir = 'asc';
+        if (sortStateAprobados.colIndex === colIndex) {
+            newDir = (sortStateAprobados.direction === 'asc') ? 'desc' : 'asc';
+        }
+        ejecutarOrdenamientoAprobados(colIndex, type, newDir);
+    }
+
+    function setExplicitSortAprobados(colIndex, type, direction, event) {
+        event.stopPropagation();
+        ejecutarOrdenamientoAprobados(colIndex, type, direction);
+    }
+
+    function ejecutarOrdenamientoAprobados(colIndex, type, direction) {
+        sortStateAprobados = { colIndex: colIndex, direction: direction };
+        actualizarIconosAprobados(colIndex, direction);
+
+        const tbody = document.getElementById('tablaPagosAprobadosBody');
+        if (!tbody) return;
+        const rows = Array.from(tbody.querySelectorAll('tr.pago-aprobado-fila'));
+
+        rows.sort((a, b) => {
+            let valA = '';
+            let valB = '';
+
+            switch (colIndex) {
+                case 0: // Fecha
+                    valA = a.getAttribute('data-date') || '';
+                    valB = b.getAttribute('data-date') || '';
+                    break;
+                case 1: // Estudiante
+                    valA = a.getAttribute('data-student') || '';
+                    valB = b.getAttribute('data-student') || '';
+                    break;
+                case 2: // Curso
+                    valA = a.getAttribute('data-course') || '';
+                    valB = b.getAttribute('data-course') || '';
+                    break;
+                case 3: // Método
+                    valA = a.getAttribute('data-method') || '';
+                    valB = b.getAttribute('data-method') || '';
+                    break;
+                case 5: // Código
+                    valA = a.getAttribute('data-code') || '';
+                    valB = b.getAttribute('data-code') || '';
+                    break;
+            }
+
+            return direction === 'asc'
+                ? valA.localeCompare(valB, 'es', { sensitivity: 'base' })
+                : valB.localeCompare(valA, 'es', { sensitivity: 'base' });
+        });
+
+        rows.forEach(r => tbody.appendChild(r));
+    }
+
+    function actualizarIconosAprobados(activeColIndex, direction) {
+        const ths = document.querySelectorAll('#tablaPagosAprobados thead th');
+        ths.forEach((th, idx) => {
+            const up = th.querySelector('.sort-arrow-up');
+            const down = th.querySelector('.sort-arrow-down');
+            if (!up || !down) return;
+
+            if (idx === activeColIndex) {
+                if (direction === 'asc') {
+                    up.className = 'sort-arrow-up text-primary fw-bold';
+                    down.className = 'sort-arrow-down text-muted opacity-25';
+                } else {
+                    down.className = 'sort-arrow-down text-primary fw-bold';
+                    up.className = 'sort-arrow-up text-muted opacity-25';
+                }
+            } else {
+                up.className = 'sort-arrow-up text-muted';
+                down.className = 'sort-arrow-down text-muted';
+            }
+        });
+    }
+</script>
+}

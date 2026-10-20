@@ -1,0 +1,375 @@
+@model CursosCertificadosApp.Models.ViewModels.CourseFormViewModel
+@{
+    ViewData["Title"] = "Editar Curso - Modo Creador";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-0 text-dark">
+                <i class="bi bi-pencil-square text-primary me-2"></i>Editar Curso
+            </h2>
+            <span class="text-muted small">Actualiza los datos informativos y estructura pedagógica de tu curso</span>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="ModulosCurso" asp-route-id="@Model.Id" class="btn btn-outline-primary">
+                <i class="bi bi-journal-text me-1"></i> Ir al Temario y Módulos
+            </a>
+            <a asp-action="Cursos" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i> Volver a Mis Cursos
+            </a>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white max-w-900 mx-auto">
+        <form asp-action="EditarCurso" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-8">
+                    <label asp-for="Title" class="form-label fw-bold"></label>
+                    <input asp-for="Title" class="form-control" required />
+                    <span asp-validation-for="Title" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label asp-for="CategoryId" class="form-label fw-bold mb-0"></label>
+                        <button type="button" class="btn btn-link p-0 text-decoration-none small fw-bold" data-bs-toggle="modal" data-bs-target="#modalCrearCatRapida">
+                            <i class="bi bi-plus-circle me-1"></i>+ Nueva
+                        </button>
+                    </div>
+                    <select asp-for="CategoryId" class="form-select" id="selectCategoriaCurso" required>
+                        @foreach (var cat in Model.Categories)
+                        {
+                            <option value="@cat.Id" selected="@(cat.Id == Model.CategoryId)">@cat.Name</option>
+                        }
+                    </select>
+                    <span asp-validation-for="CategoryId" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label asp-for="Slug" class="form-label fw-bold"></label>
+                    <input asp-for="Slug" class="form-control" />
+                    <div class="form-text small">URL amigable pública del curso.</div>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="Level" class="form-label fw-bold"></label>
+                    <select asp-for="Level" class="form-select">
+                        <option value="Básico" selected="@(Model.Level == "Básico")">Básico</option>
+                        <option value="Intermedio" selected="@(Model.Level == "Intermedio")">Intermedio</option>
+                        <option value="Avanzado" selected="@(Model.Level == "Avanzado")">Avanzado</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label asp-for="EstimatedHours" class="form-label fw-bold"></label>
+                    <input asp-for="EstimatedHours" type="number" class="form-control" min="1" max="200" required />
+                    <span asp-validation-for="EstimatedHours" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="ShortDescription" class="form-label fw-bold"></label>
+                <textarea asp-for="ShortDescription" class="form-control" rows="2" required></textarea>
+                <span asp-validation-for="ShortDescription" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="FullDescription" class="form-label fw-bold"></label>
+                <textarea asp-for="FullDescription" id="FullDescription" class="form-control rounded-bottom-0 font-monospace" rows="6" required></textarea>
+                
+                <!-- Barra Multimedia: Video YouTube e Imágenes -->
+                <div class="d-flex flex-wrap align-items-center justify-content-between p-2 bg-light border border-top-0 rounded-bottom">
+                    <div class="d-flex flex-wrap align-items-center gap-2">
+                        <button type="button" class="btn btn-sm btn-outline-danger fw-semibold" onclick="insertarVideoYoutube('FullDescription')">
+                            <i class="bi bi-youtube me-1"></i> Agregar Link de YouTube (Video)
+                        </button>
+                        <label class="btn btn-sm btn-outline-primary fw-semibold mb-0" style="cursor: pointer;">
+                            <i class="bi bi-image me-1"></i> Subir / Agregar Imagen
+                            <input type="file" accept="image/*" class="d-none" onchange="subirImagenAEditor(this, 'FullDescription')" />
+                        </label>
+                        <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-outline-secondary" onclick="insertarFormato('FullDescription', 'h3')" title="Insertar Subtítulo">
+                                <i class="bi bi-type-h3"></i> Título
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="insertarFormato('FullDescription', 'alert')" title="Insertar Caja Destacada">
+                                <i class="bi bi-info-circle"></i> Caja Info
+                            </button>
+                        </div>
+                    </div>
+                    <span class="small text-muted" style="font-size: 0.72rem;">
+                        <i class="bi bi-check2-circle text-success me-1"></i>Incrustación interactiva en el aula
+                    </span>
+                </div>
+                <span asp-validation-for="FullDescription" class="text-danger small"></span>
+            </div>
+
+            <!-- Datos del Docente / Creador (Opcional) -->
+            <div class="card border border-primary border-opacity-25 bg-light bg-opacity-50 rounded-3 p-3 mb-4">
+                <h6 class="fw-bold text-primary mb-2">
+                    <i class="bi bi-person-badge me-1"></i> Datos del Instructor / Docente (Opcional)
+                </h6>
+                <p class="text-muted small mb-3">
+                    Indica tu nombre y credenciales si deseas que se muestren a los estudiantes en la ficha del curso.
+                </p>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="InstructorName" class="form-label fw-semibold"></label>
+                        <input asp-for="InstructorName" class="form-control" placeholder="Ej. Ing. Pedro Gómez o Lcda. María Silva" />
+                        <span asp-validation-for="InstructorName" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="InstructorTitle" class="form-label fw-semibold"></label>
+                        <input asp-for="InstructorTitle" class="form-control" placeholder="Ej. Especialista en IA y Machine Learning" />
+                        <span asp-validation-for="InstructorTitle" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Configuración Financiera del Certificado -->
+            <div class="card border border-warning border-opacity-50 bg-warning bg-opacity-10 rounded-3 p-3 mb-4">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <h6 class="fw-bold text-dark mb-0">
+                        <i class="bi bi-cash-coin text-warning me-1"></i> Precio y Distribución de Ingresos por Certificado
+                    </h6>
+                    <span class="badge bg-warning text-dark fw-bold">80% Creador / 20% Plataforma</span>
+                </div>
+                <p class="text-muted small mb-3">
+                    Establece el precio que el alumno pagará para solicitar y validar su certificado oficial (mínimo $1.00 USD). Como creador recibirás el 80% del valor fijado por cada certificación emitida, y la plataforma retiene el 20% por costos operativos y estampación QR.
+                </p>
+                <div class="row g-3 align-items-center">
+                    <div class="col-md-4">
+                        <label asp-for="Price" class="form-label fw-bold">Precio de Certificación ($ USD)</label>
+                        <div class="input-group">
+                            <span class="input-group-text fw-bold">$</span>
+                            <input asp-for="Price" type="number" step="0.50" min="1.00" class="form-control fw-bold fs-5 text-primary" id="coursePriceInput" oninput="calcularComisiones()" required />
+                            <span class="input-group-text text-muted">USD</span>
+                        </div>
+                        <span asp-validation-for="Price" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-2 bg-white rounded border border-success border-opacity-50 text-center">
+                            <span class="small text-muted d-block">Tu Ganancia Directa (80%)</span>
+                            <strong class="fs-5 text-success" id="creatorShareDisplay">$@((Model.Price * 0.80m).ToString("F2")) USD</strong>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-2 bg-white rounded border border-secondary border-opacity-50 text-center">
+                            <span class="small text-muted d-block">Comisión Plataforma (20%)</span>
+                            <strong class="fs-5 text-secondary" id="platformShareDisplay">$@((Model.Price * 0.20m).ToString("F2")) USD</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <label asp-for="PassingScore" class="form-label fw-bold"></label>
+                    <div class="input-group">
+                        <input asp-for="PassingScore" type="number" step="1" class="form-control" min="50" max="100" required />
+                        <span class="input-group-text">%</span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="BadgeColor" class="form-label fw-bold"></label>
+                    <select asp-for="BadgeColor" class="form-select">
+                        <option value="primary" selected="@(Model.BadgeColor == "primary")">Azul Corporativo (Primary)</option>
+                        <option value="success" selected="@(Model.BadgeColor == "success")">Verde Éxito (Success)</option>
+                        <option value="warning" selected="@(Model.BadgeColor == "warning")">Dorado / Ámbar (Warning)</option>
+                        <option value="info" selected="@(Model.BadgeColor == "info")">Cian / Tecnología (Info)</option>
+                        <option value="dark" selected="@(Model.BadgeColor == "dark")">Negro Ejecutivo (Dark)</option>
+                    </select>
+                </div>
+                <div class="col-md-4 d-flex align-items-center">
+                    <div class="form-check form-switch mt-3">
+                        <input asp-for="IsPublished" class="form-check-input" type="checkbox" id="checkPublishedEdit" />
+                        <label class="form-check-label fw-bold ms-1" for="checkPublishedEdit">
+                            Curso Publicado en Catálogo
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 border-top pt-3">
+                <a asp-action="Cursos" class="btn btn-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-primary fw-bold px-4">
+                    <i class="bi bi-save me-1"></i> Guardar Cambios
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function extractYoutubeId(url) {
+            if (!url) return null;
+            var match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+            return match ? match[1] : null;
+        }
+
+        function insertarTextoEnTextarea(textareaId, texto) {
+            var el = document.getElementById(textareaId);
+            if (!el) return;
+            var start = el.selectionStart || el.value.length;
+            var end = el.selectionEnd || el.value.length;
+            var before = el.value.substring(0, start);
+            var after = el.value.substring(end);
+            el.value = before + texto + after;
+            el.focus();
+            el.selectionStart = el.selectionEnd = start + texto.length;
+        }
+
+        function insertarVideoYoutube(textareaId) {
+            var url = prompt("Pega aquí el enlace del video de YouTube (ejemplo: https://www.youtube.com/watch?v=... o https://youtu.be/...):");
+            if (!url) return;
+            var videoId = extractYoutubeId(url.trim());
+            if (!videoId) {
+                alert("No se pudo reconocer un ID de video de YouTube válido en el enlace proporcionado.");
+                return;
+            }
+            var embedCode = '\n<div class="ratio ratio-16x9 my-3 rounded-3 shadow-sm overflow-hidden">\n' +
+                '  <iframe src="https://www.youtube.com/embed/' + videoId + '" title="Video educativo" allowfullscreen></iframe>\n' +
+                '</div>\n';
+            insertarTextoEnTextarea(textareaId, embedCode);
+        }
+
+        async function subirImagenAEditor(fileInput, textareaId) {
+            if (!fileInput.files || fileInput.files.length === 0) return;
+            var file = fileInput.files[0];
+            var formData = new FormData();
+            formData.append("imageFile", file);
+
+            try {
+                var resp = await fetch("/Creador/SubirImagenContenido", {
+                    method: "POST",
+                    body: formData
+                });
+                var data = await resp.json();
+                if (data.success) {
+                    var imgCode = '\n<div class="text-center my-3">\n' +
+                        '  <img src="' + data.url + '" class="img-fluid rounded-3 shadow-sm border" alt="Recurso visual del tema" style="max-height: 480px;" />\n' +
+                        '</div>\n';
+                    insertarTextoEnTextarea(textareaId, imgCode);
+                } else {
+                    alert(data.message || "Error al subir la imagen");
+                }
+            } catch (err) {
+                alert("Ocurrió un error al subir la imagen.");
+            }
+            fileInput.value = "";
+        }
+
+        function insertarFormato(textareaId, tipo) {
+            if (tipo === 'h3') {
+                insertarTextoEnTextarea(textareaId, '\n<h3>Título de la Sección</h3>\n<p>Escribe aquí la explicación...</p>\n');
+            } else if (tipo === 'alert') {
+                insertarTextoEnTextarea(textareaId, '\n<div class="alert alert-info border-0 rounded-3 my-3 p-3">\n  <strong><i class="bi bi-info-circle me-1"></i> Punto Clave:</strong> Escribe aquí una nota o recomendación importante.\n</div>\n');
+            }
+        }
+
+        function calcularComisiones() {
+            var priceInput = document.getElementById('coursePriceInput');
+            var val = parseFloat(priceInput.value) || 1.00;
+            if (val < 1.00) val = 1.00;
+            var creator = (val * 0.80).toFixed(2);
+            var platform = (val * 0.20).toFixed(2);
+            var creatorEl = document.getElementById('creatorShareDisplay');
+            var platformEl = document.getElementById('platformShareDisplay');
+            if (creatorEl) creatorEl.innerText = '$' + creator + ' USD';
+            if (platformEl) platformEl.innerText = '$' + platform + ' USD';
+        }
+
+        async function guardarCategoriaRapida() {
+            const btn = document.getElementById('btnGuardarCatRapida');
+            const inputName = document.getElementById('catRapidaName');
+            const inputDesc = document.getElementById('catRapidaDesc');
+            const name = inputName.value.trim();
+
+            if (!name) {
+                alert('Ingresa el nombre de la categoría.');
+                inputName.focus();
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Creando...';
+
+            try {
+                const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+                const resp = await fetch('/Creador/CrearCategoriaAjax', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': token
+                    },
+                    body: JSON.stringify({
+                        Name: name,
+                        Description: inputDesc.value.trim(),
+                        IconClass: 'bi-folder',
+                        DisplayOrder: 10
+                    })
+                });
+
+                const data = await resp.json();
+                if (data.success) {
+                    const sel = document.getElementById('selectCategoriaCurso');
+                    const opt = document.createElement('option');
+                    opt.value = data.id;
+                    opt.textContent = data.name;
+                    opt.selected = true;
+                    sel.appendChild(opt);
+
+                    const modalEl = document.getElementById('modalCrearCatRapida');
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) modal.hide();
+
+                    inputName.value = '';
+                    inputDesc.value = '';
+                } else {
+                    alert(data.message || 'Error al crear la categoría.');
+                }
+            } catch (e) {
+                alert('No se pudo conectar con el servidor.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-plus-circle me-1"></i> Crear y Seleccionar';
+            }
+        }
+    </script>
+}
+
+<!-- Modal Creación Rápida de Categoría -->
+<div class="modal fade" id="modalCrearCatRapida" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold">
+                    <i class="bi bi-tag-fill me-2"></i>Nueva Categoría
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Nombre de la Categoría <span class="text-danger">*</span></label>
+                    <input type="text" id="catRapidaName" class="form-control" placeholder="Ej: Gestión de Proyectos Ágiles" maxlength="100" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Descripción (Opcional)</label>
+                    <textarea id="catRapidaDesc" class="form-control" rows="2" placeholder="Enfoque de esta especialidad formativa..." maxlength="300"></textarea>
+                </div>
+                <div class="small text-muted">
+                    <i class="bi bi-shield-check text-success me-1"></i> Se añadirá inmediatamente a tu selector y quedará disponible para tus cursos.
+                </div>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" id="btnGuardarCatRapida" class="btn btn-primary fw-bold" onclick="guardarCategoriaRapida()">
+                    <i class="bi bi-plus-circle me-1"></i> Crear y Seleccionar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

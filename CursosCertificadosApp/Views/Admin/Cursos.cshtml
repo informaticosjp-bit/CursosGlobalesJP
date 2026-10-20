@@ -1,0 +1,372 @@
+@model List<CursosCertificadosApp.Models.Entities.Course>
+@{
+    ViewData["Title"] = "Gestión del Catálogo de Cursos";
+}
+
+<div class="container py-4">
+    <!-- Encabezado y Navegación Fija Centralizada -->
+    <partial name="_AdminHeader" />
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm rounded-3 mb-3" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm rounded-3 mb-3" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Barra de Acciones y Estadísticas -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-3">
+        <div>
+            <h4 class="fw-bold mb-0 text-dark">
+                <i class="bi bi-book-half text-primary me-2"></i>Gestión del Catálogo Académico
+            </h4>
+            <span class="text-muted small">Crea, edita, configura temarios de lectura y administra los programas disponibles</span>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-primary bg-opacity-10 text-primary fs-6 px-3 py-2 fw-semibold">
+                Total de Cursos: <strong>@Model.Count</strong>
+            </span>
+            <a asp-action="CrearCurso" class="btn btn-success fw-bold shadow-sm">
+                <i class="bi bi-plus-circle me-1"></i> + Crear Nuevo Curso
+            </a>
+        </div>
+    </div>
+
+    <!-- Barra de Filtro Rápido y Búsqueda -->
+    <div class="card border-0 shadow-sm rounded-4 p-3 mb-3 bg-white">
+        <div class="row g-2 align-items-center">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0">
+                        <i class="bi bi-search text-muted"></i>
+                    </span>
+                    <input type="text" id="filtroTexto" class="form-control border-start-0" 
+                           placeholder="Buscar por título de curso o slug..." oninput="filtrarCursos()" />
+                </div>
+            </div>
+            <div class="col-md-4">
+                <select id="filtroCategoria" class="form-select" onchange="filtrarCursos()">
+                    <option value="">-- Todas las Categorías --</option>
+                    @foreach (var catName in Model.Select(m => m.Category?.Name).Where(n => !string.IsNullOrEmpty(n)).Distinct().OrderBy(n => n))
+                    {
+                        <option value="@catName">@catName</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2 text-end">
+                <button type="button" class="btn btn-outline-secondary w-100 btn-sm" onclick="limpiarFiltros()">
+                    <i class="bi bi-arrow-counterclockwise me-1"></i> Limpiar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Catálogo de Cursos en Tabla Compacta (Ajustada para pantalla completa sin scroll horizontal) -->
+    <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+        <div class="table-responsive">
+            <table class="table table-hover table-sm align-middle mb-0" id="tablaCursos" style="font-size: 0.8rem;">
+                <thead class="table-light">
+                    <tr>
+                        <!-- Columna Curso / Título con flechas -->
+                        <th class="user-select-none py-2" style="cursor: pointer; min-width: 170px;" onclick="toggleSort(0, 'text', event)">
+                            <div class="d-inline-flex align-items-center gap-1">
+                                <span class="fw-bold">Curso / Título</span>
+                                <span class="sort-arrows ms-1 d-inline-flex align-items-center bg-white border rounded px-1 py-0 shadow-xs" style="gap: 1px;">
+                                    <span role="button" class="sort-arrow-up text-muted p-0" title="Ordenar A-Z (Ascendente)" onclick="setExplicitSort(0, 'text', 'asc', event)">
+                                        <i class="bi bi-caret-up-fill" style="font-size: 0.65rem;"></i>
+                                    </span>
+                                    <span role="button" class="sort-arrow-down text-muted p-0" title="Ordenar Z-A (Descendente)" onclick="setExplicitSort(0, 'text', 'desc', event)">
+                                        <i class="bi bi-caret-down-fill" style="font-size: 0.65rem;"></i>
+                                    </span>
+                                </span>
+                            </div>
+                        </th>
+
+                        <!-- Columna Categoría con flechas -->
+                        <th class="user-select-none py-2" style="cursor: pointer;" onclick="toggleSort(1, 'text', event)">
+                            <div class="d-inline-flex align-items-center gap-1">
+                                <span class="fw-bold">Categoría</span>
+                                <span class="sort-arrows ms-1 d-inline-flex align-items-center bg-white border rounded px-1 py-0 shadow-xs" style="gap: 1px;">
+                                    <span role="button" class="sort-arrow-up text-muted p-0" title="Ordenar Categoría A-Z (Ascendente)" onclick="setExplicitSort(1, 'text', 'asc', event)">
+                                        <i class="bi bi-caret-up-fill" style="font-size: 0.65rem;"></i>
+                                    </span>
+                                    <span role="button" class="sort-arrow-down text-muted p-0" title="Ordenar Categoría Z-A (Descendente)" onclick="setExplicitSort(1, 'text', 'desc', event)">
+                                        <i class="bi bi-caret-down-fill" style="font-size: 0.65rem;"></i>
+                                    </span>
+                                </span>
+                            </div>
+                        </th>
+
+                        <!-- Nivel y Horas -->
+                        <th class="user-select-none py-2" style="cursor: pointer;" onclick="toggleSort(2, 'num', event)">
+                            <div class="d-inline-flex align-items-center gap-1">
+                                <span>Nivel / Horas</span>
+                                <span class="sort-arrows ms-1 d-inline-flex align-items-center bg-white border rounded px-1 py-0" style="gap: 1px;">
+                                    <span role="button" class="sort-arrow-up text-muted" onclick="setExplicitSort(2, 'num', 'asc', event)">
+                                        <i class="bi bi-caret-up-fill" style="font-size: 0.65rem;"></i>
+                                    </span>
+                                    <span role="button" class="sort-arrow-down text-muted" onclick="setExplicitSort(2, 'num', 'desc', event)">
+                                        <i class="bi bi-caret-down-fill" style="font-size: 0.65rem;"></i>
+                                    </span>
+                                </span>
+                            </div>
+                        </th>
+
+                        <!-- Módulos -->
+                        <th class="user-select-none py-2" style="cursor: pointer;" onclick="toggleSort(3, 'num', event)">
+                            <div class="d-inline-flex align-items-center gap-1">
+                                <span>Mód.</span>
+                                <span class="sort-arrows ms-1 d-inline-flex align-items-center bg-white border rounded px-1 py-0" style="gap: 1px;">
+                                    <span role="button" class="sort-arrow-up text-muted" onclick="setExplicitSort(3, 'num', 'asc', event)">
+                                        <i class="bi bi-caret-up-fill" style="font-size: 0.65rem;"></i>
+                                    </span>
+                                    <span role="button" class="sort-arrow-down text-muted" onclick="setExplicitSort(3, 'num', 'desc', event)">
+                                        <i class="bi bi-caret-down-fill" style="font-size: 0.65rem;"></i>
+                                    </span>
+                                </span>
+                            </div>
+                        </th>
+
+                        <!-- Estudiantes -->
+                        <th class="user-select-none py-2" style="cursor: pointer;" onclick="toggleSort(4, 'num', event)">
+                            <div class="d-inline-flex align-items-center gap-1">
+                                <span>Inscritos</span>
+                                <span class="sort-arrows ms-1 d-inline-flex align-items-center bg-white border rounded px-1 py-0" style="gap: 1px;">
+                                    <span role="button" class="sort-arrow-up text-muted" onclick="setExplicitSort(4, 'num', 'asc', event)">
+                                        <i class="bi bi-caret-up-fill" style="font-size: 0.65rem;"></i>
+                                    </span>
+                                    <span role="button" class="sort-arrow-down text-muted" onclick="setExplicitSort(4, 'num', 'desc', event)">
+                                        <i class="bi bi-caret-down-fill" style="font-size: 0.65rem;"></i>
+                                    </span>
+                                </span>
+                            </div>
+                        </th>
+
+                        <!-- Precio Cert. -->
+                        <th class="user-select-none py-2" style="cursor: pointer;" onclick="toggleSort(5, 'num', event)">
+                            <div class="d-inline-flex align-items-center gap-1">
+                                <span>Precio</span>
+                                <span class="sort-arrows ms-1 d-inline-flex align-items-center bg-white border rounded px-1 py-0" style="gap: 1px;">
+                                    <span role="button" class="sort-arrow-up text-muted" onclick="setExplicitSort(5, 'num', 'asc', event)">
+                                        <i class="bi bi-caret-up-fill" style="font-size: 0.65rem;"></i>
+                                    </span>
+                                    <span role="button" class="sort-arrow-down text-muted" onclick="setExplicitSort(5, 'num', 'desc', event)">
+                                        <i class="bi bi-caret-down-fill" style="font-size: 0.65rem;"></i>
+                                    </span>
+                                </span>
+                            </div>
+                        </th>
+
+                        <th class="py-2">Mín.</th>
+                        <th class="py-2">Estado</th>
+                        <th class="text-end py-2" style="min-width: 125px;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaCursosBody">
+                    @foreach (var course in Model)
+                    {
+                        <tr class="curso-fila" 
+                            data-title="@course.Title.ToLowerInvariant()"
+                            data-slug="@course.Slug.ToLowerInvariant()"
+                            data-category="@(course.Category?.Name ?? "")"
+                            data-hours="@course.EstimatedHours"
+                            data-modules="@course.Modules.Count"
+                            data-enrollments="@course.Enrollments.Count"
+                            data-price="@course.Price.ToString(System.Globalization.CultureInfo.InvariantCulture)">
+                            <td class="py-2">
+                                <strong class="d-block text-dark curso-titulo-txt" style="font-size: 0.82rem; line-height: 1.25;">@course.Title</strong>
+                                <span class="text-muted font-monospace" style="font-size: 0.68rem;">/Aula/@course.Slug</span>
+                            </td>
+                            <td class="py-2">
+                                <span class="badge bg-light text-dark border curso-categoria-txt text-wrap" style="font-size: 0.7rem; max-width: 130px; line-height: 1.2;">@(course.Category?.Name ?? "Sin Categoría")</span>
+                            </td>
+                            <td class="py-2">
+                                <span class="badge bg-secondary" style="font-size: 0.68rem;">@course.Level</span>
+                                <span class="small text-muted d-block" style="font-size: 0.68rem;">@course.EstimatedHours hrs</span>
+                            </td>
+                            <td class="py-2">
+                                <span class="badge bg-info bg-opacity-75 text-dark" style="font-size: 0.72rem;">@course.Modules.Count mód.</span>
+                            </td>
+                            <td class="py-2">
+                                <span class="badge bg-primary" style="font-size: 0.72rem;">@course.Enrollments.Count</span>
+                            </td>
+                            <td class="py-2">
+                                @if (course.CreatorUser != null)
+                                {
+                                    <span class="badge bg-warning text-dark fw-bold" style="font-size: 0.72rem;">$@course.Price.ToString("F2")</span>
+                                    <span class="small text-muted d-block" style="font-size: 0.65rem;">Creador: 80%</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success text-white fw-bold" style="font-size: 0.72rem;">$@course.Price.ToString("F2")</span>
+                                    <span class="small text-muted d-block" style="font-size: 0.65rem;">Empresa: 100%</span>
+                                }
+                            </td>
+                            <td class="py-2">
+                                <span class="fw-bold text-dark" style="font-size: 0.78rem;">@course.PassingScore.ToString("F0")%</span>
+                            </td>
+                            <td class="py-2">
+                                @if (course.IsPublished)
+                                {
+                                    <span class="badge bg-success" style="font-size: 0.7rem;">Publicado</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary" style="font-size: 0.7rem;">Borrador</span>
+                                }
+                            </td>
+                            <td class="text-end py-2">
+                                <div class="btn-group btn-group-sm shadow-2xs" role="group">
+                                    <a asp-action="ModulosCurso" asp-route-id="@course.Id" class="btn btn-outline-primary px-2 py-1" title="Gestionar Módulos y Lecturas">
+                                        <i class="bi bi-journal-text"></i>
+                                    </a>
+                                    <a asp-action="EditarCurso" asp-route-id="@course.Id" class="btn btn-outline-secondary px-2 py-1" title="Editar Información del Curso">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                    <a asp-controller="Aula" asp-action="Aula" asp-route-slug="@course.Slug" target="_blank" class="btn btn-outline-info px-2 py-1" title="Ver como Estudiante">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <form asp-action="EliminarCurso" asp-route-id="@course.Id" method="post" class="d-inline"
+                                          onsubmit="return confirm('⚠️ ¿Eliminar COMPLETAMENTE el curso «@course.Title»?\n\nSe borrarán módulos, lecciones, matrículas, certificados y pagos asociados.\n\nEsta acción NO se puede deshacer.');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-outline-danger px-2 py-1 rounded-end" title="Eliminar Curso Completo">
+                                            <i class="bi bi-trash-fill"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    // Estado de ordenación actual: { colIndex: null, direction: 'asc'|'desc' }
+    let sortState = { colIndex: null, direction: 'asc' };
+
+    function toggleSort(colIndex, type, event) {
+        // Si el click fue en un botón explícito de flecha, ignoramos el toggle del th
+        if (event.target.closest('.sort-arrow-up') || event.target.closest('.sort-arrow-down')) {
+            return;
+        }
+        let newDir = 'asc';
+        if (sortState.colIndex === colIndex) {
+            newDir = (sortState.direction === 'asc') ? 'desc' : 'asc';
+        }
+        ejecutarOrdenamiento(colIndex, type, newDir);
+    }
+
+    function setExplicitSort(colIndex, type, direction, event) {
+        event.stopPropagation();
+        ejecutarOrdenamiento(colIndex, type, direction);
+    }
+
+    function ejecutarOrdenamiento(colIndex, type, direction) {
+        sortState = { colIndex: colIndex, direction: direction };
+        actualizarIconosOrden(colIndex, direction);
+
+        const tbody = document.getElementById('tablaCursosBody');
+        const rows = Array.from(tbody.querySelectorAll('tr.curso-fila'));
+
+        rows.sort((a, b) => {
+            let valA = '';
+            let valB = '';
+
+            switch (colIndex) {
+                case 0: // Título
+                    valA = a.querySelector('.curso-titulo-txt')?.innerText.trim().toLowerCase() || '';
+                    valB = b.querySelector('.curso-titulo-txt')?.innerText.trim().toLowerCase() || '';
+                    break;
+                case 1: // Categoría
+                    valA = a.querySelector('.curso-categoria-txt')?.innerText.trim().toLowerCase() || '';
+                    valB = b.querySelector('.curso-categoria-txt')?.innerText.trim().toLowerCase() || '';
+                    break;
+                case 2: // Horas
+                    valA = parseFloat(a.getAttribute('data-hours') || '0');
+                    valB = parseFloat(b.getAttribute('data-hours') || '0');
+                    break;
+                case 3: // Módulos
+                    valA = parseInt(a.getAttribute('data-modules') || '0', 10);
+                    valB = parseInt(b.getAttribute('data-modules') || '0', 10);
+                    break;
+                case 4: // Inscritos
+                    valA = parseInt(a.getAttribute('data-enrollments') || '0', 10);
+                    valB = parseInt(b.getAttribute('data-enrollments') || '0', 10);
+                    break;
+                case 5: // Precio
+                    valA = parseFloat(a.getAttribute('data-price') || '0');
+                    valB = parseFloat(b.getAttribute('data-price') || '0');
+                    break;
+            }
+
+            if (type === 'num') {
+                return direction === 'asc' ? valA - valB : valB - valA;
+            } else {
+                return direction === 'asc' 
+                    ? valA.localeCompare(valB, 'es', { sensitivity: 'base' })
+                    : valB.localeCompare(valA, 'es', { sensitivity: 'base' });
+            }
+        });
+
+        rows.forEach(r => tbody.appendChild(r));
+    }
+
+    function actualizarIconosOrden(activeColIndex, direction) {
+        const ths = document.querySelectorAll('#tablaCursos thead th');
+        ths.forEach((th, idx) => {
+            const up = th.querySelector('.sort-arrow-up');
+            const down = th.querySelector('.sort-arrow-down');
+            if (!up || !down) return;
+
+            if (idx === activeColIndex) {
+                if (direction === 'asc') {
+                    up.className = 'sort-arrow-up text-primary fw-bold';
+                    down.className = 'sort-arrow-down text-muted opacity-25';
+                } else {
+                    down.className = 'sort-arrow-down text-primary fw-bold';
+                    up.className = 'sort-arrow-up text-muted opacity-25';
+                }
+            } else {
+                up.className = 'sort-arrow-up text-muted';
+                down.className = 'sort-arrow-down text-muted';
+            }
+        });
+    }
+
+    function filtrarCursos() {
+        const txt = (document.getElementById('filtroTexto').value || '').trim().toLowerCase();
+        const cat = (document.getElementById('filtroCategoria').value || '').trim().toLowerCase();
+        const rows = document.querySelectorAll('#tablaCursosBody tr.curso-fila');
+
+        rows.forEach(row => {
+            const rowTitle = row.getAttribute('data-title') || '';
+            const rowSlug = row.getAttribute('data-slug') || '';
+            const rowCat = (row.getAttribute('data-category') || '').toLowerCase();
+
+            const coincideTexto = !txt || rowTitle.includes(txt) || rowSlug.includes(txt);
+            const coincideCat = !cat || rowCat === cat;
+
+            row.style.display = (coincideTexto && coincideCat) ? '' : 'none';
+        });
+    }
+
+    function limpiarFiltros() {
+        document.getElementById('filtroTexto').value = '';
+        document.getElementById('filtroCategoria').value = '';
+        filtrarCursos();
+    }
+</script>
+}
+

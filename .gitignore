@@ -1,0 +1,34 @@
+## Visual Studio / .NET Core
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+.vs/
+.vscode/
+*.user
+*.userosscache
+*.suo
+*.sln.docstates
+*.userprefs
+
+# SQLite / Local DB files
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# Backups y subidas de usuarios
+**/App_Data/Backups/*.json
+**/App_Data/Backups/*.sql
+!**/App_Data/Backups/.gitkeep
+**/wwwroot/uploads/comprobantes/*
+!**/wwwroot/uploads/comprobantes/.gitkeep
+**/wwwroot/uploads/temp/*
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store

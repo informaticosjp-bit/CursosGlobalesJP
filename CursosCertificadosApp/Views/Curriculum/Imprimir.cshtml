@@ -1,0 +1,725 @@
+@model CursosCertificadosApp.Models.ViewModels.CvViewModel
+@{
+    Layout = null; // Vista autónoma de impresión A4 limpia
+    bool isUnlocked = ViewBag.IsUnlocked as bool? ?? false;
+    var tpl = Model.SelectedTemplate ?? "Corporate";
+    var pal = Model.ColorPalette ?? "ClassicNavy";
+    var skillsList = (Model.Skills ?? "")
+        .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
+        .Select(s => s.Trim())
+        .Where(s => !string.IsNullOrEmpty(s))
+        .ToList();
+
+    // Paletas de colores dinámicas
+    string palPrimary, palAccent, palSidebar;
+    switch (pal)
+    {
+        case "EmeraldGreen":
+            palPrimary = "#064e3b"; palAccent = "#059669"; palSidebar = "#064e3b";
+            break;
+        case "Burgundy":
+            palPrimary = "#701a22"; palAccent = "#be123c"; palSidebar = "#701a22";
+            break;
+        case "GraphiteDark":
+            palPrimary = "#1e293b"; palAccent = "#475569"; palSidebar = "#1e293b";
+            break;
+        case "RoyalPurple":
+            palPrimary = "#3b1d60"; palAccent = "#7c3aed"; palSidebar = "#3b1d60";
+            break;
+        default: // ClassicNavy
+            palPrimary = "#0f284e"; palAccent = "#2563eb"; palSidebar = "#0f284e";
+            break;
+    }
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Curriculum Vitae - @Model.FullName</title>
+
+    <!-- Bootstrap 5 y Bootstrap Icons -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --cv-primary: @palPrimary;
+            --cv-accent: @palAccent;
+            --cv-sidebar: @palSidebar;
+            --cv-dark: #1e293b;
+            --cv-gray: #64748b;
+            --cv-light: #f8fafc;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #525659;
+            margin: 0;
+            padding: 0;
+            color: #1e293b;
+        }
+
+        /* Barra de Control Superior (No imprimible) */
+        .cv-toolbar {
+            background-color: #1e293b;
+            color: #ffffff;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+        }
+
+        /* Hoja A4 Estricta y Adaptativa */
+        .page-a4 {
+            width: 210mm;
+            min-height: 297mm;
+            max-height: 297mm;
+            margin: 25px auto;
+            background: #ffffff;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+            position: relative;
+            box-sizing: border-box;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Marca de Agua si está bloqueado */
+        .watermark-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+
+        .watermark-text {
+            transform: rotate(-35deg);
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: rgba(220, 38, 38, 0.18);
+            text-transform: uppercase;
+            letter-spacing: 6px;
+            text-align: center;
+            user-select: none;
+            border: 8px dashed rgba(220, 38, 38, 0.22);
+            padding: 30px 40px;
+            border-radius: 20px;
+        }
+
+        /* ========================================================
+           PLANTILLA 1: CORPORATIVO ELEGANTE (Sidebar + Main)
+           ======================================================== */
+        .tpl-corporate {
+            display: flex;
+            flex: 1;
+            height: 100%;
+            min-height: 297mm;
+        }
+
+        .tpl-corporate .cv-sidebar {
+            width: 32%;
+            background-color: var(--cv-sidebar);
+            color: #f1f5f9;
+            padding: 24px 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            gap: 4px;
+        }
+
+        .tpl-corporate .cv-sidebar h6 {
+            color: #f59e0b;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.76rem;
+            letter-spacing: 1px;
+            border-bottom: 1px solid rgba(255,255,255,0.15);
+            padding-bottom: 4px;
+            margin-top: 14px;
+            margin-bottom: 8px;
+        }
+
+        .tpl-corporate .cv-sidebar a {
+            color: #cbd5e1;
+            text-decoration: none;
+        }
+
+        .tpl-corporate .cv-main {
+            width: 68%;
+            padding: 28px 26px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+
+        .tpl-corporate .cv-main h6 {
+            color: var(--cv-primary);
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 0.82rem;
+            letter-spacing: 1.2px;
+            border-bottom: 2px solid var(--cv-primary);
+            padding-bottom: 4px;
+            margin-top: 14px;
+            margin-bottom: 10px;
+        }
+
+        /* ========================================================
+           PLANTILLA 2: MODERNO TI / MINIMALISTA
+           ======================================================== */
+        .tpl-modern {
+            padding: 28px 32px;
+            height: 100%;
+            min-height: 297mm;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+
+        .tpl-modern .cv-header {
+            border-bottom: 3px solid var(--cv-accent);
+            padding-bottom: 14px;
+            margin-bottom: 16px;
+        }
+
+        .tpl-modern h6 {
+            color: var(--cv-accent);
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 0.80rem;
+            letter-spacing: 1px;
+            margin-top: 14px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tpl-modern h6::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background-color: #cbd5e1;
+        }
+
+        /* ========================================================
+           PLANTILLA 3: FUNCIONAL / CRONOLÓGICO ATS
+           ======================================================== */
+        .tpl-functional {
+            padding: 28px 34px;
+            height: 100%;
+            min-height: 297mm;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+
+        .tpl-functional .cv-header {
+            text-align: center;
+            border-bottom: 1.5px solid var(--cv-primary);
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+        }
+
+        .tpl-functional h6 {
+            color: var(--cv-primary);
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 0.82rem;
+            letter-spacing: 1.2px;
+            border-bottom: 1px solid #94a3b8;
+            padding-bottom: 3px;
+            margin-top: 14px;
+            margin-bottom: 8px;
+        }
+
+        /* Estilos de Impresión A4 Oficial */
+        @@media print {
+            body {
+                background: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            .cv-toolbar {
+                display: none !important;
+            }
+
+            .page-a4 {
+                width: 100% !important;
+                min-height: 100% !important;
+                margin: 0 !important;
+                box-shadow: none !important;
+                page-break-after: always;
+            }
+
+            @@page {
+                size: A4 portrait;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Barra Superior de Control y Exportación -->
+    <div class="cv-toolbar py-2 px-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <div class="d-flex align-items-center gap-3">
+            <a asp-action="Index" class="btn btn-sm btn-outline-light">
+                <i class="bi bi-arrow-left me-1"></i> Volver al Editor
+            </a>
+            <span class="fw-bold small text-white-50">
+                Diseño: <strong class="text-white">@(tpl == "Corporate" ? "Corporativo Elegante" : (tpl == "Modern" ? "Moderno TI" : "Funcional ATS"))</strong>
+            </span>
+            <div class="btn-group btn-group-sm">
+                <a asp-action="Imprimir" asp-route-template="Corporate" asp-route-palette="@pal" class="btn @(tpl == "Corporate" ? "btn-primary" : "btn-outline-secondary")">Corporativo</a>
+                <a asp-action="Imprimir" asp-route-template="Modern" asp-route-palette="@pal" class="btn @(tpl == "Modern" ? "btn-primary" : "btn-outline-secondary")">Moderno TI</a>
+                <a asp-action="Imprimir" asp-route-template="Functional" asp-route-palette="@pal" class="btn @(tpl == "Functional" ? "btn-primary" : "btn-outline-secondary")">Funcional</a>
+            </div>
+
+            <!-- Selector Rápido de Paleta en la Barra de Herramientas -->
+            <div class="d-none d-md-flex align-items-center gap-1 ms-2 ps-2 border-start border-secondary">
+                <span class="small text-white-50 me-1">Color:</span>
+                <a asp-action="Imprimir" asp-route-template="@tpl" asp-route-palette="ClassicNavy" class="btn btn-sm p-1 rounded-circle @(pal == "ClassicNavy" ? "ring-2 border-white" : "border-0")" style="background: #0f284e; width: 22px; height: 22px;" title="Azul Clásico"></a>
+                <a asp-action="Imprimir" asp-route-template="@tpl" asp-route-palette="EmeraldGreen" class="btn btn-sm p-1 rounded-circle @(pal == "EmeraldGreen" ? "ring-2 border-white" : "border-0")" style="background: #064e3b; width: 22px; height: 22px;" title="Verde Esmeralda"></a>
+                <a asp-action="Imprimir" asp-route-template="@tpl" asp-route-palette="Burgundy" class="btn btn-sm p-1 rounded-circle @(pal == "Burgundy" ? "ring-2 border-white" : "border-0")" style="background: #701a22; width: 22px; height: 22px;" title="Vino Tinto"></a>
+                <a asp-action="Imprimir" asp-route-template="@tpl" asp-route-palette="GraphiteDark" class="btn btn-sm p-1 rounded-circle @(pal == "GraphiteDark" ? "ring-2 border-white" : "border-0")" style="background: #1e293b; width: 22px; height: 22px;" title="Grafito Carbón"></a>
+                <a asp-action="Imprimir" asp-route-template="@tpl" asp-route-palette="RoyalPurple" class="btn btn-sm p-1 rounded-circle @(pal == "RoyalPurple" ? "ring-2 border-white" : "border-0")" style="background: #3b1d60; width: 22px; height: 22px;" title="Púrpura Royal"></a>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+            @if (isUnlocked)
+            {
+                <span class="badge bg-success py-2 px-3 fw-bold">
+                    <i class="bi bi-patch-check-fill me-1"></i> Desbloqueado Oficial ($1 USD)
+                </span>
+                <button type="button" class="btn btn-success fw-bold btn-sm px-4 shadow-sm" onclick="window.print()">
+                    <i class="bi bi-printer-fill me-1"></i> Descargar / Imprimir PDF
+                </button>
+            }
+            else
+            {
+                <span class="badge bg-warning text-dark py-2 px-3 fw-bold">
+                    <i class="bi bi-lock-fill me-1"></i> Vista Previa Con Marca de Agua
+                </span>
+                <a asp-action="Index" class="btn btn-warning text-dark fw-bold btn-sm px-3 shadow-sm">
+                    <i class="bi bi-unlock-fill me-1"></i> Desbloquear por $1 USD
+                </a>
+            }
+        </div>
+    </div>
+
+    <!-- Contenedor Principal Hoja A4 -->
+    <div class="page-a4">
+        @if (!isUnlocked)
+        {
+            <!-- Marca de agua si no está pagado/aprobado -->
+            <div class="watermark-overlay">
+                <div class="watermark-text">
+                    VISTA PREVIA<br />
+                    <span style="font-size: 1.8rem; letter-spacing: 3px;">DESBLOQUEO POR $1.00 USD</span><br />
+                    <span style="font-size: 1.2rem; font-weight: 600;">CURSOS GLOBALES JP</span>
+                </div>
+            </div>
+        }
+
+        @if (tpl == "Corporate")
+        {
+            <!-- ==========================================
+                 PLANTILLA 1: CORPORATIVO ELEGANTE
+                 ========================================== -->
+            <div class="tpl-corporate">
+                <!-- Columna Izquierda (Sidebar Oscuro) -->
+                <div class="cv-sidebar">
+                    <div class="text-center mb-3">
+                        <div class="text-white-50 small mb-2" style="font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase; font-weight: 600;">Resumen Curricular</div>
+                        @if (!string.IsNullOrEmpty(Model.ProfilePictureUrl))
+                        {
+                            <img src="@Model.ProfilePictureUrl" alt="Foto de Perfil" 
+                                 class="rounded-circle border border-2 border-warning shadow-sm mx-auto mb-2 d-block" 
+                                 style="width: 72px; height: 72px; object-fit: cover;" />
+                        }
+                        else
+                        {
+                            <div class="rounded-circle bg-warning text-dark fw-bold d-inline-flex align-items-center justify-content-center mx-auto mb-2"
+                                 style="width: 70px; height: 70px; font-size: 1.8rem;">
+                                @Model.Initials
+                            </div>
+                        }
+                        <h5 class="fw-bold text-white mb-0" style="font-size: 1.15rem; line-height: 1.2;">@Model.FullName</h5>
+                        <div class="text-warning small fw-semibold mt-1" style="font-size: 0.78rem;">@Model.JobTitle</div>
+                    </div>
+
+                    <h6>Contacto</h6>
+                    <div class="small" style="font-size: 0.75rem; line-height: 1.6;">
+                        @if (!string.IsNullOrEmpty(Model.IdentificationNumber))
+                        {
+                            <div class="mb-1"><i class="bi bi-card-text me-2 text-warning"></i>C.I.: @Model.IdentificationNumber</div>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.Email))
+                        {
+                            <div class="mb-1 text-truncate"><i class="bi bi-envelope-fill me-2 text-warning"></i>@Model.Email</div>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.PhoneNumber))
+                        {
+                            <div class="mb-1"><i class="bi bi-telephone-fill me-2 text-warning"></i>@Model.PhoneNumber</div>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.Location))
+                        {
+                            <div class="mb-1"><i class="bi bi-geo-alt-fill me-2 text-warning"></i>@Model.Location</div>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.Address))
+                        {
+                            <div class="mb-1" style="font-size: 0.72rem;"><i class="bi bi-house-fill me-2 text-warning"></i>@Model.Address</div>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.WebsiteOrLinkedIn))
+                        {
+                            <div class="text-truncate"><i class="bi bi-link-45deg me-2 text-warning"></i>@Model.WebsiteOrLinkedIn</div>
+                        }
+                    </div>
+
+                    @if (skillsList.Any())
+                    {
+                        <h6>Habilidades</h6>
+                        <div class="d-flex flex-wrap gap-1">
+                            @foreach (var skill in skillsList)
+                            {
+                                <span class="badge border" style="background-color: rgba(255, 255, 255, 0.18) !important; color: #ffffff !important; border-color: rgba(255, 255, 255, 0.35) !important; font-size: 0.72rem; font-weight: 600; padding: 4px 8px; text-shadow: 0 1px 2px rgba(0,0,0,0.5);">
+                                    @skill
+                                </span>
+                            }
+                        </div>
+                    }
+
+                    @if (Model.Educations.Any())
+                    {
+                        <h6>Educación</h6>
+                        <div class="small" style="font-size: 0.74rem;">
+                            @foreach (var edu in Model.Educations)
+                            {
+                                <div class="mb-2">
+                                    <strong class="d-block text-white">@edu.Degree</strong>
+                                    <div class="text-white-50">@edu.Institution</div>
+                                    @if (!string.IsNullOrEmpty(edu.Year))
+                                    {
+                                        <div class="text-warning" style="font-size: 0.68rem;">@edu.Year</div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+
+                    @if (Model.Certifications.Any())
+                    {
+                        <h6>Certificaciones</h6>
+                        <div class="small" style="font-size: 0.72rem;">
+                            @foreach (var cert in Model.Certifications)
+                            {
+                                <div class="mb-2">
+                                    <strong class="d-block text-white">@cert.Title</strong>
+                                    @if (!string.IsNullOrEmpty(cert.Issuer))
+                                    {
+                                        <div class="text-white-50">@cert.Issuer @(!string.IsNullOrEmpty(cert.Year) ? $"({cert.Year})" : "")</div>
+                                    }
+                                    else if (!string.IsNullOrEmpty(cert.Year))
+                                    {
+                                        <div class="text-white-50">@cert.Year</div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(cert.VerificationCode))
+                                    {
+                                        <div class="text-warning font-monospace" style="font-size: 0.65rem;">ID: @cert.VerificationCode</div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+
+                <!-- Columna Derecha (Contenido Principal) -->
+                <div class="cv-main">
+                    @if (!string.IsNullOrEmpty(Model.ProfessionalSummary))
+                    {
+                        <h6 style="margin-top: 0;">Perfil Profesional</h6>
+                        <p class="small text-muted" style="font-size: 0.82rem; line-height: 1.55; text-align: justify;">
+                            @Model.ProfessionalSummary
+                        </p>
+                    }
+
+                    @if (Model.Experiences.Any())
+                    {
+                        <h6>Trayectoria Laboral</h6>
+                        @foreach (var exp in Model.Experiences)
+                        {
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-baseline">
+                                    <strong class="text-dark" style="font-size: 0.88rem;">@exp.Position</strong>
+                                    <span class="text-muted" style="font-size: 0.72rem; font-weight: 600;">
+                                        @exp.StartDate - @(exp.IsCurrent ? "Presente" : exp.EndDate)
+                                    </span>
+                                </div>
+                                <div class="text-primary fw-semibold" style="font-size: 0.78rem;">@exp.Company</div>
+                                @if (!string.IsNullOrEmpty(exp.Description))
+                                {
+                                    <p class="small text-muted mb-0 mt-1" style="font-size: 0.78rem; line-height: 1.45;">
+                                        @exp.Description
+                                    </p>
+                                }
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        }
+        else if (tpl == "Modern")
+        {
+            <!-- ==========================================
+                 PLANTILLA 2: MODERNO TI / MINIMALISTA
+                 ========================================== -->
+            <div class="tpl-modern">
+                <!-- Header Moderno -->
+                <div class="cv-header d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-3">
+                        @if (!string.IsNullOrEmpty(Model.ProfilePictureUrl))
+                        {
+                            <img src="@Model.ProfilePictureUrl" alt="Foto de Perfil" 
+                                 class="rounded-3 border border-2 border-primary shadow-sm" 
+                                 style="width: 65px; height: 65px; object-fit: cover;" />
+                        }
+                        <div>
+                            <div class="text-muted mb-1" style="font-size: 0.65rem; letter-spacing: 2px; text-transform: uppercase; font-weight: 700;">Resumen Curricular</div>
+                            <h2 class="fw-extrabold text-dark mb-0" style="font-size: 1.85rem; letter-spacing: -0.5px;">@Model.FullName</h2>
+                            <h5 class="text-primary fw-bold mb-0 mt-1" style="font-size: 1.0rem;">@Model.JobTitle</h5>
+                        </div>
+                    </div>
+                    <div class="text-end small text-muted" style="font-size: 0.75rem; line-height: 1.5;">
+                        @if (!string.IsNullOrEmpty(Model.IdentificationNumber)) { <div><i class="bi bi-card-text me-1"></i>C.I.: @Model.IdentificationNumber</div> }
+                        @if (!string.IsNullOrEmpty(Model.Email)) { <div><i class="bi bi-envelope me-1"></i>@Model.Email</div> }
+                        @if (!string.IsNullOrEmpty(Model.PhoneNumber)) { <div><i class="bi bi-telephone me-1"></i>@Model.PhoneNumber</div> }
+                        @if (!string.IsNullOrEmpty(Model.Location)) { <div><i class="bi bi-geo-alt me-1"></i>@Model.Location</div> }
+                        @if (!string.IsNullOrEmpty(Model.Address)) { <div style="font-size: 0.7rem;"><i class="bi bi-house me-1"></i>@Model.Address</div> }
+                        @if (!string.IsNullOrEmpty(Model.WebsiteOrLinkedIn)) { <div class="text-primary">@Model.WebsiteOrLinkedIn</div> }
+                    </div>
+                </div>
+
+                <!-- Resumen -->
+                @if (!string.IsNullOrEmpty(Model.ProfessionalSummary))
+                {
+                    <h6><i class="bi bi-chat-square-text-fill"></i> Perfil Profesional</h6>
+                    <p class="small text-dark" style="font-size: 0.83rem; line-height: 1.55; text-align: justify;">
+                        @Model.ProfessionalSummary
+                    </p>
+                }
+
+                <!-- Experiencia -->
+                @if (Model.Experiences.Any())
+                {
+                    <h6><i class="bi bi-briefcase-fill"></i> Experiencia Laboral</h6>
+                    @foreach (var exp in Model.Experiences)
+                    {
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-baseline">
+                                <span class="fw-bold text-dark" style="font-size: 0.9rem;">@exp.Position</span>
+                                <span class="badge bg-light text-dark border" style="font-size: 0.7rem;">
+                                    @exp.StartDate — @(exp.IsCurrent ? "Presente" : exp.EndDate)
+                                </span>
+                            </div>
+                            <div class="text-primary fw-semibold small">@exp.Company</div>
+                            @if (!string.IsNullOrEmpty(exp.Description))
+                            {
+                                <p class="small text-muted mb-0 mt-1" style="font-size: 0.78rem; line-height: 1.45;">
+                                    @exp.Description
+                                </p>
+                            }
+                        </div>
+                    }
+                }
+
+                <!-- Grilla Doble: Habilidades y Educación -->
+                <div class="row g-4 mt-1">
+                    <div class="col-7">
+                        @if (Model.Educations.Any())
+                        {
+                            <h6><i class="bi bi-mortarboard-fill"></i> Educación y Titulaciones</h6>
+                            @foreach (var edu in Model.Educations)
+                            {
+                                <div class="mb-2 small">
+                                    <strong class="text-dark d-block" style="font-size: 0.82rem;">@edu.Degree</strong>
+                                    <div class="text-muted" style="font-size: 0.75rem;">@edu.Institution @(!string.IsNullOrEmpty(edu.Year) ? $"• {edu.Year}" : "")</div>
+                                </div>
+                            }
+                        }
+
+                        @if (Model.Certifications.Any())
+                        {
+                            <h6 class="mt-3"><i class="bi bi-patch-check-fill"></i> Cursos y Certificados</h6>
+                            @foreach (var cert in Model.Certifications)
+                            {
+                                <div class="mb-2 small">
+                                    <strong class="text-dark d-block" style="font-size: 0.8rem;">@cert.Title</strong>
+                                    <div class="text-muted" style="font-size: 0.72rem;">
+                                        @if (!string.IsNullOrEmpty(cert.Issuer))
+                                        {
+                                            @cert.Issuer
+                                            @if (!string.IsNullOrEmpty(cert.Year)) { <text> • @cert.Year</text> }
+                                        }
+                                        else if (!string.IsNullOrEmpty(cert.Year))
+                                        {
+                                            @cert.Year
+                                        }
+                                        @if (!string.IsNullOrEmpty(cert.VerificationCode))
+                                        {
+                                            <span class="badge bg-light text-primary border font-monospace ms-1">@cert.VerificationCode</span>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+
+                    <div class="col-5">
+                        @if (skillsList.Any())
+                        {
+                            <h6><i class="bi bi-cpu-fill"></i> Habilidades Clave</h6>
+                            <div class="d-flex flex-wrap gap-1">
+                                @foreach (var skill in skillsList)
+                                {
+                                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25" style="font-size: 0.72rem;">
+                                        @skill
+                                    </span>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <!-- ==========================================
+                 PLANTILLA 3: FUNCIONAL / CRONOLÓGICO ATS
+                 ========================================== -->
+            <div class="tpl-functional">
+                <!-- Header Central ATS -->
+                <div class="cv-header d-flex align-items-center justify-content-center gap-3">
+                    @if (!string.IsNullOrEmpty(Model.ProfilePictureUrl))
+                    {
+                        <img src="@Model.ProfilePictureUrl" alt="Foto de Perfil" 
+                             class="rounded-circle border border-2 shadow-sm" 
+                             style="width: 65px; height: 65px; object-fit: cover; border-color: var(--cv-primary) !important;" />
+                    }
+                    <div class="text-center">
+                        <div class="text-muted mb-1" style="font-size: 0.65rem; letter-spacing: 2.5px; text-transform: uppercase; font-weight: 700;">Resumen Curricular</div>
+                        <h2 class="fw-bold text-dark mb-1" style="font-size: 1.85rem; letter-spacing: 0.5px;">@Model.FullName</h2>
+                        <h6 class="text-secondary fw-semibold mb-2" style="font-size: 0.95rem; border: none; padding: 0; margin: 0;">@Model.JobTitle</h6>
+                        <div class="small text-muted" style="font-size: 0.75rem;">
+                            @{ var contactParts = new List<string>();
+                               if (!string.IsNullOrEmpty(Model.IdentificationNumber)) contactParts.Add($"C.I.: {Model.IdentificationNumber}");
+                               if (!string.IsNullOrEmpty(Model.Location)) contactParts.Add(Model.Location);
+                               if (!string.IsNullOrEmpty(Model.Address)) contactParts.Add(Model.Address);
+                               if (!string.IsNullOrEmpty(Model.PhoneNumber)) contactParts.Add(Model.PhoneNumber);
+                               if (!string.IsNullOrEmpty(Model.Email)) contactParts.Add(Model.Email);
+                               if (!string.IsNullOrEmpty(Model.WebsiteOrLinkedIn)) contactParts.Add(Model.WebsiteOrLinkedIn);
+                            }
+                            @string.Join(" • ", contactParts)
+                        </div>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.ProfessionalSummary))
+                {
+                    <h6>Perfil Profesional</h6>
+                    <p class="small text-dark mb-3" style="font-size: 0.83rem; line-height: 1.55; text-align: justify;">
+                        @Model.ProfessionalSummary
+                    </p>
+                }
+
+                @if (skillsList.Any())
+                {
+                    <h6>Competencias y Habilidades</h6>
+                    <p class="small text-dark mb-3" style="font-size: 0.8rem; line-height: 1.6;">
+                        <strong>Habilidades destacadas:</strong> @string.Join(" • ", skillsList)
+                    </p>
+                }
+
+                @if (Model.Experiences.Any())
+                {
+                    <h6>Experiencia Profesional</h6>
+                    @foreach (var exp in Model.Experiences)
+                    {
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <strong class="text-dark" style="font-size: 0.86rem;">@exp.Position</strong>
+                                <span class="text-dark small" style="font-size: 0.76rem;">@exp.StartDate – @(exp.IsCurrent ? "Presente" : exp.EndDate)</span>
+                            </div>
+                            <div class="text-secondary small fst-italic" style="font-size: 0.78rem;">@exp.Company</div>
+                            @if (!string.IsNullOrEmpty(exp.Description))
+                            {
+                                <p class="small text-muted mb-0 mt-1" style="font-size: 0.78rem; line-height: 1.45;">
+                                    @exp.Description
+                                </p>
+                            }
+                        </div>
+                    }
+                }
+
+                @if (Model.Educations.Any())
+                {
+                    <h6>Formación Académica</h6>
+                    @foreach (var edu in Model.Educations)
+                    {
+                        <div class="d-flex justify-content-between mb-1 small" style="font-size: 0.8rem;">
+                            <div>
+                                <strong>@edu.Degree</strong>, <span class="text-muted">@edu.Institution</span>
+                            </div>
+                            @if (!string.IsNullOrEmpty(edu.Year))
+                            {
+                                <span class="text-muted">@edu.Year</span>
+                            }
+                        </div>
+                    }
+                }
+
+                @if (Model.Certifications.Any())
+                {
+                    <h6 class="mt-3">Cursos y Certificaciones Relevantes</h6>
+                    @foreach (var cert in Model.Certifications)
+                    {
+                        <div class="d-flex justify-content-between mb-1 small" style="font-size: 0.78rem;">
+                            <div>
+                                <strong>@cert.Title</strong>
+                                @if (!string.IsNullOrEmpty(cert.Issuer))
+                                {
+                                    <text> – <span class="text-muted">@cert.Issuer</span></text>
+                                }
+                                @if (!string.IsNullOrEmpty(cert.VerificationCode))
+                                {
+                                    <span class="font-monospace text-primary ms-1">(Código: @cert.VerificationCode)</span>
+                                }
+                            </div>
+                            @if (!string.IsNullOrEmpty(cert.Year))
+                            {
+                                <span class="text-muted">@cert.Year</span>
+                            }
+                        </div>
+                    }
+                }
+            </div>
+        }
+    </div>
+</body>
+</html>

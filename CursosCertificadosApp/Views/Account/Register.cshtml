@@ -1,0 +1,107 @@
+@model CursosCertificadosApp.Controllers.RegisterViewModel
+@{
+    ViewData["Title"] = "Registro Gratuito";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <div class="badge bg-success bg-opacity-10 text-success p-3 rounded-circle mb-2">
+                        <i class="bi bi-person-plus fs-2"></i>
+                    </div>
+                    <h3 class="fw-bold">Crea tu cuenta de estudiante</h3>
+                    <p class="text-muted small">Accede gratis a todo el material y emite tus diplomas por $1 USD</p>
+                </div>
+
+                <form asp-action="Register" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="FullName" class="form-label fw-semibold">Nombre y Apellido Completo</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-person"></i></span>
+                            <input asp-for="FullName" class="form-control" placeholder="Ej: Carlos Mendoza" required />
+                        </div>
+                        <div class="form-text small">Se usará exactamente como lo indiques en tus diplomas y certificados oficiales.</div>
+                        <span asp-validation-for="FullName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="IdentificationNumber" class="form-label fw-semibold">Documento de Identidad (Cédula / DNI / Pasaporte)</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-card-heading"></i></span>
+                            <input asp-for="IdentificationNumber" class="form-control" placeholder="Ej: V-28491023 o 12345678" required />
+                        </div>
+                        <div class="form-text small">Requisito legal para que tu certificado tenga validez en procesos laborales.</div>
+                        <span asp-validation-for="IdentificationNumber" class="text-danger small"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-5 mb-3">
+                            <label asp-for="Age" class="form-label fw-semibold">Edad</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="bi bi-calendar"></i></span>
+                                <input asp-for="Age" type="number" class="form-control" placeholder="Ej: 28" min="12" max="100" />
+                            </div>
+                            <span asp-validation-for="Age" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-7 mb-3">
+                            <label asp-for="PhoneNumber" class="form-label fw-semibold">Teléfono / WhatsApp</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="bi bi-telephone"></i></span>
+                                <input asp-for="PhoneNumber" class="form-control" placeholder="Ej: 0412-1234567" />
+                            </div>
+                            <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label fw-semibold">Correo Electrónico</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-envelope"></i></span>
+                            <input asp-for="Email" class="form-control" placeholder="tu@correo.com" required />
+                        </div>
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Password" class="form-label fw-semibold">Contraseña</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="bi bi-lock"></i></span>
+                                <input asp-for="Password" class="form-control" placeholder="••••••••" required />
+                                <button class="btn btn-outline-secondary toggle-password" type="button" tabindex="-1" title="Mostrar/Ocultar contraseña">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                            <span asp-validation-for="Password" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <label asp-for="ConfirmPassword" class="form-label fw-semibold">Confirmar Contraseña</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="bi bi-shield-lock"></i></span>
+                                <input asp-for="ConfirmPassword" class="form-control" placeholder="••••••••" required />
+                                <button class="btn btn-outline-secondary toggle-password" type="button" tabindex="-1" title="Mostrar/Ocultar contraseña">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                            <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-brand w-100 py-2 mb-3">
+                        Completar Registro y Comenzar Gratis
+                    </button>
+                </form>
+
+                <div class="text-center mt-3">
+                    <span class="text-muted small">¿Ya tienes cuenta activa?</span>
+                    <a asp-action="Login" class="text-primary fw-bold text-decoration-none small ms-1">Inicia sesión</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

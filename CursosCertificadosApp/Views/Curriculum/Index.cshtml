@@ -1,0 +1,927 @@
+@model CursosCertificadosApp.Models.ViewModels.CvViewModel
+@{
+    ViewData["Title"] = "Generador Inteligente de Currículums con IA";
+}
+
+<div class="container py-4">
+    <!-- Encabezado Principal -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge bg-success bg-opacity-10 text-success fs-6 px-3 py-1 fw-bold rounded-pill border border-success border-opacity-25">
+                    <i class="bi bi-stars me-1"></i> Inteligencia Artificial Integrada
+                </span>
+                <span class="badge bg-primary bg-opacity-10 text-primary fs-6 px-3 py-1 fw-bold rounded-pill border border-primary border-opacity-25">
+                    $1.00 USD / Tasa BCV
+                </span>
+            </div>
+            <h2 class="fw-bold text-dark mb-1">
+                <i class="bi bi-file-earmark-person-fill text-primary me-2"></i>Generador Inteligente de Currículums
+            </h2>
+            <p class="text-muted small mb-0">
+                Diseña tu CV profesional de alto impacto para reclutadores y sistemas ATS. Incluye tus cursos de Cursos Globales JP automáticamente.
+            </p>
+        </div>
+
+        <!-- Acciones Rápidas -->
+        <div class="d-flex align-items-center gap-2">
+            @if (Model.IsUnlocked)
+            {
+                <a asp-action="Imprimir" asp-route-template="@Model.SelectedTemplate" asp-route-palette="@Model.ColorPalette" id="btnDescargarTop" target="_blank" class="btn btn-success fw-bold shadow-sm px-4">
+                    <i class="bi bi-printer-fill me-1"></i> Descargar / Imprimir PDF
+                </a>
+            }
+            else if (Model.HasPendingPayment)
+            {
+                <button type="button" class="btn btn-warning text-dark fw-bold shadow-sm" disabled>
+                    <i class="bi bi-clock-history me-1"></i> Validación de Pago en Proceso
+                </button>
+            }
+            else
+            {
+                <button type="button" class="btn btn-primary fw-bold shadow-sm px-4" data-bs-toggle="modal" data-bs-target="#modalDesbloqueo">
+                    <i class="bi bi-unlock-fill me-1"></i> Desbloquear Descarga ($1 USD)
+                </button>
+            }
+            <a asp-action="Imprimir" asp-route-template="@Model.SelectedTemplate" asp-route-palette="@Model.ColorPalette" id="btnVistaPreviaTop" target="_blank" class="btn btn-outline-secondary fw-semibold">
+                <i class="bi bi-eye me-1"></i> Vista Previa
+            </a>
+        </div>
+    </div>
+
+    <!-- Alertas TempData -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm rounded-4 mb-4" role="alert">
+            <i class="bi bi-check-circle-fill me-2 fs-5"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm rounded-4 mb-4" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Banner de Estado de Acceso / Desbloqueo -->
+    @if (!Model.IsUnlocked)
+    {
+        <div class="card border-0 shadow-sm rounded-4 mb-4 p-4 text-white" style="background: linear-gradient(135deg, #0f284e 0%, #1e40af 100%);">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="p-3 bg-white bg-opacity-10 rounded-4 fs-2">
+                        <i class="bi bi-shield-lock-fill text-warning"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold mb-1">
+                            @(Model.HasPendingPayment ? "Solicitud de Desbloqueo en Revisión" : "Desbloquea la Exportación Oficial en PDF")
+                        </h5>
+                        <p class="small text-white-50 mb-0" style="max-width: 650px;">
+                            @(Model.HasPendingPayment
+                                ? "Tu comprobante por $1.00 USD (o Bs. al cambio oficial BCV) está siendo validado por el Administrador Maestro. En breve podrás descargar tu CV en cualquiera de las 3 plantillas ejecutivas."
+                                : "Puedes estructurar y editar todos tus datos de forma gratuita. Para descargar el documento PDF oficial en formato A4 sin marcas de agua, activa tu acceso por tan solo $1.00 USD (a tasa BCV).")
+                        </p>
+                    </div>
+                </div>
+                <div>
+                    @if (!Model.HasPendingPayment)
+                    {
+                        <button type="button" class="btn btn-warning text-dark fw-bold px-4 py-2 shadow-sm rounded-pill" data-bs-toggle="modal" data-bs-target="#modalDesbloqueo">
+                            <i class="bi bi-credit-card-2-front-fill me-1"></i> Desbloquear por $1 USD (Bs. @Model.PriceBs)
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Formulario Principal del Currículum -->
+    <form asp-action="Guardar" method="post" id="formCv">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="UserId" />
+
+        <!-- Selector de Plantilla Visual -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+            <h5 class="fw-bold text-dark mb-3">
+                <i class="bi bi-palette-fill text-primary me-2"></i>Selecciona el Diseño de tu Currículum (A4)
+            </h5>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="card h-100 p-3 border rounded-3 template-card @(Model.SelectedTemplate == "Corporate" ? "border-primary bg-primary bg-opacity-10" : "border-light-subtle")"
+                         style="cursor: pointer;" onclick="selectTemplate('Corporate')">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <input type="radio" asp-for="SelectedTemplate" value="Corporate" id="tplCorporate" class="form-check-input" />
+                            <label for="tplCorporate" class="fw-bold mb-0">Corporativo Elegante</label>
+                        </div>
+                        <p class="small text-muted mb-0">
+                            Barra lateral oscura para datos de contacto, habilidades y cursos; columna principal para resumen y trayectoria. Estilo ejecutivo.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 p-3 border rounded-3 template-card @(Model.SelectedTemplate == "Modern" ? "border-primary bg-primary bg-opacity-10" : "border-light-subtle")"
+                         style="cursor: pointer;" onclick="selectTemplate('Modern')">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <input type="radio" asp-for="SelectedTemplate" value="Modern" id="tplModern" class="form-check-input" />
+                            <label for="tplModern" class="fw-bold mb-0">Moderno TI / Minimalista</label>
+                        </div>
+                        <p class="small text-muted mb-0">
+                            Limpio y estructurado en cabecera amplia, etiquetas visuales de tecnología y tipografía limpia de máxima legibilidad.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 p-3 border rounded-3 template-card @(Model.SelectedTemplate == "Functional" ? "border-primary bg-primary bg-opacity-10" : "border-light-subtle")"
+                         style="cursor: pointer;" onclick="selectTemplate('Functional')">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <input type="radio" asp-for="SelectedTemplate" value="Functional" id="tplFunctional" class="form-check-input" />
+                            <label for="tplFunctional" class="fw-bold mb-0">Funcional / Cronológico</label>
+                        </div>
+                        <p class="small text-muted mb-0">
+                            Formato clásico de alto impacto preferido por reclutadores internacionales y sistemas de lectura automatizada ATS.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Selector de Paleta de Colores -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+                <h5 class="fw-bold text-dark mb-0">
+                    <i class="bi bi-droplet-half text-primary me-2"></i>Paleta de Colores del Currículum
+                </h5>
+                <span class="text-muted small">Personaliza el tono visual que mejor refleje tu marca personal</span>
+            </div>
+            <div class="row g-2">
+                <div class="col-6 col-md">
+                    <label class="d-flex align-items-center gap-2 p-2 border rounded-3 w-100 palette-card @(Model.ColorPalette == "ClassicNavy" ? "border-primary bg-primary bg-opacity-10" : "border-light-subtle")" style="cursor: pointer;">
+                        <input type="radio" asp-for="ColorPalette" value="ClassicNavy" id="palClassicNavy" class="form-check-input mt-0" onchange="selectPalette('ClassicNavy')" />
+                        <span class="rounded-circle d-inline-block shadow-xs flex-shrink-0" style="width: 22px; height: 22px; background: linear-gradient(135deg, #0f284e, #2563eb);"></span>
+                        <span class="small fw-bold text-truncate">Azul Clásico</span>
+                    </label>
+                </div>
+                <div class="col-6 col-md">
+                    <label class="d-flex align-items-center gap-2 p-2 border rounded-3 w-100 palette-card @(Model.ColorPalette == "EmeraldGreen" ? "border-primary bg-primary bg-opacity-10" : "border-light-subtle")" style="cursor: pointer;">
+                        <input type="radio" asp-for="ColorPalette" value="EmeraldGreen" id="palEmeraldGreen" class="form-check-input mt-0" onchange="selectPalette('EmeraldGreen')" />
+                        <span class="rounded-circle d-inline-block shadow-xs flex-shrink-0" style="width: 22px; height: 22px; background: linear-gradient(135deg, #064e3b, #059669);"></span>
+                        <span class="small fw-bold text-truncate">Esmeralda</span>
+                    </label>
+                </div>
+                <div class="col-6 col-md">
+                    <label class="d-flex align-items-center gap-2 p-2 border rounded-3 w-100 palette-card @(Model.ColorPalette == "Burgundy" ? "border-primary bg-primary bg-opacity-10" : "border-light-subtle")" style="cursor: pointer;">
+                        <input type="radio" asp-for="ColorPalette" value="Burgundy" id="palBurgundy" class="form-check-input mt-0" onchange="selectPalette('Burgundy')" />
+                        <span class="rounded-circle d-inline-block shadow-xs flex-shrink-0" style="width: 22px; height: 22px; background: linear-gradient(135deg, #701a22, #be123c);"></span>
+                        <span class="small fw-bold text-truncate">Vino Tinto</span>
+                    </label>
+                </div>
+                <div class="col-6 col-md">
+                    <label class="d-flex align-items-center gap-2 p-2 border rounded-3 w-100 palette-card @(Model.ColorPalette == "GraphiteDark" ? "border-primary bg-primary bg-opacity-10" : "border-light-subtle")" style="cursor: pointer;">
+                        <input type="radio" asp-for="ColorPalette" value="GraphiteDark" id="palGraphiteDark" class="form-check-input mt-0" onchange="selectPalette('GraphiteDark')" />
+                        <span class="rounded-circle d-inline-block shadow-xs flex-shrink-0" style="width: 22px; height: 22px; background: linear-gradient(135deg, #1e293b, #475569);"></span>
+                        <span class="small fw-bold text-truncate">Grafito Carbón</span>
+                    </label>
+                </div>
+                <div class="col-6 col-md">
+                    <label class="d-flex align-items-center gap-2 p-2 border rounded-3 w-100 palette-card @(Model.ColorPalette == "RoyalPurple" ? "border-primary bg-primary bg-opacity-10" : "border-light-subtle")" style="cursor: pointer;">
+                        <input type="radio" asp-for="ColorPalette" value="RoyalPurple" id="palRoyalPurple" class="form-check-input mt-0" onchange="selectPalette('RoyalPurple')" />
+                        <span class="rounded-circle d-inline-block shadow-xs flex-shrink-0" style="width: 22px; height: 22px; background: linear-gradient(135deg, #3b1d60, #7c3aed);"></span>
+                        <span class="small fw-bold text-truncate">Púrpura Royal</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- 1. Datos Personales y de Contacto -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center border-bottom pb-2 mb-3">
+                <h5 class="fw-bold text-dark mb-0">
+                    <i class="bi bi-person-lines-fill text-primary me-2"></i>1. Datos Personales y de Contacto
+                </h5>
+                <a asp-controller="Account" asp-action="Perfil" target="_blank" class="btn btn-outline-primary btn-sm fw-semibold">
+                    <i class="bi bi-person-gear me-1"></i> Ir a Mi Perfil
+                </a>
+            </div>
+
+            <!-- Widget de Foto de Perfil vinculada -->
+            <div class="p-3 mb-4 rounded-3 border bg-light d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <div class="d-flex align-items-center gap-3">
+                    @if (!string.IsNullOrEmpty(Model.ProfilePictureUrl))
+                    {
+                        <img src="@Model.ProfilePictureUrl" alt="Foto de Perfil" 
+                             class="rounded-circle border border-2 border-primary shadow-sm object-fit-cover" 
+                             style="width: 60px; height: 60px; object-fit: cover;" />
+                        <div>
+                            <div class="fw-bold text-dark small d-flex align-items-center gap-2">
+                                <span>Foto de Perfil Vinculada</span>
+                                <span class="badge bg-success-subtle text-success border border-success-subtle py-1 px-2">Activa en tu CV</span>
+                            </div>
+                            <div class="text-muted small" style="font-size: 0.76rem;">
+                                Esta fotografía se incrustará automáticamente en el encabezado de tus plantillas de Currículum.
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="rounded-circle bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 d-flex align-items-center justify-content-center fw-bold" 
+                             style="width: 60px; height: 60px; font-size: 1.3rem;">
+                            @Model.Initials
+                        </div>
+                        <div>
+                            <div class="fw-bold text-dark small d-flex align-items-center gap-2">
+                                <span>Avatar por Defecto con Iniciales (@Model.Initials)</span>
+                                <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle py-1 px-2">Sin foto cargada</span>
+                            </div>
+                            <div class="text-muted small" style="font-size: 0.76rem;">
+                                Si deseas que tu foto aparezca en el Currículum, sube una foto en tu perfil (máx. 1 MB).
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div>
+                    <a asp-controller="Account" asp-action="Perfil" target="_blank" class="btn btn-sm btn-primary fw-bold shadow-sm">
+                        <i class="bi bi-camera-fill me-1"></i> @(!string.IsNullOrEmpty(Model.ProfilePictureUrl) ? "Cambiar Foto" : "Subir Mi Foto")
+                    </a>
+                </div>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="FullName" class="form-label fw-semibold">Nombre Completo <span class="text-danger">*</span></label>
+                    <input asp-for="FullName" class="form-control" placeholder="Ej: José Plasencia" required />
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="IdentificationNumber" class="form-label fw-semibold">Documento de Identidad (Cédula / RIF / DNI) <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light"><i class="bi bi-person-vcard text-primary"></i></span>
+                        <input asp-for="IdentificationNumber" class="form-control" placeholder="Ej: V-12.345.678" required />
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="JobTitle" class="form-label fw-semibold">Título o Especialidad Profesional <span class="text-danger">*</span></label>
+                    <input asp-for="JobTitle" id="inputJobTitle" class="form-control" placeholder="Ej: Jefe de Tecnología / Desarrollador Full-Stack" required />
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Email" class="form-label fw-semibold">Correo Electrónico <span class="text-danger">*</span></label>
+                    <input asp-for="Email" class="form-control" placeholder="correo@ejemplo.com" required />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="PhoneNumber" class="form-label fw-semibold">Teléfono / WhatsApp</label>
+                    <input asp-for="PhoneNumber" class="form-control" placeholder="+58 412 1234567" />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Location" class="form-label fw-semibold">Ubicación (Ciudad, País)</label>
+                    <input asp-for="Location" class="form-control" placeholder="Caracas, Venezuela" />
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Address" class="form-label fw-semibold">Dirección Completa <span class="badge bg-light text-muted border">Opcional</span></label>
+                    <input asp-for="Address" class="form-control" placeholder="Ej: Av. Principal, Res. Las Torres, Apto 5B" />
+                </div>
+                <div class="col-12">
+                    <label asp-for="WebsiteOrLinkedIn" class="form-label fw-semibold">LinkedIn / Sitio Web / Portafolio</label>
+                    <input asp-for="WebsiteOrLinkedIn" class="form-control" placeholder="https://linkedin.com/in/tu-perfil o tu portafolio" />
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Perfil Profesional / "Sobre Mí" con Asistente IA -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 border-bottom pb-2 gap-2">
+                <h5 class="fw-bold text-dark mb-0">
+                    <i class="bi bi-chat-quote-fill text-primary me-2"></i>2. Perfil Profesional / "Sobre Mí"
+                </h5>
+                <button type="button" class="btn btn-sm btn-outline-primary fw-bold rounded-pill px-3 shadow-xs" data-bs-toggle="modal" data-bs-target="#modalIa">
+                    <i class="bi bi-magic me-1 text-primary"></i> ⚡ Redactar con Inteligencia Artificial
+                </button>
+            </div>
+            <div>
+                <textarea asp-for="ProfessionalSummary" id="inputProfessionalSummary" class="form-control" rows="4"
+                          placeholder="Párrafo ejecutivo enfocado al logro y valor que aportas a la empresa. Puedes redactarlo tú mismo o generarlo en 1 clic con nuestra IA..."></textarea>
+                <div class="form-text small mt-1">
+                    <i class="bi bi-lightbulb me-1 text-warning"></i>
+                    <strong>Consejo para reclutadores:</strong> Un resumen de 3 a 5 líneas con palabras clave del sector aumenta hasta un 70% las probabilidades de ser llamado a entrevista.
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Experiencia Laboral -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 border-bottom pb-2 gap-2">
+                <h5 class="fw-bold text-dark mb-0">
+                    <i class="bi bi-briefcase-fill text-primary me-2"></i>3. Experiencia Laboral
+                </h5>
+                <button type="button" class="btn btn-sm btn-outline-success fw-bold rounded-pill px-3" onclick="agregarExperiencia()">
+                    <i class="bi bi-plus-circle me-1"></i> + Añadir Puesto
+                </button>
+            </div>
+            <div id="contenedorExperiencias">
+                @for (int i = 0; i < Model.Experiences.Count; i++)
+                {
+                    <div class="border rounded-3 p-3 mb-3 bg-light item-experiencia">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge bg-secondary">Puesto #@(i + 1)</span>
+                            <button type="button" class="btn btn-sm btn-outline-danger py-0 px-2" onclick="eliminarItem(this)">
+                                <i class="bi bi-trash"></i> Eliminar
+                            </button>
+                        </div>
+                        <div class="row g-2 mb-2">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Empresa / Organización</label>
+                                <input type="text" name="Experiences[@i].Company" value="@Model.Experiences[i].Company" class="form-control form-control-sm" placeholder="Ej: Corporación Global" required />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Cargo / Posición</label>
+                                <input type="text" name="Experiences[@i].Position" value="@Model.Experiences[i].Position" class="form-control form-control-sm" placeholder="Ej: Jefe de Sistemas" required />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small fw-semibold">Fecha Inicio</label>
+                                <input type="text" name="Experiences[@i].StartDate" value="@Model.Experiences[i].StartDate" class="form-control form-control-sm" placeholder="Ej: 2020" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small fw-semibold">Fecha Fin</label>
+                                <input type="text" name="Experiences[@i].EndDate" value="@Model.Experiences[i].EndDate" class="form-control form-control-sm" placeholder="Ej: Presente o 2024" />
+                            </div>
+                            <div class="col-md-4 d-flex align-items-center mt-3">
+                                <div class="form-check">
+                                    <input type="checkbox" name="Experiences[@i].IsCurrent" value="true" class="form-check-input" @(Model.Experiences[i].IsCurrent ? "checked" : "") />
+                                    <label class="form-check-label small fw-semibold">Puesto actual</label>
+                                </div>
+                            </div>
+                            <div class="col-12 mt-2">
+                                <label class="form-label small fw-semibold">Funciones principales y Logros</label>
+                                <textarea name="Experiences[@i].Description" class="form-control form-control-sm" rows="2" placeholder="Describe los logros cuantitativos y responsabilidades clave...">@Model.Experiences[i].Description</textarea>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- 4. Educación y Titulaciones -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 border-bottom pb-2 gap-2">
+                <h5 class="fw-bold text-dark mb-0">
+                    <i class="bi bi-mortarboard-fill text-primary me-2"></i>4. Educación y Titulaciones
+                </h5>
+                <button type="button" class="btn btn-sm btn-outline-success fw-bold rounded-pill px-3" onclick="agregarEducacion()">
+                    <i class="bi bi-plus-circle me-1"></i> + Añadir Titulación
+                </button>
+            </div>
+            <div id="contenedorEducacion">
+                @for (int i = 0; i < Model.Educations.Count; i++)
+                {
+                    <div class="border rounded-3 p-3 mb-3 bg-light item-educacion">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge bg-secondary">Estudio #@(i + 1)</span>
+                            <button type="button" class="btn btn-sm btn-outline-danger py-0 px-2" onclick="eliminarItem(this)">
+                                <i class="bi bi-trash"></i> Eliminar
+                            </button>
+                        </div>
+                        <div class="row g-2">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold">Institución / Universidad</label>
+                                <input type="text" name="Educations[@i].Institution" value="@Model.Educations[i].Institution" class="form-control form-control-sm" placeholder="Ej: Universidad Central de Venezuela" required />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small fw-semibold">Título Obtenido</label>
+                                <input type="text" name="Educations[@i].Degree" value="@Model.Educations[i].Degree" class="form-control form-control-sm" placeholder="Ej: Licenciado en Computación" required />
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small fw-semibold">Año</label>
+                                <input type="text" name="Educations[@i].Year" value="@Model.Educations[i].Year" class="form-control form-control-sm" placeholder="Ej: 2022" />
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- 5. Habilidades (Hard Skills y Soft Skills) -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+            <h5 class="fw-bold text-dark mb-3 border-bottom pb-2">
+                <i class="bi bi-cpu-fill text-primary me-2"></i>5. Habilidades (Técnicas y Blandas)
+            </h5>
+            <div>
+                <label asp-for="Skills" class="form-label fw-semibold">Lista de Habilidades separadas por coma (,)</label>
+                <input asp-for="Skills" id="inputSkills" class="form-control" placeholder="Ej: C#, ASP.NET Core, PostgreSQL, SAP Business One, Docker, Liderazgo, Comunicación Asertiva, Scrum" />
+                <div class="form-text small mt-2">
+                    Sugerencias populares:
+                    <a href="javascript:void(0)" onclick="insertSkill('Liderazgo de Equipos')" class="badge bg-light text-dark border text-decoration-none">Liderazgo</a>
+                    <a href="javascript:void(0)" onclick="insertSkill('Resolución de Problemas')" class="badge bg-light text-dark border text-decoration-none">Resolución de Problemas</a>
+                    <a href="javascript:void(0)" onclick="insertSkill('Gestión de Bases de Datos')" class="badge bg-light text-dark border text-decoration-none">Bases de Datos</a>
+                    <a href="javascript:void(0)" onclick="insertSkill('Ofimática Avanzada')" class="badge bg-light text-dark border text-decoration-none">Ofimática</a>
+                    <a href="javascript:void(0)" onclick="insertSkill('Inglés Profesional')" class="badge bg-light text-dark border text-decoration-none">Inglés</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. Cursos y Certificaciones (Integración Automática + Opción Manual) -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 border-bottom pb-2 gap-2">
+                <div>
+                    <h5 class="fw-bold text-dark mb-0">
+                        <i class="bi bi-patch-check-fill text-primary me-2"></i>6. Cursos y Certificaciones
+                    </h5>
+                    <span class="text-muted small">Tus cursos completados en Cursos Globales JP se sincronizan aquí de forma automática</span>
+                </div>
+                <div class="d-flex gap-2">
+                    @if (Model.AvailablePlatformCertificates.Any())
+                    {
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-primary dropdown-toggle fw-bold rounded-pill" type="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-plus-circle me-1"></i> + Vincular Cursos Aprobados (@Model.AvailablePlatformCertificates.Count)
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                @foreach (var c in Model.AvailablePlatformCertificates)
+                                {
+                                    <li>
+                                        <a class="dropdown-item small" href="javascript:void(0)" onclick="vincularCertificadoPlataforma('@c.Title', '@c.Issuer', '@c.Year', '@c.VerificationCode')">
+                                            <i class="bi bi-check2 text-success me-1"></i> @c.Title (@c.VerificationCode)
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    }
+                    <button type="button" class="btn btn-sm btn-outline-success fw-bold rounded-pill px-3" onclick="agregarCertificadoManual()">
+                        <i class="bi bi-plus-lg me-1"></i> + Certificado Manual
+                    </button>
+                </div>
+            </div>
+
+            <div id="contenedorCertificaciones">
+                @for (int i = 0; i < Model.Certifications.Count; i++)
+                {
+                    <div class="border rounded-3 p-3 mb-3 bg-light item-certificacion">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge @(Model.Certifications[i].IsPlatformCertificate ? "bg-primary" : "bg-secondary")">
+                                    @(Model.Certifications[i].IsPlatformCertificate ? "★ Cursos Globales JP" : "Externo")
+                                </span>
+                                @if (!string.IsNullOrEmpty(Model.Certifications[i].VerificationCode))
+                                {
+                                    <span class="badge bg-light text-dark border font-monospace">@Model.Certifications[i].VerificationCode</span>
+                                }
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-danger py-0 px-2" onclick="eliminarItem(this)">
+                                <i class="bi bi-trash"></i> Eliminar
+                            </button>
+                        </div>
+                        <div class="row g-2">
+                            <div class="col-md-5">
+                                <label class="form-label small fw-semibold">Nombre del Curso / Certificación</label>
+                                <input type="text" name="Certifications[@i].Title" value="@Model.Certifications[i].Title" class="form-control form-control-sm" required />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small fw-semibold">Institución Emisora <span class="text-muted fw-normal">(Opcional)</span></label>
+                                <input type="text" name="Certifications[@i].Issuer" value="@Model.Certifications[i].Issuer" class="form-control form-control-sm" placeholder="Opcional" />
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small fw-semibold">Año / Código</label>
+                                <input type="text" name="Certifications[@i].Year" value="@Model.Certifications[i].Year" class="form-control form-control-sm" placeholder="Año o código" />
+                                <input type="hidden" name="Certifications[@i].VerificationCode" value="@Model.Certifications[i].VerificationCode" />
+                                <input type="hidden" name="Certifications[@i].IsPlatformCertificate" value="@(Model.Certifications[i].IsPlatformCertificate ? "true" : "false")" />
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Botón Guardar Flotante / Inferior -->
+        <div class="d-flex justify-content-between align-items-center p-3 bg-white border rounded-4 shadow-sm">
+            <span class="text-muted small">
+                <i class="bi bi-shield-check text-success me-1"></i>Los cambios se guardan permanentemente en tu cuenta
+            </span>
+            <div class="d-flex gap-2">
+                <a asp-action="Imprimir" asp-route-template="@Model.SelectedTemplate" asp-route-palette="@Model.ColorPalette" id="btnPrevisualizarBottom" target="_blank" class="btn btn-outline-primary fw-bold">
+                    <i class="bi bi-eye me-1"></i> Previsualizar CV
+                </a>
+                <button type="submit" class="btn btn-success fw-bold px-4 shadow-sm">
+                    <i class="bi bi-save me-1"></i> Guardar Cambios
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- ==========================================
+     MODAL 1: GENERADOR DE PERFIL CON IA
+     ========================================== -->
+<div class="modal fade" id="modalIa" tabindex="-1" aria-labelledby="modalIaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold" id="modalIaLabel">
+                    <i class="bi bi-magic me-2"></i>Generador de Perfil Profesional con IA
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <p class="small text-muted mb-3">
+                    Nuestra Inteligencia Artificial sintetizará tu título profesional, nivel de experiencia y habilidades para redactar un párrafo de alto impacto para reclutadores.
+                </p>
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">Nivel de Experiencia:</label>
+                    <select id="iaLevel" class="form-select form-select-sm">
+                        <option value="Senior" selected>Senior / Especialista</option>
+                        <option value="Intermedio">Intermedio / Profesional</option>
+                        <option value="Directivo">Directivo / Gerencial</option>
+                        <option value="Junior">Junior / En Formación</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">Enfoque / Tono del Resumen:</label>
+                    <select id="iaTone" class="form-select form-select-sm">
+                        <option value="Impacto" selected>Orientado al Logro y Resultados (Recomendado ATS)</option>
+                        <option value="Liderazgo">Liderazgo, Dirección y Estrategia</option>
+                        <option value="Tecnico">Habilidades Técnicas, Rigor y Especialidad</option>
+                    </select>
+                </div>
+                <div class="alert alert-light border small text-muted mb-0">
+                    <i class="bi bi-info-circle me-1 text-primary"></i>
+                    Se utilizarán automáticamente tu <strong>Título Profesional</strong> y tus <strong>Habilidades</strong> actuales.
+                </div>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary fw-bold" id="btnEjecutarIa" onclick="ejecutarGeneracionIa()">
+                    <i class="bi bi-stars me-1"></i> Generar Resumen con IA
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================
+     MODAL 2: PAGO Y DESBLOQUEO ($1 USD / TASA BCV)
+     ========================================== -->
+<div class="modal fade" id="modalDesbloqueo" tabindex="-1" aria-labelledby="modalDesbloqueoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title fw-bold" id="modalDesbloqueoLabel">
+                    <i class="bi bi-unlock-fill text-warning me-2"></i>Desbloquear Descarga Oficial de Currículum en PDF
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-action="SolicitarDesbloqueo" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <div class="modal-body p-4">
+                    <!-- Resumen del Pago -->
+                    <div class="card border-0 bg-primary bg-opacity-10 p-3 rounded-4 mb-4">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                            <div>
+                                <span class="badge bg-primary px-3 py-1 mb-1">Tarifa Oficial Única</span>
+                                <h4 class="fw-bold text-dark mb-0">$@Model.PriceUsd.ToString("F2") USD</h4>
+                                <span class="small text-muted">Equivalente a: <strong class="text-success fs-6">Bs. @Model.PriceBs.ToString("N2")</strong></span>
+                            </div>
+                            <div class="text-end small text-muted">
+                                <div><i class="bi bi-bank me-1"></i>Tasa Oficial BCV: <strong>Bs. @Model.BcvRate.ToString("N2")</strong></div>
+                                <div>Fecha Valor: @Model.BcvDate</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Datos Bancarios Oficiales -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <div class="p-3 bg-light border rounded-3 h-100">
+                                <h6 class="fw-bold text-primary mb-2"><i class="bi bi-phone me-1"></i> Pago Móvil (BDV)</h6>
+                                <div class="small mb-1"><strong>Banco:</strong> Banco de Venezuela (0102)</div>
+                                <div class="small mb-1"><strong>Teléfono:</strong> 0412-5884084</div>
+                                <div class="small mb-1"><strong>Cédula / RIF:</strong> J-41102463-5</div>
+                                <div class="small"><strong>Titular:</strong> Inversiones Globales JP 1968, C.A.</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 bg-light border rounded-3 h-100">
+                                <h6 class="fw-bold text-primary mb-2"><i class="bi bi-bank2 me-1"></i> Transferencia Bancaria (BDV)</h6>
+                                <div class="small mb-1"><strong>Cuenta Corriente:</strong> 0102-0123-4567-8901-2345</div>
+                                <div class="small mb-1"><strong>RIF:</strong> J-41102463-5</div>
+                                <div class="small"><strong>Titular:</strong> Inversiones Globales JP 1968, C.A.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Formulario de Reporte -->
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Método de Pago Utilizado <span class="text-danger">*</span></label>
+                            <select name="paymentMethod" class="form-select" required>
+                                <option value="Pago Móvil (BDV)">Pago Móvil (Banco de Venezuela)</option>
+                                <option value="Transferencia Bancaria (BDV)">Transferencia Bancaria (BDV)</option>
+                                <option value="Binance Pay">Binance Pay (USDT)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Número de Referencia <span class="text-danger">*</span></label>
+                            <input type="text" name="transactionRef" class="form-control" placeholder="Ej: 00452391" required />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Comprobante de Pago (Captura de pantalla o recibo) <span class="text-danger">*</span></label>
+                            <input type="file" name="proofFile" class="form-control" accept="image/*,.pdf" required />
+                            <div class="form-text small">Sube la captura de tu comprobante para agilizar la conciliación y aprobación inmediata.</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success fw-bold px-4">
+                        <i class="bi bi-send-check-fill me-1"></i> Enviar Reporte de Pago
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function updatePreviewLinks() {
+        const selectedTpl = document.querySelector('input[name="SelectedTemplate"]:checked')?.value || 'Corporate';
+        const selectedPal = document.querySelector('input[name="ColorPalette"]:checked')?.value || 'ClassicNavy';
+        const newUrl = `/Curriculum/Imprimir?template=${encodeURIComponent(selectedTpl)}&palette=${encodeURIComponent(selectedPal)}`;
+        
+        const topPrev = document.getElementById('btnVistaPreviaTop');
+        if (topPrev) topPrev.setAttribute('href', newUrl);
+        
+        const topDesc = document.getElementById('btnDescargarTop');
+        if (topDesc) topDesc.setAttribute('href', newUrl);
+        
+        const botPrev = document.getElementById('btnPrevisualizarBottom');
+        if (botPrev) botPrev.setAttribute('href', newUrl);
+    }
+
+    function selectTemplate(templateName) {
+        document.querySelectorAll('.template-card').forEach(c => {
+            c.classList.remove('border-primary', 'bg-primary', 'bg-opacity-10');
+            c.classList.add('border-light-subtle');
+        });
+        const radio = document.getElementById('tpl' + templateName);
+        if (radio) {
+            radio.checked = true;
+            const parent = radio.closest('.template-card');
+            if (parent) {
+                parent.classList.add('border-primary', 'bg-primary', 'bg-opacity-10');
+                parent.classList.remove('border-light-subtle');
+            }
+        }
+        updatePreviewLinks();
+    }
+
+    function selectPalette(paletteName) {
+        document.querySelectorAll('.palette-card').forEach(c => {
+            c.classList.remove('border-primary', 'bg-primary', 'bg-opacity-10');
+            c.classList.add('border-light-subtle');
+        });
+        const radio = document.getElementById('pal' + paletteName);
+        if (radio) {
+            radio.checked = true;
+            const parent = radio.closest('.palette-card');
+            if (parent) {
+                parent.classList.add('border-primary', 'bg-primary', 'bg-opacity-10');
+                parent.classList.remove('border-light-subtle');
+            }
+        }
+        updatePreviewLinks();
+    }
+
+    function insertSkill(skillName) {
+        const input = document.getElementById('inputSkills');
+        if (!input) return;
+        const current = input.value.trim();
+        if (!current) {
+            input.value = skillName;
+        } else if (!current.toLowerCase().includes(skillName.toLowerCase())) {
+            input.value = current + ', ' + skillName;
+        }
+    }
+
+    function eliminarItem(btn) {
+        const container = btn.closest('.item-experiencia, .item-educacion, .item-certificacion');
+        if (container) {
+            container.remove();
+            renumerarIndices();
+        }
+    }
+
+    function renumerarIndices() {
+        // Re-indexar Experiencias
+        document.querySelectorAll('#contenedorExperiencias .item-experiencia').forEach((item, idx) => {
+            item.querySelectorAll('input, textarea').forEach(input => {
+                const name = input.getAttribute('name');
+                if (name) {
+                    input.setAttribute('name', name.replace(/Experiences\[\d+\]/, 'Experiences[' + idx + ']'));
+                }
+            });
+            const badge = item.querySelector('.badge');
+            if (badge) badge.innerText = 'Puesto #' + (idx + 1);
+        });
+
+        // Re-indexar Educación
+        document.querySelectorAll('#contenedorEducacion .item-educacion').forEach((item, idx) => {
+            item.querySelectorAll('input').forEach(input => {
+                const name = input.getAttribute('name');
+                if (name) {
+                    input.setAttribute('name', name.replace(/Educations\[\d+\]/, 'Educations[' + idx + ']'));
+                }
+            });
+            const badge = item.querySelector('.badge');
+            if (badge) badge.innerText = 'Estudio #' + (idx + 1);
+        });
+
+        // Re-indexar Certificaciones
+        document.querySelectorAll('#contenedorCertificaciones .item-certificacion').forEach((item, idx) => {
+            item.querySelectorAll('input').forEach(input => {
+                const name = input.getAttribute('name');
+                if (name) {
+                    input.setAttribute('name', name.replace(/Certifications\[\d+\]/, 'Certifications[' + idx + ']'));
+                }
+            });
+        });
+    }
+
+    function agregarExperiencia() {
+        const c = document.getElementById('contenedorExperiencias');
+        const idx = c.querySelectorAll('.item-experiencia').length;
+        const div = document.createElement('div');
+        div.className = 'border rounded-3 p-3 mb-3 bg-light item-experiencia';
+        div.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="badge bg-secondary">Puesto #${idx + 1}</span>
+                <button type="button" class="btn btn-sm btn-outline-danger py-0 px-2" onclick="eliminarItem(this)">
+                    <i class="bi bi-trash"></i> Eliminar
+                </button>
+            </div>
+            <div class="row g-2 mb-2">
+                <div class="col-md-6">
+                    <label class="form-label small fw-semibold">Empresa / Organización</label>
+                    <input type="text" name="Experiences[${idx}].Company" class="form-control form-control-sm" placeholder="Ej: Empresa" required />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label small fw-semibold">Cargo / Posición</label>
+                    <input type="text" name="Experiences[${idx}].Position" class="form-control form-control-sm" placeholder="Ej: Cargo" required />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-semibold">Fecha Inicio</label>
+                    <input type="text" name="Experiences[${idx}].StartDate" class="form-control form-control-sm" placeholder="Ej: 2021" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-semibold">Fecha Fin</label>
+                    <input type="text" name="Experiences[${idx}].EndDate" class="form-control form-control-sm" placeholder="Ej: Presente" />
+                </div>
+                <div class="col-md-4 d-flex align-items-center mt-3">
+                    <div class="form-check">
+                        <input type="checkbox" name="Experiences[${idx}].IsCurrent" value="true" class="form-check-input" />
+                        <label class="form-check-label small fw-semibold">Puesto actual</label>
+                    </div>
+                </div>
+                <div class="col-12 mt-2">
+                    <label class="form-label small fw-semibold">Funciones principales y Logros</label>
+                    <textarea name="Experiences[${idx}].Description" class="form-control form-control-sm" rows="2" placeholder="Describe los logros y responsabilidades..."></textarea>
+                </div>
+            </div>
+        `;
+        c.appendChild(div);
+    }
+
+    function agregarEducacion() {
+        const c = document.getElementById('contenedorEducacion');
+        const idx = c.querySelectorAll('.item-educacion').length;
+        const div = document.createElement('div');
+        div.className = 'border rounded-3 p-3 mb-3 bg-light item-educacion';
+        div.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="badge bg-secondary">Estudio #${idx + 1}</span>
+                <button type="button" class="btn btn-sm btn-outline-danger py-0 px-2" onclick="eliminarItem(this)">
+                    <i class="bi bi-trash"></i> Eliminar
+                </button>
+            </div>
+            <div class="row g-2">
+                <div class="col-md-6">
+                    <label class="form-label small fw-semibold">Institución / Universidad</label>
+                    <input type="text" name="Educations[${idx}].Institution" class="form-control form-control-sm" placeholder="Ej: Universidad" required />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-semibold">Título Obtenido</label>
+                    <input type="text" name="Educations[${idx}].Degree" class="form-control form-control-sm" placeholder="Ej: Título" required />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small fw-semibold">Año</label>
+                    <input type="text" name="Educations[${idx}].Year" class="form-control form-control-sm" placeholder="Ej: 2023" />
+                </div>
+            </div>
+        `;
+        c.appendChild(div);
+    }
+
+    function agregarCertificadoManual() {
+        const c = document.getElementById('contenedorCertificaciones');
+        const idx = c.querySelectorAll('.item-certificacion').length;
+        const div = document.createElement('div');
+        div.className = 'border rounded-3 p-3 mb-3 bg-light item-certificacion';
+        div.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="badge bg-secondary">Externo</span>
+                <button type="button" class="btn btn-sm btn-outline-danger py-0 px-2" onclick="eliminarItem(this)">
+                    <i class="bi bi-trash"></i> Eliminar
+                </button>
+            </div>
+            <div class="row g-2">
+                <div class="col-md-5">
+                    <label class="form-label small fw-semibold">Nombre del Curso / Certificación</label>
+                    <input type="text" name="Certifications[${idx}].Title" class="form-control form-control-sm" placeholder="Ej: Certificación en Scrum Master" required />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-semibold">Institución Emisora <span class="text-muted fw-normal">(Opcional)</span></label>
+                    <input type="text" name="Certifications[${idx}].Issuer" class="form-control form-control-sm" placeholder="Ej: Scrum.org (Opcional)" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small fw-semibold">Año / Código</label>
+                    <input type="text" name="Certifications[${idx}].Year" class="form-control form-control-sm" placeholder="Ej: 2024" />
+                    <input type="hidden" name="Certifications[${idx}].VerificationCode" value="" />
+                    <input type="hidden" name="Certifications[${idx}].IsPlatformCertificate" value="false" />
+                </div>
+            </div>
+        `;
+        c.appendChild(div);
+    }
+
+    function vincularCertificadoPlataforma(titulo, emisor, anio, codigo) {
+        const c = document.getElementById('contenedorCertificaciones');
+        const idx = c.querySelectorAll('.item-certificacion').length;
+        const div = document.createElement('div');
+        div.className = 'border rounded-3 p-3 mb-3 bg-light item-certificacion';
+        div.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-primary">★ Cursos Globales JP</span>
+                    <span class="badge bg-light text-dark border font-monospace">${codigo}</span>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-danger py-0 px-2" onclick="eliminarItem(this)">
+                    <i class="bi bi-trash"></i> Eliminar
+                </button>
+            </div>
+            <div class="row g-2">
+                <div class="col-md-5">
+                    <label class="form-label small fw-semibold">Nombre del Curso / Certificación</label>
+                    <input type="text" name="Certifications[${idx}].Title" value="${titulo}" class="form-control form-control-sm" required />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-semibold">Institución Emisora <span class="text-muted fw-normal">(Opcional)</span></label>
+                    <input type="text" name="Certifications[${idx}].Issuer" value="${emisor || ''}" class="form-control form-control-sm" placeholder="Opcional" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small fw-semibold">Año / Código</label>
+                    <input type="text" name="Certifications[${idx}].Year" value="${anio || ''}" class="form-control form-control-sm" placeholder="Ej: 2024" />
+                    <input type="hidden" name="Certifications[${idx}].VerificationCode" value="${codigo}" />
+                    <input type="hidden" name="Certifications[${idx}].IsPlatformCertificate" value="true" />
+                </div>
+            </div>
+        `;
+        c.appendChild(div);
+    }
+
+    async function ejecutarGeneracionIa() {
+        const btn = document.getElementById('btnEjecutarIa');
+        const jobTitle = document.getElementById('inputJobTitle')?.value || '';
+        const skills = document.getElementById('inputSkills')?.value || '';
+        const level = document.getElementById('iaLevel')?.value || 'Senior';
+        const tone = document.getElementById('iaTone')?.value || 'Impacto';
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Redactando con IA...';
+
+        try {
+            const resp = await fetch('/Curriculum/GenerarResumenIa', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    jobTitle: jobTitle,
+                    keySkills: skills,
+                    experienceLevel: level,
+                    tone: tone
+                })
+            });
+
+            const data = await resp.json();
+            if (data.success && data.summary) {
+                document.getElementById('inputProfessionalSummary').value = data.summary;
+                const modal = bootstrap.Modal.getInstance(document.getElementById('modalIa'));
+                if (modal) modal.hide();
+            } else {
+                alert(data.message || 'No se pudo generar el resumen.');
+            }
+        } catch (e) {
+            alert('Error al comunicarse con el motor de Inteligencia Artificial.');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-stars me-1"></i> Generar Resumen con IA';
+        }
+    }
+</script>
+}
