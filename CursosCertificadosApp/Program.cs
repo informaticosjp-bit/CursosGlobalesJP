@@ -1,4 +1,5 @@
 using CursosCertificadosApp.Data;
+using CursosCertificadosApp.Models.Entities;
 using CursosCertificadosApp.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -124,12 +125,57 @@ using (var scope = app.Services.CreateScope())
             }
             else
             {
-                logger.LogInformation("[DB INFO] Catálogo de 28 cursos y usuario master ya presentes en la base de datos.");
+                logger.LogInformation("[DB INFO] Catálogo de 28 cursos ya presente en la base de datos.");
             }
         }
         catch (Exception seedEx)
         {
             logger.LogWarning("[DB WARN] Aviso durante comprobación del catálogo: {Message}", seedEx.Message);
+        }
+
+        // Verificación y Creación Segura del Usuario Administrador Master
+        try
+        {
+            var masterExists = dbContext.Users.Any(u => 
+                u.Email.ToLower() == "master@globalesjp.net" || u.Email.ToLower() == "master");
+
+            if (!masterExists)
+            {
+                logger.LogInformation("[DB SEED] Usuario Administrador Master no encontrado. Creando usuario inicial...");
+                var masterUser = new User
+                {
+                    FullName = "Administrador Master",
+                    Email = "master@globalesjp.net",
+                    PasswordHash = DbSeeder.HashPassword("master141990"),
+                    IdentificationNumber = "V-00000000",
+                    Role = "Admin",
+                    CreatedAt = DateTime.UtcNow
+                };
+                dbContext.Users.Add(masterUser);
+                dbContext.SaveChanges();
+                logger.LogInformation("[DB SUCCESS] Administrador Master inicial creado exitosamente (master@globalesjp.net).");
+            }
+            else
+            {
+                var masterUser = dbContext.Users.First(u => 
+                    u.Email.ToLower() == "master@globalesjp.net" || u.Email.ToLower() == "master");
+                var expectedHash = DbSeeder.HashPassword("master141990");
+                if (masterUser.PasswordHash != expectedHash || masterUser.Role != "Admin")
+                {
+                    masterUser.PasswordHash = expectedHash;
+                    masterUser.Role = "Admin";
+                    dbContext.SaveChanges();
+                    logger.LogInformation("[DB SYNC] Credenciales y rol de Administrador Master actualizados al estándar actual.");
+                }
+                else
+                {
+                    logger.LogInformation("[DB INFO] Usuario Administrador Master verificado y activo.");
+                }
+            }
+        }
+        catch (Exception userEx)
+        {
+            logger.LogWarning("[DB WARN] Aviso al verificar/asegurar usuario master: {Message}", userEx.Message);
         }
 
         logger.LogInformation("[DB READY] Base de datos verificada y lista para peticiones.");
