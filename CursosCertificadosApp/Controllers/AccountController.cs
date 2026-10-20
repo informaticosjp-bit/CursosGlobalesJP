@@ -148,7 +148,14 @@ namespace CursosCertificadosApp.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Excepción durante el proceso de inicio de sesión de {Email}: {Message}", model.Email, ex.Message);
-                ModelState.AddModelError(string.Empty, "Ocurrió un error temporal al procesar el inicio de sesión. Por favor reintenta en unos instantes.");
+                
+                var detailedError = $"[Error de Base de Datos/Auth]: {ex.Message}";
+                if (ex.InnerException != null)
+                {
+                    detailedError += $" --> [Detalle]: {ex.InnerException.Message}";
+                }
+                
+                ModelState.AddModelError(string.Empty, detailedError);
                 return View(model);
             }
         }
