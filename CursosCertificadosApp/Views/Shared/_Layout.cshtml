@@ -136,6 +136,103 @@
             color: #ffffff;
         }
 
+        /* ==========================================================================
+           ADAPTACIÓN PARA MONITORES CUADRADOS (4:3 / 5:4) Y PANTALLAS COMPACTAS (992px - 1366px)
+           ========================================================================== */
+        @@media (min-width: 992px) and (max-width: 1366px) {
+            /* 1. Barra de Navegación Compacta */
+            .navbar.container-fluid {
+                padding-left: 0.75rem !important;
+                padding-right: 0.75rem !important;
+            }
+
+            /* 2. Logotipo y Marca */
+            .navbar-brand-custom {
+                gap: 8px !important;
+            }
+            .navbar-brand-custom img {
+                width: 36px !important;
+                height: 36px !important;
+            }
+            .navbar-brand-custom .brand-title {
+                font-size: 1.05rem !important;
+            }
+            .navbar-brand-custom .brand-slogan {
+                display: none !important; /* Oculta el eslogan en monitores cuadrados para garantizar que todos los enlaces queden en una sola fila */
+            }
+
+            /* 3. Enlaces del Menú Principal */
+            .navbar-nav.me-auto {
+                margin-left: 0.4rem !important;
+                gap: 2px !important;
+            }
+            .navbar-nav.me-auto .nav-link {
+                font-size: 0.83rem !important;
+                padding: 0.35rem 0.45rem !important;
+                letter-spacing: -0.2px;
+            }
+            .navbar-nav.me-auto .nav-link i {
+                margin-right: 3px !important;
+                font-size: 0.88rem;
+            }
+            .navbar-nav.me-auto .badge {
+                padding: 0.2rem 0.4rem !important;
+                font-size: 0.68rem !important;
+            }
+
+            /* 4. Enlaces de la Derecha y Botones */
+            .navbar-nav.ms-auto {
+                gap: 4px !important;
+            }
+            .navbar-nav.ms-auto .nav-link {
+                font-size: 0.83rem !important;
+                padding: 0.35rem 0.45rem !important;
+            }
+            .navbar-nav.ms-auto .btn-brand {
+                font-size: 0.82rem !important;
+                padding: 6px 12px !important;
+            }
+            .navbar-nav.ms-auto .btn-link {
+                font-size: 0.82rem !important;
+                padding: 6px 8px !important;
+            }
+            .navbar-nav.ms-auto .theme-toggle-btn {
+                width: 34px !important;
+                height: 34px !important;
+            }
+            .navbar-nav.ms-auto .theme-toggle-btn i {
+                font-size: 0.95rem !important;
+            }
+            .navbar-nav.ms-auto .badge {
+                font-size: 0.72rem !important;
+                padding: 3px 6px !important;
+            }
+
+            /* Selector Alumno / Admin en desktop cuadrado */
+            .navbar-nav.ms-auto [role="group"] {
+                padding: 2px !important;
+            }
+            .navbar-nav.ms-auto [role="group"] .btn {
+                font-size: 0.76rem !important;
+                padding: 3px 8px !important;
+            }
+
+            /* 5. Ajustes de Contenido General en Monitores 1024x768 / 1280x1024 */
+            .container {
+                max-width: 98% !important;
+            }
+            .display-4 {
+                font-size: 2.25rem !important;
+                line-height: 1.15 !important;
+            }
+            .lead {
+                font-size: 1.02rem !important;
+            }
+            .card-course {
+                margin-bottom: 0.75rem;
+            }
+        }
+
         .btn-gold {
             background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
             color: #ffffff;
@@ -332,10 +429,10 @@
             <a class="navbar-brand navbar-brand-custom py-1 text-nowrap" asp-controller="Home" asp-action="Index">
                 <img src="@siteConfig.LogoUrl" alt="Logo @siteConfig.SiteName" class="rounded-circle shadow-sm" style="width: 44px; height: 44px; object-fit: cover;" onerror="this.src='/images/logo-jp.png';" />
                 <div class="d-flex flex-column justify-content-center">
-                    <span class="fw-bold fs-5 text-dark" style="letter-spacing: -0.3px; line-height: 1.1;">
+                    <span class="fw-bold fs-5 text-dark brand-title" style="letter-spacing: -0.3px; line-height: 1.1;">
                         @siteConfig.SiteName <span style="color: #dc2626; font-weight: 800;">@siteConfig.SiteNameHighlight</span>
                     </span>
-                    <span class="text-muted fw-semibold" style="font-size: 0.72rem; letter-spacing: 0.2px;">
+                    <span class="text-muted fw-semibold brand-slogan" style="font-size: 0.72rem; letter-spacing: 0.2px;">
                         @siteConfig.SiteSlogan
                     </span>
                 </div>
