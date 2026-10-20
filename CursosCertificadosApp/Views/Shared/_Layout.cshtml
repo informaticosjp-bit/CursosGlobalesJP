@@ -13,13 +13,13 @@
                 ? "GLOBALESJP.NET | CURSOS" 
                 : $"{ViewData["Title"]} | GLOBALESJP.NET | CURSOS"))</title>
     
-    <!-- Script Inmediato de Detección de Modo Oscuro (Evita destello blanco / FOUC) -->
+    <!-- Script Inmediato de Detección de Modo Oscuro (Claro Predeterminado) -->
     <script>
         (function () {
             try {
                 var savedTheme = localStorage.getItem('cgjp_theme_mode');
-                if (!savedTheme) {
-                    savedTheme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+                if (savedTheme !== 'dark' && savedTheme !== 'light') {
+                    savedTheme = 'light';
                 }
                 document.documentElement.setAttribute('data-bs-theme', savedTheme);
                 document.documentElement.setAttribute('data-theme', savedTheme);
@@ -935,7 +935,7 @@
                     const stored = localStorage.getItem(STORAGE_KEY);
                     if (stored === 'dark' || stored === 'light') return stored;
                 } catch (e) { }
-                return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+                return 'light';
             }
 
             function updateThemeUI(theme) {
