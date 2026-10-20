@@ -7,7 +7,25 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - @siteConfig.SiteName @siteConfig.SiteNameHighlight</title>
+    <title>@(ViewData["Title"] != null && ViewData["Title"]!.ToString() == "GLOBALESJP.NET | CURSOS" 
+            ? "GLOBALESJP.NET | CURSOS" 
+            : (string.IsNullOrEmpty(ViewData["Title"]?.ToString()) 
+                ? "GLOBALESJP.NET | CURSOS" 
+                : $"{ViewData["Title"]} | GLOBALESJP.NET | CURSOS"))</title>
+    
+    <!-- Script Inmediato de Detección de Modo Oscuro (Evita destello blanco / FOUC) -->
+    <script>
+        (function () {
+            try {
+                var savedTheme = localStorage.getItem('cgjp_theme_mode');
+                if (!savedTheme) {
+                    savedTheme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+                }
+                document.documentElement.setAttribute('data-bs-theme', savedTheme);
+                document.documentElement.setAttribute('data-theme', savedTheme);
+            } catch (e) { }
+        })();
+    </script>
     
     <!-- Favicon Oficial -->
     <link rel="icon" type="image/png" href="@siteConfig.LogoUrl" />
@@ -137,6 +155,175 @@
             padding: 40px 0 20px;
             margin-top: auto;
         }
+
+        /* ==========================================================================
+           MODO OSCURO - GLOBALESJP.NET STYLE
+           ========================================================================== */
+        [data-bs-theme="dark"] {
+            --cgjp-primary: #3b82f6;
+            --cgjp-secondary: #f59e0b;
+            --cgjp-accent: #60a5fa;
+            --cgjp-bg-light: #080e1e;
+            --cgjp-red: #f43f5e;
+        }
+
+        [data-bs-theme="dark"] body {
+            background-color: #080e1e !important;
+            color: #e2e8f0 !important;
+        }
+
+        [data-bs-theme="dark"] header.sticky-top,
+        [data-bs-theme="dark"] .bg-white {
+            background-color: #0c1427 !important;
+            color: #f1f5f9 !important;
+        }
+
+        [data-bs-theme="dark"] .bg-light {
+            background-color: #0e1830 !important;
+            color: #f1f5f9 !important;
+        }
+
+        [data-bs-theme="dark"] .navbar {
+            background-color: #0c1427 !important;
+        }
+
+        [data-bs-theme="dark"] .navbar .nav-link {
+            color: #cbd5e1 !important;
+        }
+
+        [data-bs-theme="dark"] .navbar .nav-link:hover {
+            color: #38bdf8 !important;
+        }
+
+        [data-bs-theme="dark"] .offcanvas-mobile {
+            background-color: #0c1427 !important;
+            border-color: #1e293b !important;
+            color: #f1f5f9 !important;
+        }
+
+        [data-bs-theme="dark"] .card-course,
+        [data-bs-theme="dark"] .card {
+            background-color: #0f1c36 !important;
+            border-color: #1e293b !important;
+            color: #f1f5f9 !important;
+        }
+
+        [data-bs-theme="dark"] .card-course:hover {
+            box-shadow: 0 12px 28px -10px rgba(0, 0, 0, 0.6) !important;
+        }
+
+        [data-bs-theme="dark"] .text-dark {
+            color: #f1f5f9 !important;
+        }
+
+        [data-bs-theme="dark"] .text-secondary,
+        [data-bs-theme="dark"] .text-muted {
+            color: #94a3b8 !important;
+        }
+
+        [data-bs-theme="dark"] .border,
+        [data-bs-theme="dark"] .border-top,
+        [data-bs-theme="dark"] .border-bottom,
+        [data-bs-theme="dark"] .border-start,
+        [data-bs-theme="dark"] .border-end {
+            border-color: #1e293b !important;
+        }
+
+        [data-bs-theme="dark"] .dropdown-menu {
+            background-color: #0f1c36 !important;
+            border: 1px solid #1e293b !important;
+            color: #f1f5f9 !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6) !important;
+        }
+
+        [data-bs-theme="dark"] .dropdown-item {
+            color: #e2e8f0 !important;
+        }
+
+        [data-bs-theme="dark"] .dropdown-item:hover {
+            background-color: #1a2a4c !important;
+            color: #38bdf8 !important;
+        }
+
+        [data-bs-theme="dark"] .dropdown-divider {
+            border-color: #1e293b !important;
+        }
+
+        [data-bs-theme="dark"] .table {
+            color: #f1f5f9 !important;
+            border-color: #1e293b !important;
+        }
+
+        [data-bs-theme="dark"] .table-light,
+        [data-bs-theme="dark"] thead th {
+            background-color: #0b1329 !important;
+            color: #cbd5e1 !important;
+            border-color: #1e293b !important;
+        }
+
+        [data-bs-theme="dark"] .form-control,
+        [data-bs-theme="dark"] .form-select {
+            background-color: #0b1329 !important;
+            border-color: #1e293b !important;
+            color: #f1f5f9 !important;
+        }
+
+        [data-bs-theme="dark"] .form-control:focus,
+        [data-bs-theme="dark"] .form-select:focus {
+            background-color: #0e1834 !important;
+            border-color: #38bdf8 !important;
+            color: #ffffff !important;
+        }
+
+        [data-bs-theme="dark"] .modal-content {
+            background-color: #0f1c36 !important;
+            border-color: #1e293b !important;
+            color: #f1f5f9 !important;
+        }
+
+        [data-bs-theme="dark"] .list-group-item {
+            background-color: #0f1c36 !important;
+            border-color: #1e293b !important;
+            color: #f1f5f9 !important;
+        }
+
+        /* Botón Modo Claro/Oscuro - Idéntico a GlobalesJP */
+        .theme-toggle-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #ffffff;
+            border: 1px solid rgba(15, 23, 42, 0.12);
+            color: #475569;
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.06);
+            outline: none;
+        }
+
+        .theme-toggle-btn:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+            transform: scale(1.08);
+        }
+
+        [data-bs-theme="dark"] .theme-toggle-btn {
+            background: #0f1c36 !important;
+            border: 1px solid rgba(251, 191, 36, 0.35) !important;
+            color: #fbbf24 !important;
+            box-shadow: 0 0 14px rgba(251, 191, 36, 0.25) !important;
+        }
+
+        [data-bs-theme="dark"] .theme-toggle-btn:hover {
+            background: #17274a !important;
+            border-color: #fbbf24 !important;
+            color: #f59e0b !important;
+            box-shadow: 0 0 20px rgba(251, 191, 36, 0.45) !important;
+            transform: scale(1.1);
+        }
     </style>
 </head>
 <body>
@@ -154,10 +341,15 @@
                 </div>
             </a>
             
-            <!-- Botón Hamburguesa Móvil (3 Rayas) -->
-            <button class="navbar-toggler border-0 shadow-none p-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#navbarOffcanvas" aria-controls="navbarOffcanvas" aria-label="Abrir Menú">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+            <!-- Botón Dark Mode Móvil + Hamburguesa Móvil (3 Rayas) -->
+            <div class="d-flex align-items-center gap-2 d-lg-none">
+                <button id="themeToggleBtnMobile" class="theme-toggle-btn" type="button" title="Cambiar modo Claro / Oscuro" aria-label="Cambiar modo Claro u Oscuro" style="width: 36px; height: 36px;">
+                    <i class="bi bi-moon-stars-fill fs-6 text-secondary" id="themeIconMobile"></i>
+                </button>
+                <button class="navbar-toggler border-0 shadow-none p-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#navbarOffcanvas" aria-controls="navbarOffcanvas" aria-label="Abrir Menú">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
 
             <!-- Menú Lateral Fluido (Offcanvas en móvil / Navbar inline en escritorio) -->
             <div class="offcanvas offcanvas-end offcanvas-mobile" tabindex="-1" id="navbarOffcanvas" aria-labelledby="navbarOffcanvasLabel">
@@ -191,6 +383,14 @@
                             ? $"{nameParts[0][0]}{nameParts[1][0]}".ToUpper() 
                             : (nameParts.Length == 1 ? nameParts[0][0].ToString().ToUpper() : "U");
                     }
+
+                    <!-- Toggle de Modo Oscuro en Menú Móvil -->
+                    <div class="d-lg-none mb-3 p-2 px-3 rounded-3 bg-light border d-flex align-items-center justify-content-between">
+                        <span class="fw-semibold small text-dark"><i class="bi bi-circle-half me-2 text-primary"></i>Tema visual</span>
+                        <button id="themeToggleBtnMenu" class="theme-toggle-btn" type="button" style="width: 36px; height: 36px;" title="Cambiar tema">
+                            <i class="bi bi-moon-stars-fill text-secondary" id="themeIconMenu"></i>
+                        </button>
+                    </div>
 
                     @* 1. Tarjeta de Usuario en MÓVIL (Visible solo en móvil) *@
                     @if (User.Identity?.IsAuthenticated == true)
@@ -305,6 +505,12 @@
 
                     @* 3. Navegación Secundaria (Derecha en desktop / Resto del menú en móvil) *@
                     <ul class="navbar-nav align-items-lg-center gap-2 flex-column flex-lg-row ms-auto">
+                        <!-- Botón Dark Mode Desktop (estilo idéntico a globalesjp.net) -->
+                        <li class="nav-item d-none d-lg-flex align-items-center me-1">
+                            <button id="themeToggleBtnDesktop" class="theme-toggle-btn" type="button" title="Cambiar modo Claro / Oscuro" aria-label="Cambiar modo Claro u Oscuro">
+                                <i class="bi bi-moon-stars-fill fs-5 text-secondary" id="themeIconDesktop"></i>
+                            </button>
+                        </li>
                         @if (User.Identity?.IsAuthenticated == true)
                         {
                             @if (!isAdminMode)
@@ -718,6 +924,79 @@
             })();
         </script>
     }
+
+    <!-- Script de Control de Modo Oscuro / Claro (GlobalesJP Theme) -->
+    <script>
+        (function () {
+            const STORAGE_KEY = 'cgjp_theme_mode';
+
+            function getPreferredTheme() {
+                try {
+                    const stored = localStorage.getItem(STORAGE_KEY);
+                    if (stored === 'dark' || stored === 'light') return stored;
+                } catch (e) { }
+                return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+            }
+
+            function updateThemeUI(theme) {
+                const isDark = theme === 'dark';
+
+                // Actualizar iconos
+                const desktopIcon = document.getElementById('themeIconDesktop');
+                if (desktopIcon) {
+                    desktopIcon.className = isDark ? 'bi bi-sun-fill fs-5 text-warning' : 'bi bi-moon-stars-fill fs-5 text-secondary';
+                }
+                const mobileIcon = document.getElementById('themeIconMobile');
+                if (mobileIcon) {
+                    mobileIcon.className = isDark ? 'bi bi-sun-fill fs-6 text-warning' : 'bi bi-moon-stars-fill fs-6 text-secondary';
+                }
+                const menuIcon = document.getElementById('themeIconMenu');
+                if (menuIcon) {
+                    menuIcon.className = isDark ? 'bi bi-sun-fill text-warning' : 'bi bi-moon-stars-fill text-secondary';
+                }
+
+                // Tooltips / Títulos
+                const titleText = isDark ? 'Cambiar a modo Claro' : 'Cambiar a modo Oscuro';
+                ['themeToggleBtnDesktop', 'themeToggleBtnMobile', 'themeToggleBtnMenu'].forEach(function(id) {
+                    const btn = document.getElementById(id);
+                    if (btn) btn.setAttribute('title', titleText);
+                });
+            }
+
+            function applyTheme(theme) {
+                document.documentElement.setAttribute('data-bs-theme', theme);
+                document.documentElement.setAttribute('data-theme', theme);
+                try {
+                    localStorage.setItem(STORAGE_KEY, theme);
+                } catch (e) { }
+                updateThemeUI(theme);
+            }
+
+            window.toggleAppTheme = function () {
+                const current = document.documentElement.getAttribute('data-bs-theme') || 'light';
+                const next = current === 'dark' ? 'light' : 'dark';
+                applyTheme(next);
+            };
+
+            function initThemeEvents() {
+                const currentTheme = document.documentElement.getAttribute('data-bs-theme') || getPreferredTheme();
+                updateThemeUI(currentTheme);
+
+                ['themeToggleBtnDesktop', 'themeToggleBtnMobile', 'themeToggleBtnMenu'].forEach(function(id) {
+                    const btn = document.getElementById(id);
+                    if (btn) {
+                        btn.addEventListener('click', window.toggleAppTheme);
+                    }
+                });
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initThemeEvents);
+            } else {
+                initThemeEvents();
+            }
+        })();
+    </script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>
