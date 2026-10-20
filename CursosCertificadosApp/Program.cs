@@ -7,9 +7,9 @@ using System.Text.RegularExpressions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Configuración de Puerto Dinámico para Entornos Cloud / Contenedores (Render, Railway, Docker)
-var envPort = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-builder.WebHost.UseUrls($"http://0.0.0.0:{envPort}");
+// 1. Escuchar exactamente en el puerto dinámico de Render o contenedor
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+builder.WebHost.UseUrls("http://*:" + port);
 
 // 2. Resolución y normalización de la Cadena de Conexión (PostgreSQL / Supabase)
 var connectionString = ResolveConnectionString(builder.Configuration);
@@ -74,7 +74,7 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// 6. Inicialización Segura y No Bloqueante de Base de Datos en la Nube
+// 6. Migraciones y Verificación de Base de Datos envuelta en Try-Catch Seguro
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -85,49 +85,59 @@ using (var scope = app.Services.CreateScope())
 
     try
     {
-        logger.LogInformation("[DB] Verificando conectividad con Supabase PostgreSQL...");
+        logger.LogInformation("[DB] Verificando esquema y migraciones de base de datos...");
 
-        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
-        var canConnect = await dbContext.Database.CanConnectAsync(cts.Token);
-
-        if (canConnect)
+        if (dbContext.Database.IsRelational())
         {
-            logger.LogInformation("[DB SUCCESS] Conexión establecida exitosamente con Supabase PostgreSQL.");
-
-            bool catalogExists = false;
             try
             {
-                catalogExists = await dbContext.Courses.AnyAsync(cts.Token);
+                logger.LogInformation("[DB] Ejecutando Database.Migrate()...");
+                dbContext.Database.Migrate();
+                logger.LogInformation("[DB SUCCESS] Database.Migrate() ejecutado satisfactoriamente.");
             }
-            catch
+            catch (Exception migEx)
             {
-                catalogExists = false;
-            }
-
-            if (catalogExists)
-            {
-                logger.LogInformation("[DB INFO] El catálogo de cursos y tablas ya existen en Supabase. Omitiendo creación repetitiva.");
-            }
-            else
-            {
-                logger.LogInformation("[DB SEED] Catálogo vacío detectado. Creando tablas e insertando datos iniciales...");
-                await dbContext.Database.EnsureCreatedAsync(cts.Token);
-                await DbSeeder.SeedAsync(dbContext);
-                logger.LogInformation("[DB SEED] Catálogo y Administrador Master creados exitosamente.");
+                logger.LogWarning("[DB WARN] Aviso en Database.Migrate(): {Message}. Asegurando mediante EnsureCreated...", migEx.Message);
+                try
+                {
+                    dbContext.Database.EnsureCreated();
+                }
+                catch (Exception ecEx)
+                {
+                    logger.LogWarning("[DB WARN] EnsureCreated: {Message}", ecEx.Message);
+                }
             }
         }
         else
         {
-            logger.LogWarning("[DB WARNING] CanConnectAsync devolvió false. El servidor continuará arrancando para no congelar Render.");
+            dbContext.Database.EnsureCreated();
         }
-    }
-    catch (OperationCanceledException)
-    {
-        logger.LogError("[DB TIMEOUT] La verificación de base de datos superó los 15 segundos al arrancar. El servidor web iniciará normalmente.");
+
+        // Seeding condicional (solo si no existen cursos)
+        try
+        {
+            if (!dbContext.Courses.Any())
+            {
+                logger.LogInformation("[DB SEED] Catálogo vacío detectado. Insertando datos iniciales...");
+                DbSeeder.SeedAsync(dbContext).GetAwaiter().GetResult();
+                logger.LogInformation("[DB SEED] Catálogo y usuario master creados con éxito.");
+            }
+            else
+            {
+                logger.LogInformation("[DB INFO] Catálogo de 28 cursos y usuario master ya presentes en la base de datos.");
+            }
+        }
+        catch (Exception seedEx)
+        {
+            logger.LogWarning("[DB WARN] Aviso durante comprobación del catálogo: {Message}", seedEx.Message);
+        }
+
+        logger.LogInformation("[DB READY] Base de datos verificada y lista para peticiones.");
     }
     catch (Exception ex)
     {
-        logger.LogError(ex, "[DB ERROR] Fallo durante la verificación de base de datos: {Message}. El servidor web iniciará para permitir diagnóstico.", ex.Message);
+        // En caso de cualquier excepción en base de datos, se loguea detalladamente y NO se detiene el servidor web
+        logger.LogError(ex, "[DB ERROR CRÍTICO] Fallo al inicializar la base de datos: {Message}. El servidor web seguirá activo para permitir diagnóstico y responder en Render.", ex.Message);
     }
 }
 

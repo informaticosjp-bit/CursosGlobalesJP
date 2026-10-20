@@ -30,9 +30,17 @@ namespace CursosCertificadosApp.Services
 
             var settings = new SiteCustomizationViewModel();
 
-            var dbSettings = await _context.SystemSettings
-                .Where(s => s.Key.StartsWith("Site_") || s.Key.StartsWith("Footer_") || s.Key.StartsWith("Social_") || s.Key.StartsWith("Popup_"))
-                .ToDictionaryAsync(s => s.Key, s => s.Content);
+            Dictionary<string, string> dbSettings = new();
+            try
+            {
+                dbSettings = await _context.SystemSettings
+                    .Where(s => s.Key.StartsWith("Site_") || s.Key.StartsWith("Footer_") || s.Key.StartsWith("Social_") || s.Key.StartsWith("Popup_"))
+                    .ToDictionaryAsync(s => s.Key, s => s.Content);
+            }
+            catch
+            {
+                // Si la base de datos aún no está lista o hay fallo de red, se usan los valores por defecto del ViewModel
+            }
 
             if (dbSettings.TryGetValue("Site_Name", out var siteName) && !string.IsNullOrWhiteSpace(siteName))
                 settings.SiteName = siteName;
