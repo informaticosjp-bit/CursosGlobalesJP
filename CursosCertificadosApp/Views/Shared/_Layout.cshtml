@@ -555,6 +555,11 @@
                                 <i class="bi bi-file-earmark-person-fill me-2 me-lg-1 text-primary"></i> Crear CV con IA <span class="badge bg-success bg-opacity-25 text-success rounded-pill fw-bold" style="font-size: 0.72rem;">$1</span>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link fw-semibold text-nowrap py-2 py-lg-1 px-2 rounded-3" asp-controller="Home" asp-action="Contacto">
+                                <i class="bi bi-chat-dots-fill me-2 me-lg-1 text-primary"></i> Contacto
+                            </a>
+                        </li>
                         @if (!isAdminMode && !isCreatorMode)
                         {
                             <li class="nav-item">
@@ -872,7 +877,11 @@
                     @siteConfig.FooterCompanyInfo &bull; <a href="mailto:@siteConfig.FooterContactEmail" class="text-light text-decoration-none"><i class="bi bi-envelope-fill text-warning me-1"></i>@siteConfig.FooterContactEmail</a>
                 </div>
                 <div class="my-2">
-                    <a asp-controller="Home" asp-action="Terminos" class="text-warning text-decoration-none fw-bold me-2">
+                    <a asp-controller="Home" asp-action="Contacto" class="text-warning text-decoration-none fw-bold me-2">
+                        <i class="bi bi-chat-dots-fill me-1"></i> Contacto y Soporte
+                    </a>
+                    &bull;
+                    <a asp-controller="Home" asp-action="Terminos" class="text-light text-decoration-none ms-2 me-2">
                         <i class="bi bi-shield-lock-fill me-1"></i> Términos y Condiciones
                     </a>
                     &bull;

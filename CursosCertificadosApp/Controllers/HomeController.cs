@@ -74,6 +74,7 @@ namespace CursosCertificadosApp.Controllers
                 ViewBag.TotalCourses = totalCourses;
                 ViewBag.TotalHours = totalHours;
                 ViewBag.FeaturedCourses = featuredCourses;
+                ViewBag.AllCourseTitles = featuredCoursesRaw.Select(c => c.Title).Distinct().OrderBy(t => t).ToList();
 
                 return View(categories);
             }
@@ -83,8 +84,30 @@ namespace CursosCertificadosApp.Controllers
                 ViewBag.TotalCourses = 0;
                 ViewBag.TotalHours = 0;
                 ViewBag.FeaturedCourses = new List<CursosCertificadosApp.Models.Entities.Course>();
+                ViewBag.AllCourseTitles = new List<string>();
                 return View(new List<CursosCertificadosApp.Models.Entities.Category>());
             }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Contacto()
+        {
+            try
+            {
+                var courses = await _context.Courses
+                    .Where(c => c.IsPublished)
+                    .OrderBy(c => c.Title)
+                    .Select(c => c.Title)
+                    .ToListAsync();
+
+                ViewBag.Courses = courses;
+            }
+            catch
+            {
+                ViewBag.Courses = new List<string>();
+            }
+
+            return View();
         }
 
         public IActionResult Privacy()
