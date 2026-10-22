@@ -36,7 +36,8 @@ namespace CursosCertificadosApp.Controllers
             if (cert == null) return NotFound();
 
             var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (!int.TryParse(userIdStr, out int userId) || cert.UserId != userId)
+            bool isAdmin = User.IsInRole("Admin");
+            if (!isAdmin && (!int.TryParse(userIdStr, out int userId) || cert.UserId != userId))
             {
                 return Forbid();
             }

@@ -19,6 +19,7 @@ namespace CursosCertificadosApp.Controllers
         private readonly IWebHostEnvironment _env;
         private readonly IDatabaseBackupService _backupService;
         private readonly ISiteSettingService _siteSettingService;
+        private readonly IUserActivityTracker _activityTracker;
 
         public AdminController(
             AppDbContext context, 
@@ -26,7 +27,8 @@ namespace CursosCertificadosApp.Controllers
             IBcvRateService bcvRateService,
             IWebHostEnvironment env,
             IDatabaseBackupService backupService,
-            ISiteSettingService siteSettingService)
+            ISiteSettingService siteSettingService,
+            IUserActivityTracker activityTracker)
         {
             _context = context;
             _paymentService = paymentService;
@@ -34,6 +36,7 @@ namespace CursosCertificadosApp.Controllers
             _env = env;
             _backupService = backupService;
             _siteSettingService = siteSettingService;
+            _activityTracker = activityTracker;
         }
 
         // ==========================================
@@ -220,10 +223,14 @@ namespace CursosCertificadosApp.Controllers
                     TotalPaidAmount = u.Payments.Where(p => p.Status == "Approved").Sum(p => p.Amount),
                     Enrollments = u.Enrollments.Select(e => new UserEnrollmentSummary
                     {
+                        CourseId = e.CourseId,
                         CourseTitle = e.Course.Title,
                         ProgressPercentage = e.ProgressPercentage,
                         IsCompleted = e.IsCompleted,
                         CompletedAt = e.CompletedAt,
+                        CertificateId = u.Certificates.FirstOrDefault(c => c.CourseId == e.CourseId) != null 
+                            ? u.Certificates.FirstOrDefault(c => c.CourseId == e.CourseId)!.Id 
+                            : null,
                         CertificateCode = u.Certificates.FirstOrDefault(c => c.CourseId == e.CourseId) != null 
                             ? u.Certificates.FirstOrDefault(c => c.CourseId == e.CourseId)!.VerificationCode 
                             : null,
@@ -234,7 +241,78 @@ namespace CursosCertificadosApp.Controllers
                 })
                 .ToListAsync();
 
+            var currentUserIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            int.TryParse(currentUserIdStr, out int currentUserId);
+
+            foreach (var user in users)
+            {
+                user.IsOnline = (user.Id == currentUserId) || _activityTracker.IsOnline(user.Id);
+            }
+
             return View(users);
+        }
+
+        // Editar Datos del Usuario
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditarUsuario(EditUserViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                TempData["ErrorMessage"] = "Por favor completa los campos requeridos correctamente.";
+                return RedirectToAction("Usuarios");
+            }
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == model.Id);
+            if (user == null)
+            {
+                TempData["ErrorMessage"] = "El usuario seleccionado no existe.";
+                return RedirectToAction("Usuarios");
+            }
+
+            var cleanEmail = model.Email.Trim().ToLower();
+            if (user.Email.ToLower() != cleanEmail)
+            {
+                var emailExists = await _context.Users.AnyAsync(u => u.Id != model.Id && u.Email.ToLower() == cleanEmail);
+                if (emailExists)
+                {
+                    TempData["ErrorMessage"] = $"El correo '{model.Email}' ya se encuentra registrado por otro usuario.";
+                    return RedirectToAction("Usuarios");
+                }
+            }
+
+            user.FullName = model.FullName.Trim();
+            user.IdentificationNumber = model.IdentificationNumber.Trim();
+            user.Email = cleanEmail;
+            user.PhoneNumber = string.IsNullOrWhiteSpace(model.PhoneNumber) ? null : model.PhoneNumber.Trim();
+            user.Age = model.Age;
+
+            if (user.IsMaster)
+            {
+                user.Role = "Admin";
+            }
+            else
+            {
+                var validRoles = new[] { "Student", "Creator", "Admin" };
+                if (validRoles.Contains(model.Role))
+                {
+                    user.Role = model.Role;
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(model.NewPassword))
+            {
+                if (model.NewPassword.Length < 6)
+                {
+                    TempData["ErrorMessage"] = "La nueva contraseña debe contener al menos 6 caracteres.";
+                    return RedirectToAction("Usuarios");
+                }
+                user.PasswordHash = DbSeeder.HashPassword(model.NewPassword.Trim());
+            }
+
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = $"Datos de '{user.FullName}' actualizados correctamente.";
+            return RedirectToAction("Usuarios");
         }
 
         // Eliminar Usuario (protección estricta para el Master)

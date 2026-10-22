@@ -13,6 +13,8 @@ namespace CursosCertificadosApp.Models.ViewModels
 
         public bool IsMaster => Email.Trim().ToLower() == "master@globalesjp.net" || Email.Trim().ToLower() == "master";
 
+        public bool IsOnline { get; set; }
+
         public int TotalEnrolledCourses { get; set; }
         public int CompletedCoursesCount { get; set; }
         public int IssuedCertificatesCount { get; set; }
@@ -24,10 +26,12 @@ namespace CursosCertificadosApp.Models.ViewModels
 
     public class UserEnrollmentSummary
     {
+        public int CourseId { get; set; }
         public string CourseTitle { get; set; } = string.Empty;
         public decimal ProgressPercentage { get; set; }
         public bool IsCompleted { get; set; }
         public DateTime? CompletedAt { get; set; }
+        public string? CertificateId { get; set; }
         public string? CertificateCode { get; set; }
         public string? CertificateStatus { get; set; }
     }
@@ -54,5 +58,31 @@ namespace CursosCertificadosApp.Models.ViewModels
 
         [System.ComponentModel.DataAnnotations.MaxLength(30)]
         public string? PhoneNumber { get; set; }
+    }
+
+    public class EditUserViewModel
+    {
+        [System.ComponentModel.DataAnnotations.Required]
+        public int Id { get; set; }
+
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "El nombre completo es obligatorio"), System.ComponentModel.DataAnnotations.MaxLength(150)]
+        public string FullName { get; set; } = string.Empty;
+
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "La cédula / identificación es obligatoria"), System.ComponentModel.DataAnnotations.MaxLength(50)]
+        public string IdentificationNumber { get; set; } = string.Empty;
+
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "El correo es obligatorio"), System.ComponentModel.DataAnnotations.EmailAddress]
+        public string Email { get; set; } = string.Empty;
+
+        [System.ComponentModel.DataAnnotations.MaxLength(30)]
+        public string? PhoneNumber { get; set; }
+
+        [System.ComponentModel.DataAnnotations.Range(10, 120, ErrorMessage = "Edad inválida")]
+        public int? Age { get; set; }
+
+        [System.ComponentModel.DataAnnotations.Required]
+        public string Role { get; set; } = "Student";
+
+        public string? NewPassword { get; set; }
     }
 }

@@ -37,6 +37,9 @@ namespace CursosCertificadosApp.Models.Entities
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         [System.ComponentModel.DataAnnotations.Schema.NotMapped]
+        public bool IsMaster => Email.Trim().ToLower() == "master@globalesjp.net" || Email.Trim().ToLower() == "master";
+
+        [System.ComponentModel.DataAnnotations.Schema.NotMapped]
         public string Initials
         {
             get

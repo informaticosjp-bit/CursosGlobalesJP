@@ -78,6 +78,7 @@ builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IDatabaseBackupService, DatabaseBackupService>();
 builder.Services.AddScoped<ISiteSettingService, SiteSettingService>();
 builder.Services.AddScoped<ICvService, CvService>();
+builder.Services.AddSingleton<IUserActivityTracker, UserActivityTracker>();
 
 builder.Services.AddControllersWithViews();
 
@@ -209,6 +210,20 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.Use(async (context, next) =>
+{
+    if (context.User.Identity?.IsAuthenticated == true)
+    {
+        var idClaim = context.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (int.TryParse(idClaim, out int uid))
+        {
+            var tracker = context.RequestServices.GetService<IUserActivityTracker>();
+            tracker?.RecordActivity(uid);
+        }
+    }
+    await next();
+});
 
 app.MapControllerRoute(
     name: "default",

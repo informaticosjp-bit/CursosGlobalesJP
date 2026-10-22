@@ -229,11 +229,32 @@
                                 data-date="@user.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")">
                                 <td>
                                     <div class="d-flex align-items-center gap-2">
-                                        <div class="rounded-circle bg-primary bg-opacity-10 text-primary fw-bold d-flex align-items-center justify-content-center flex-shrink-0" style="width: 28px; height: 28px; font-size: 0.75rem;">
-                                            @user.FullName.Substring(0, 1).ToUpper()
+                                        <div class="position-relative">
+                                            <div class="rounded-circle bg-primary bg-opacity-10 text-primary fw-bold d-flex align-items-center justify-content-center flex-shrink-0" style="width: 30px; height: 30px; font-size: 0.75rem;">
+                                                @user.FullName.Substring(0, 1).ToUpper()
+                                            </div>
+                                            <!-- Indicador Punto: Verde si está en línea, Rojo si está desconectado -->
+                                            <span class="position-absolute bottom-0 end-0 rounded-circle border border-white @(user.IsOnline ? "bg-success" : "bg-danger")" 
+                                                  style="width: 9px; height: 9px;" 
+                                                  title="@(user.IsOnline ? "En línea" : "Desconectado")"></span>
                                         </div>
-                                        <div class="text-truncate" style="max-width: 160px;">
-                                            <strong class="d-block text-dark usuario-nombre-txt text-truncate" style="font-size: 0.80rem; line-height: 1.2;" title="@user.FullName">@user.FullName</strong>
+                                        <div class="text-truncate" style="max-width: 170px;">
+                                            <div class="d-flex align-items-center gap-1">
+                                                <strong class="text-dark usuario-nombre-txt text-truncate" style="font-size: 0.80rem; line-height: 1.2;" title="@user.FullName">@user.FullName</strong>
+                                                <!-- Botón / Badge Verde si está en línea, Rojo si no está -->
+                                                @if (user.IsOnline)
+                                                {
+                                                    <span class="badge bg-success text-white py-0 px-1 rounded-pill" style="font-size: 0.58rem;" title="Usuario actualmente en línea">
+                                                        <i class="bi bi-circle-fill me-0.5" style="font-size: 0.38rem;"></i>En línea
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-danger text-white py-0 px-1 rounded-pill" style="font-size: 0.58rem;" title="Usuario desconectado">
+                                                        <i class="bi bi-circle-fill me-0.5" style="font-size: 0.38rem;"></i>Offline
+                                                    </span>
+                                                }
+                                            </div>
                                             @if (user.IsMaster)
                                             {
                                                 <span class="badge bg-secondary py-0" style="font-size: 0.60rem;"><i class="bi bi-shield-lock-fill me-1"></i>MASTER</span>
@@ -280,10 +301,13 @@
                                     }
                                 </td>
                                 <td>
-                                    <div class="d-flex align-items-center gap-1 text-nowrap">
-                                        <span class="badge bg-primary py-0 px-1" style="font-size: 0.68rem;" title="Inscritos">@user.TotalEnrolledCourses ins.</span>
-                                        <span class="badge bg-info text-dark py-0 px-1" style="font-size: 0.68rem;" title="Completados">@user.CompletedCoursesCount ok</span>
-                                    </div>
+                                    <button type="button" class="btn btn-sm btn-light border py-0 px-1.5 d-inline-flex align-items-center gap-1 text-nowrap shadow-xs" 
+                                            data-bs-toggle="modal" data-bs-target="#modalCursos_@user.Id" 
+                                            title="Ver cursos que está viendo @user.FullName" style="font-size: 0.70rem;">
+                                        <span class="badge bg-primary py-0 px-1" style="font-size: 0.65rem;">@user.TotalEnrolledCourses ins.</span>
+                                        <span class="badge bg-info text-dark py-0 px-1" style="font-size: 0.65rem;">@user.CompletedCoursesCount ok</span>
+                                        <i class="bi bi-eye-fill text-muted" style="font-size: 0.65rem;"></i>
+                                    </button>
                                 </td>
                                 <td class="text-center">
                                     @if (user.IssuedCertificatesCount > 0)
@@ -300,8 +324,31 @@
                                 <td><span class="text-muted text-nowrap" style="font-size: 0.75rem;">@user.CreatedAt.ToString("dd/MM/yyyy")</span></td>
                                 <td class="text-end text-nowrap">
                                     <div class="d-inline-flex align-items-center gap-1">
-                                        <!-- Botón para ver Ficha Académica del Usuario en Modal -->
-                                        <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2" data-bs-toggle="modal" data-bs-target="#modalUser_@user.Id" title="Ver Ficha Académica" style="font-size: 0.72rem;">
+                                        <!-- 1. Botón para ver Cursos que está viendo -->
+                                        <button type="button" class="btn btn-sm btn-outline-info py-0 px-2" 
+                                                data-bs-toggle="modal" data-bs-target="#modalCursos_@user.Id" 
+                                                title="Ver cursos que está viendo @user.FullName" style="font-size: 0.72rem;">
+                                            <i class="bi bi-journal-text me-1"></i>Cursos
+                                        </button>
+
+                                        <!-- 2. Botón para Previsualizar Certificado -->
+                                        <button type="button" class="btn btn-sm btn-outline-success py-0 px-2" 
+                                                data-bs-toggle="modal" data-bs-target="#modalCertificado_@user.Id" 
+                                                title="Previsualizar certificado de @user.FullName" style="font-size: 0.72rem;">
+                                            <i class="bi bi-patch-check-fill me-1"></i>Certificado
+                                        </button>
+
+                                        <!-- 3. Botón para Editar Datos -->
+                                        <button type="button" class="btn btn-sm btn-outline-warning py-0 px-2" 
+                                                data-bs-toggle="modal" data-bs-target="#modalEditarUsuario_@user.Id" 
+                                                title="Editar datos del usuario" style="font-size: 0.72rem;">
+                                            <i class="bi bi-pencil-square me-1"></i>Editar
+                                        </button>
+
+                                        <!-- 4. Botón Ficha Académica -->
+                                        <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2" 
+                                                data-bs-toggle="modal" data-bs-target="#modalUser_@user.Id" 
+                                                title="Ver Ficha Académica completa" style="font-size: 0.72rem;">
                                             <i class="bi bi-person-lines-fill me-1"></i>Ficha
                                         </button>
 
@@ -437,6 +484,285 @@
                     <div class="modal-footer bg-light rounded-bottom-4">
                         <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar Ficha</button>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Cursos que está viendo el usuario -->
+        <div class="modal fade" id="modalCursos_@user.Id" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content rounded-4 border-0 shadow">
+                    <div class="modal-header bg-light rounded-top-4">
+                        <h5 class="modal-title fw-bold text-dark">
+                            <i class="bi bi-collection-play-fill text-info me-2"></i>Cursos en Curso: @user.FullName
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <div class="d-flex align-items-center justify-content-between mb-3 p-3 bg-light rounded-3">
+                            <div>
+                                <span class="text-muted small d-block">Estudiante:</span>
+                                <strong class="text-dark">@user.FullName</strong> &bull; <span class="text-muted small">@user.Email</span>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-primary fs-6">@user.TotalEnrolledCourses Cursos</span>
+                            </div>
+                        </div>
+
+                        @if (!user.Enrollments.Any())
+                        {
+                            <div class="alert alert-info border-0 text-center py-4 my-2">
+                                <i class="bi bi-info-circle fs-2 d-block mb-2"></i>
+                                El estudiante aún no se ha inscrito ni está viendo ningún curso del catálogo.
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="table-light small">
+                                        <tr>
+                                            <th>Curso que está viendo</th>
+                                            <th>Avance / Progreso</th>
+                                            <th>Estado</th>
+                                            <th class="text-end">Acción</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var e in user.Enrollments)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <div class="fw-bold text-dark">@e.CourseTitle</div>
+                                                </td>
+                                                <td style="min-width: 140px;">
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <div class="progress flex-grow-1" style="height: 8px;">
+                                                            <div class="progress-bar @(e.IsCompleted ? "bg-success" : "bg-primary")" 
+                                                                 style="width: @e.ProgressPercentage%;"></div>
+                                                        </div>
+                                                        <span class="small fw-bold">@e.ProgressPercentage.ToString("F0")%</span>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    @if (e.IsCompleted)
+                                                    {
+                                                        <span class="badge bg-success-subtle text-success border border-success">
+                                                            <i class="bi bi-check2-circle me-1"></i>Completado
+                                                        </span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-primary-subtle text-primary border border-primary">
+                                                            <i class="bi bi-play-circle me-1"></i>Viendo lecciones
+                                                        </span>
+                                                    }
+                                                </td>
+                                                <td class="text-end text-nowrap">
+                                                    @if (!string.IsNullOrEmpty(e.CertificateCode))
+                                                    {
+                                                        <a href="/Certificados/Completado/@e.CertificateCode" target="_blank" 
+                                                           class="btn btn-sm btn-outline-success py-1 px-2" style="font-size: 0.75rem;">
+                                                            <i class="bi bi-patch-check-fill me-1"></i>Ver Certificado
+                                                        </a>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted small">—</span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </div>
+                    <div class="modal-footer bg-light rounded-bottom-4">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Previsualizar Certificado -->
+        <div class="modal fade" id="modalCertificado_@user.Id" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content rounded-4 border-0 shadow">
+                    <div class="modal-header bg-success text-white rounded-top-4">
+                        <h5 class="modal-title fw-bold">
+                            <i class="bi bi-patch-check-fill me-2"></i>Previsualización de Certificado: @user.FullName
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        @if (user.Enrollments.Any(e => !string.IsNullOrEmpty(e.CertificateCode)))
+                        {
+                            <p class="text-muted small mb-3">
+                                <i class="bi bi-info-circle me-1 text-primary"></i>A continuación se listan los certificados generados para este estudiante:
+                            </p>
+                            <div class="list-group mb-4">
+                                @foreach (var certEnr in user.Enrollments.Where(e => !string.IsNullOrEmpty(e.CertificateCode)))
+                                {
+                                    <div class="list-group-item d-flex flex-wrap justify-content-between align-items-center p-3 rounded-3 mb-2 border shadow-xs gap-2">
+                                        <div>
+                                            <h6 class="fw-bold text-dark mb-1">
+                                                <i class="bi bi-award-fill text-warning me-1"></i>@certEnr.CourseTitle
+                                            </h6>
+                                            <div class="small text-muted">
+                                                Código: <code class="fw-bold text-dark">@certEnr.CertificateCode</code> &bull;
+                                                Estado: 
+                                                @if (certEnr.CertificateStatus == "Issued")
+                                                {
+                                                    <span class="badge bg-success">Oficial Emitido</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-warning text-dark">Pendiente Validación $1</span>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="d-flex gap-2">
+                                            <a href="/Certificados/Completado/@certEnr.CertificateCode" target="_blank" 
+                                               class="btn btn-sm btn-primary fw-bold px-3">
+                                                <i class="bi bi-eye-fill me-1"></i>Previsualizar Oficial
+                                            </a>
+                                            @if (certEnr.CertificateStatus == "Issued")
+                                            {
+                                                <a href="/Certificados/Descargar/@certEnr.CertificateCode" 
+                                                   class="btn btn-sm btn-outline-success fw-bold px-3">
+                                                    <i class="bi bi-download me-1"></i>Descargar PDF
+                                                </a>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+
+                        <!-- Modelo / Maqueta Institucional de Previsualización para el Alumno -->
+                        <div class="card border border-2 border-primary border-opacity-25 rounded-4 p-4 bg-white position-relative overflow-hidden shadow-xs">
+                            <div class="position-absolute top-50 start-50 translate-middle text-center w-100" style="pointer-events: none; opacity: 0.08; transform: translate(-50%, -50%) rotate(-20deg);">
+                                <span class="display-3 fw-extrabold text-uppercase text-dark">VISTA PREVIA OFICIAL</span>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
+                                <div class="d-flex align-items-center gap-2">
+                                    <img src="~/images/logo-jp.png" alt="Logo" class="rounded-circle shadow-xs" style="width: 44px; height: 44px; object-fit: cover;" onerror="this.src='/images/logo-jp.png';" />
+                                    <div>
+                                        <h6 class="fw-extrabold text-dark mb-0">CURSOS GLOBALES <span style="color: #dc2626;">JP</span></h6>
+                                        <span class="text-muted" style="font-size: 0.72rem;">Inversiones Globales JP 1968, C.A. &bull; RIF: J-41102463-5</span>
+                                    </div>
+                                </div>
+                                <span class="badge bg-warning text-dark px-3 py-1 fw-bold">
+                                    <i class="bi bi-shield-check me-1"></i>DIPLOMA OFICIAL
+                                </span>
+                            </div>
+
+                            <div class="text-center py-3">
+                                <p class="text-muted text-uppercase mb-1" style="letter-spacing: 2px; font-size: 0.75rem;">Otorga el presente diploma de acreditación a:</p>
+                                <h3 class="fw-extrabold text-dark mb-1 text-decoration-underline" style="letter-spacing: -0.5px;">@user.FullName</h3>
+                                <p class="text-muted small mb-3">Documento de Identidad / Cédula / DNI: <strong class="text-dark">@user.IdentificationNumber</strong></p>
+                                <p class="text-muted small mx-auto" style="max-width: 580px;">
+                                    Por haber culminado satisfactoriamente los módulos de formación académica y acreditado los conocimientos del curso:
+                                </p>
+                                <h5 class="fw-bold text-primary mb-3">
+                                    @(user.Enrollments.FirstOrDefault()?.CourseTitle ?? "Formación Académica Especializada")
+                                </h5>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-end pt-3 border-top text-muted small" style="font-size: 0.72rem;">
+                                <div>
+                                    <div>Código Único: <code>CGJP-@(DateTime.UtcNow.Year)-PREVIEW</code></div>
+                                    <div>Validación pública: <span class="text-primary">cursos.globalesjp.net/Certificados/Verificar</span></div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="fw-bold text-dark">Dirección de Certificación</div>
+                                    <div>Inversiones Globales JP 1968, C.A.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light rounded-bottom-4">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Editar Datos del Usuario -->
+        <div class="modal fade" id="modalEditarUsuario_@user.Id" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content rounded-4 border-0 shadow">
+                    <div class="modal-header bg-warning text-dark rounded-top-4">
+                        <h5 class="modal-title fw-bold">
+                            <i class="bi bi-pencil-square me-2"></i>Editar Datos: @user.FullName
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form asp-action="EditarUsuario" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="Id" value="@user.Id" />
+                        <div class="modal-body p-4 text-start">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold small">Nombre Completo <span class="text-danger">*</span></label>
+                                <input type="text" name="FullName" class="form-control" value="@user.FullName" required maxlength="150" />
+                            </div>
+                            <div class="row g-2 mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold small">Cédula / RIF / DNI <span class="text-danger">*</span></label>
+                                    <input type="text" name="IdentificationNumber" class="form-control" value="@user.IdentificationNumber" required maxlength="50" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold small">Rol en el Sistema <span class="text-danger">*</span></label>
+                                    @if (user.IsMaster)
+                                    {
+                                        <input type="text" class="form-control bg-light" value="Administrador (Master)" readonly />
+                                        <input type="hidden" name="Role" value="Admin" />
+                                    }
+                                    else
+                                    {
+                                        <select name="Role" class="form-select fw-semibold" required>
+                                            <option value="Student" selected="@(user.Role == "Student")">🎓 Alumno / Estudiante</option>
+                                            <option value="Creator" selected="@(user.Role == "Creator")">🎨 Creador de Cursos</option>
+                                            <option value="Admin" selected="@(user.Role == "Admin")">🛡️ Administrador</option>
+                                        </select>
+                                    }
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold small">Correo Electrónico <span class="text-danger">*</span></label>
+                                <input type="email" name="Email" class="form-control" value="@user.Email" required />
+                            </div>
+                            <div class="row g-2 mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold small">Teléfono / WhatsApp</label>
+                                    <input type="text" name="PhoneNumber" class="form-control" value="@user.PhoneNumber" placeholder="+58 412..." maxlength="30" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold small">Edad</label>
+                                    <input type="number" name="Age" class="form-control" value="@user.Age" min="10" max="120" placeholder="Ej: 25" />
+                                </div>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label fw-semibold small">Nueva Contraseña (Opcional)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="bi bi-key"></i></span>
+                                    <input type="password" name="NewPassword" class="form-control" placeholder="Dejar en blanco para conservar actual" minlength="6" />
+                                    <button class="btn btn-outline-secondary toggle-password" type="button" tabindex="-1" title="Mostrar/Ocultar contraseña">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                                <span class="text-muted" style="font-size: 0.72rem;">Ingresa un valor únicamente si deseas restablecer la contraseña del usuario.</span>
+                            </div>
+                        </div>
+                        <div class="modal-footer bg-light rounded-bottom-4">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-warning fw-bold px-4 text-dark">
+                                <i class="bi bi-check-circle-fill me-1"></i> Guardar Cambios
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
