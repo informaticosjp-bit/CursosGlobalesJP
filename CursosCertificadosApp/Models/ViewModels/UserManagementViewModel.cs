@@ -10,10 +10,10 @@ namespace CursosCertificadosApp.Models.ViewModels
         public string? PhoneNumber { get; set; }
         public string Role { get; set; } = "Student";
         public DateTime CreatedAt { get; set; }
+        public bool IsOnline { get; set; }
+        public DateTime? LastActiveAt { get; set; }
 
         public bool IsMaster => Email.Trim().ToLower() == "master@globalesjp.net" || Email.Trim().ToLower() == "master";
-
-        public bool IsOnline { get; set; }
 
         public int TotalEnrolledCourses { get; set; }
         public int CompletedCoursesCount { get; set; }
@@ -62,7 +62,6 @@ namespace CursosCertificadosApp.Models.ViewModels
 
     public class EditUserViewModel
     {
-        [System.ComponentModel.DataAnnotations.Required]
         public int Id { get; set; }
 
         [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "El nombre completo es obligatorio"), System.ComponentModel.DataAnnotations.MaxLength(150)]

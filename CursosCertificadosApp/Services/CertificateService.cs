@@ -13,11 +13,13 @@ namespace CursosCertificadosApp.Services
     {
         private readonly AppDbContext _context;
         private readonly IWebHostEnvironment _env;
+        private readonly ISiteSettingService _siteSettingService;
 
-        public CertificateService(AppDbContext context, IWebHostEnvironment env)
+        public CertificateService(AppDbContext context, IWebHostEnvironment env, ISiteSettingService siteSettingService)
         {
             _context = context;
             _env = env;
+            _siteSettingService = siteSettingService;
             QuestPDF.Settings.License = LicenseType.Community;
         }
 
@@ -118,11 +120,29 @@ namespace CursosCertificadosApp.Services
 
         public byte[] GenerateOfficialPdf(Certificate cert)
         {
+            var certConfig = _siteSettingService.GetCertificateTemplateSync();
             var webRoot = _env.WebRootPath ?? Path.Combine(_env.ContentRootPath, "wwwroot");
-            var logoPath = Path.Combine(webRoot, "images", "logo-jp.png");
+
+            string logoPath;
+            if (!string.IsNullOrWhiteSpace(certConfig.LogoUrl) && certConfig.LogoUrl.StartsWith("/"))
+            {
+                logoPath = Path.Combine(webRoot, certConfig.LogoUrl.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+            }
+            else
+            {
+                logoPath = Path.Combine(webRoot, "images", "logo-jp.png");
+            }
+
             byte[]? logoBytes = File.Exists(logoPath) ? File.ReadAllBytes(logoPath) : null;
+            if (logoBytes == null)
+            {
+                var fallbackPath = Path.Combine(webRoot, "images", "logo-jp.png");
+                if (File.Exists(fallbackPath)) logoBytes = File.ReadAllBytes(fallbackPath);
+            }
+
             var isLocked = cert.Status != CertificateStatus.Issued;
-            var verificationUrl = $"https://cursos.globalesjp.net/Certificados/Verificar/{cert.VerificationCode}";
+            var domain = !string.IsNullOrWhiteSpace(certConfig.VerificationDomain) ? certConfig.VerificationDomain.TrimEnd('/') : "https://cursos.globalesjp.net";
+            var verificationUrl = $"{domain}/Certificados/Verificar/{cert.VerificationCode}";
             var issueDate = (cert.IssuedAt ?? cert.CreatedAt).ToString("dd 'de' MMMM 'de' yyyy", new System.Globalization.CultureInfo("es-ES"));
 
             byte[]? qrBytes = null;
@@ -173,7 +193,7 @@ namespace CursosCertificadosApp.Services
                             // PANEL LATERAL IZQUIERDO (Ancho ~225pt)
                             row.ConstantItem(225).BorderRight(1).BorderColor("#E2E8F0").PaddingHorizontal(28).PaddingVertical(32).Column(leftCol =>
                             {
-                                // Logo + Cursos Globales JP / Aprendizaje Online
+                                // Logo + Institución / Aprendizaje Online
                                 leftCol.Item().Row(lr =>
                                 {
                                     if (logoBytes != null)
@@ -186,16 +206,22 @@ namespace CursosCertificadosApp.Services
                                     {
                                         bc.Item().Row(nr =>
                                         {
-                                            nr.AutoItem().Text("CURSOS GLOBALES").FontSize(11).Bold().FontColor("#0F172A");
-                                            nr.AutoItem().Text("JP").FontSize(11).ExtraBold().FontColor("#DC2626");
+                                            nr.AutoItem().Text(certConfig.InstitutionName).FontSize(11).Bold().FontColor("#0F172A");
+                                            if (!string.IsNullOrWhiteSpace(certConfig.InstitutionHighlight))
+                                            {
+                                                nr.AutoItem().PaddingLeft(3).Text(certConfig.InstitutionHighlight).FontSize(11).ExtraBold().FontColor("#DC2626");
+                                            }
                                         });
-                                        bc.Item().Text("Aprendizaje Online").FontSize(9.5f).FontColor("#64748B");
+                                        bc.Item().Text(certConfig.HeaderSubtitle).FontSize(9.5f).FontColor("#64748B");
                                     });
                                 });
 
                                 // Texto medio descriptivo
-                                leftCol.Item().PaddingTop(120).Text("Credencial oficial electrónica con código de verificación emitida por la plataforma de capacitación continua.")
-                                    .FontSize(7).FontColor("#94A3B8").LineHeight(1.35f);
+                                if (!string.IsNullOrWhiteSpace(certConfig.SideDescription))
+                                {
+                                    leftCol.Item().PaddingTop(120).Text(certConfig.SideDescription)
+                                        .FontSize(7).FontColor("#94A3B8").LineHeight(1.35f);
+                                }
 
                                 // Espacio para ubicar el QR exactamente al pie de la página
                                 leftCol.Item().PaddingTop(leftBottomPadding);
@@ -216,21 +242,36 @@ namespace CursosCertificadosApp.Services
                             // CUERPO PRINCIPAL DERECHO (Ancho restante ~617pt)
                             row.RelativeItem().PaddingHorizontal(44).PaddingVertical(32).Column(mainCol =>
                             {
-                                // Encabezado Superior: "CERTIFICADO DE FINALIZACIÓN" a la izq y "A C R E D I T A C I Ó N   V E R I F I C A B L E" a la der
+                                // Encabezado Superior: Título de Diploma a la izq y Acreditación a la der
                                 mainCol.Item().Row(topRow =>
                                 {
                                     topRow.RelativeItem().Column(tc =>
                                     {
-                                        tc.Item().Text("CERTIFICADO DE").FontSize(18).Bold().FontColor("#627D98").LetterSpacing(0.5f);
-                                        tc.Item().Text("FINALIZACIÓN").FontSize(18).Bold().FontColor("#627D98").LetterSpacing(0.5f);
+                                        var rawTitle = certConfig.CertificateTitle ?? "CERTIFICADO DE FINALIZACIÓN";
+                                        var titleWords = rawTitle.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                                        if (titleWords.Length >= 2)
+                                        {
+                                            var half = (int)Math.Ceiling(titleWords.Length / 2.0);
+                                            var line1 = string.Join(" ", titleWords.Take(half));
+                                            var line2 = string.Join(" ", titleWords.Skip(half));
+                                            tc.Item().Text(line1).FontSize(18).Bold().FontColor("#627D98").LetterSpacing(0.5f);
+                                            tc.Item().Text(line2).FontSize(18).Bold().FontColor("#627D98").LetterSpacing(0.5f);
+                                        }
+                                        else
+                                        {
+                                            tc.Item().Text(rawTitle).FontSize(18).Bold().FontColor("#627D98").LetterSpacing(0.5f);
+                                        }
                                     });
 
-                                    topRow.AutoItem().PaddingTop(6).Text("A C R E D I T A C I Ó N   V E R I F I C A B L E")
-                                        .FontSize(8).Bold().FontColor("#10B981");
+                                    if (!string.IsNullOrWhiteSpace(certConfig.AccreditationBadgeText))
+                                    {
+                                        topRow.AutoItem().PaddingTop(6).Text(certConfig.AccreditationBadgeText)
+                                            .FontSize(8).Bold().FontColor("#10B981");
+                                    }
                                 });
 
                                 // Cuerpo del Certificado
-                                mainCol.Item().PaddingTop(50).Text("Certificado de finalización de")
+                                mainCol.Item().PaddingTop(50).Text(certConfig.GrantingIntroText)
                                     .FontSize(11.5f).FontColor("#64748B");
 
                                 mainCol.Item().PaddingTop(4).Text(cert.User.FullName)
@@ -260,13 +301,16 @@ namespace CursosCertificadosApp.Services
 
                                 mainCol.Item().PaddingTop(3).Row(cr =>
                                 {
-                                    cr.AutoItem().Text("Cursos Globales JP").FontSize(11).Bold().FontColor("#0F172A");
+                                    cr.AutoItem().Text(certConfig.DeveloperOrgName).FontSize(11).Bold().FontColor("#0F172A");
                                     cr.AutoItem().PaddingHorizontal(8).Text("•").FontSize(9).FontColor("#CBD5E1");
-                                    cr.AutoItem().Text("https://cursos.globalesjp.net").FontSize(10.5f).Bold().FontColor("#2563EB");
+                                    cr.AutoItem().Text(domain).FontSize(10.5f).Bold().FontColor("#2563EB");
                                 });
 
-                                mainCol.Item().PaddingTop(16).BorderTop(0.5f).BorderColor("#E2E8F0").PaddingTop(8).Text(
-                                    $"Para validar la autenticidad y vigencia de esta credencial académica, ingrese a: {verificationUrl}")
+                                var disclaimer = !string.IsNullOrWhiteSpace(certConfig.VerificationDisclaimer)
+                                    ? $"{certConfig.VerificationDisclaimer} {verificationUrl}"
+                                    : $"Para validar la autenticidad y vigencia de esta credencial académica, ingrese a: {verificationUrl}";
+
+                                mainCol.Item().PaddingTop(16).BorderTop(0.5f).BorderColor("#E2E8F0").PaddingTop(8).Text(disclaimer)
                                     .FontSize(7).FontColor("#94A3B8");
                             });
                         });

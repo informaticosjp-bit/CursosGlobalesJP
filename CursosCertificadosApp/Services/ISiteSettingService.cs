@@ -8,5 +8,10 @@ namespace CursosCertificadosApp.Services
         Task SaveSettingsAsync(SiteCustomizationViewModel model);
         Task SavePopupSettingsAsync(PopupSettingViewModel model);
         Task ResetToDefaultsAsync();
+
+        Task<CertificateTemplateViewModel> GetCertificateTemplateAsync();
+        CertificateTemplateViewModel GetCertificateTemplateSync();
+        Task SaveCertificateTemplateAsync(CertificateTemplateViewModel model);
+        Task ResetCertificateTemplateToDefaultsAsync();
     }
 }

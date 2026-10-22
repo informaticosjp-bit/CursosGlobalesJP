@@ -1152,6 +1152,92 @@ namespace CursosCertificadosApp.Controllers
         }
 
         // ==========================================
+        // 7.1. EDITOR Y PLANTILLA DE CERTIFICADOS OFICIALES
+        // ==========================================
+        [HttpGet]
+        public async Task<IActionResult> CertificadoEditor()
+        {
+            var model = await _siteSettingService.GetCertificateTemplateAsync();
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GuardarCertificadoEditor(CertificateTemplateViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                TempData["ErrorMessage"] = "Por favor verifica los campos del certificado.";
+                return View("CertificadoEditor", model);
+            }
+
+            try
+            {
+                await _siteSettingService.SaveCertificateTemplateAsync(model);
+                TempData["SuccessMessage"] = "¡Plantilla de certificado, membrete y datos de acreditación actualizados exitosamente!";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Error al guardar la plantilla: {ex.Message}";
+            }
+
+            return RedirectToAction(nameof(CertificadoEditor));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RestablecerCertificadoEditor()
+        {
+            try
+            {
+                await _siteSettingService.ResetCertificateTemplateToDefaultsAsync();
+                TempData["SuccessMessage"] = "La plantilla del certificado y membrete se restableció a los valores institucionales por defecto.";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Error al restablecer valores: {ex.Message}";
+            }
+
+            return RedirectToAction(nameof(CertificadoEditor));
+        }
+
+        [HttpGet]
+        public IActionResult PrevisualizarCertificadoPdf()
+        {
+            var certService = HttpContext.RequestServices.GetRequiredService<ICertificateService>();
+
+            // Generar certificado demo en memoria con datos simulados
+            var sampleUser = new User
+            {
+                Id = 9999,
+                FullName = "JUAN CARLOS PÉREZ RODRÍGUEZ",
+                IdentificationNumber = "V-24.890.123",
+                Email = "estudiante.demo@globalesjp.net"
+            };
+
+            var sampleCourse = new Course
+            {
+                Id = 9999,
+                Title = "Inteligencia Artificial Aplicada a la Productividad Empresarial",
+                EstimatedHours = 24
+            };
+
+            var sampleCert = new Certificate
+            {
+                Id = "demo-preview-cert",
+                VerificationCode = $"CGJP-{DateTime.UtcNow.Year}-DEMO",
+                Status = CertificateStatus.Issued,
+                CreatedAt = DateTime.UtcNow,
+                IssuedAt = DateTime.UtcNow,
+                User = sampleUser,
+                Course = sampleCourse
+            };
+
+            var pdfBytes = certService.GenerateOfficialPdf(sampleCert);
+            return File(pdfBytes, "application/pdf");
+        }
+
+        // ==========================================
         // 8. GESTIÓN DE ANUNCIOS Y POPUPS (AVISOS / MANTENIMIENTO)
         // ==========================================
         [HttpGet]

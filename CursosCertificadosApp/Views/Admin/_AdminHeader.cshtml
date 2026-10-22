@@ -59,4 +59,8 @@
        class="btn btn-sm fw-bold @(currentAction == "Personalizacion" ? "btn-info text-dark shadow-sm" : "btn-outline-info text-dark")">
         <i class="bi bi-palette2 me-1"></i> Identidad y Pie
     </a>
+    <a asp-controller="Admin" asp-action="CertificadoEditor" 
+       class="btn btn-sm fw-bold @(currentAction == "CertificadoEditor" ? "btn-warning text-dark shadow-sm" : "btn-outline-warning text-dark")">
+        <i class="bi bi-patch-check-fill me-1"></i> Editor de Certificado
+    </a>
 </div>

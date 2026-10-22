@@ -213,7 +213,7 @@ app.UseAuthorization();
 
 app.Use(async (context, next) =>
 {
-    if (context.User.Identity?.IsAuthenticated == true)
+    if (context.User?.Identity?.IsAuthenticated == true)
     {
         var idClaim = context.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
         if (int.TryParse(idClaim, out int uid))

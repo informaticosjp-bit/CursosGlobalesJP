@@ -1,0 +1,369 @@
+@model CursosCertificadosApp.Models.ViewModels.CertificateTemplateViewModel
+@{
+    ViewData["Title"] = "Editor de Plantilla de Certificado - Panel de Administración";
+}
+
+<div class="container py-4">
+    <!-- Encabezado y Navegación Fija Centralizada -->
+    <partial name="_AdminHeader" />
+
+    <!-- Barra de Título de la Sección -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+        <div>
+            <h4 class="fw-bold mb-1 text-dark">
+                <i class="bi bi-award-fill text-warning me-2"></i>Diseño y Editor de Plantilla de Certificado
+            </h4>
+            <span class="text-muted small">Configura los datos fijos del membrete, logo, títulos y respaldo legal de los diplomas emitidos</span>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-action="PrevisualizarCertificadoPdf" target="_blank" class="btn btn-outline-primary fw-bold shadow-xs">
+                <i class="bi bi-file-earmark-pdf-fill me-1 text-danger"></i> Previsualizar PDF Oficial
+            </a>
+            <button type="submit" form="formCertificadoEditor" class="btn btn-primary fw-bold shadow-sm">
+                <i class="bi bi-check-circle-fill me-1"></i> Guardar Cambios
+            </button>
+        </div>
+    </div>
+
+    <!-- Aviso Informativo sobre Campos Dinámicos del Alumno -->
+    <div class="alert alert-info border-0 shadow-xs rounded-4 p-3 mb-4 d-flex align-items-start gap-3">
+        <div class="rounded-circle bg-info bg-opacity-25 text-info-emphasis p-2 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 38px; height: 38px;">
+            <i class="bi bi-info-circle-fill fs-5"></i>
+        </div>
+        <div class="flex-grow-1 small">
+            <strong class="d-block mb-1 text-dark">¿Cómo funciona la emisión de certificados?</strong>
+            Esta sección te permite personalizar los <strong>elementos institucionales fijos</strong> (membrete, logotipo, títulos oficiales, sellos y leyendas de validación). Los datos particulares del estudiante (<strong>Nombre Completo, Cédula / DNI, Nombre del Curso Aprobado, Horas Lectivas, Código Único de Registro y Código QR Dinámico</strong>) son inyectados automáticamente por el sistema cuando el alumno culmina su formación y formaliza su certificado.
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Columna Izquierda: Formulario de Configuración -->
+        <div class="col-xl-6">
+            <form asp-action="GuardarCertificadoEditor" method="post" enctype="multipart/form-data" id="formCertificadoEditor">
+                @Html.AntiForgeryToken()
+
+                <!-- Acordeón / Bloques de Personalización -->
+                
+                <!-- 1. Membrete e Identidad Institucional -->
+                <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+                    <h5 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
+                        <i class="bi bi-building-fill text-primary"></i> 1. Membrete e Institución (Panel Lateral)
+                    </h5>
+
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label asp-for="InstitutionName" class="form-label fw-bold text-secondary small"></label>
+                            <input asp-for="InstitutionName" class="form-control" id="inputInstitutionName" placeholder="CURSOS GLOBALES" required />
+                            <span asp-validation-for="InstitutionName" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="InstitutionHighlight" class="form-label fw-bold text-secondary small"></label>
+                            <input asp-for="InstitutionHighlight" class="form-control" id="inputInstitutionHighlight" placeholder="JP" />
+                            <span asp-validation-for="InstitutionHighlight" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label asp-for="HeaderSubtitle" class="form-label fw-bold text-secondary small"></label>
+                            <input asp-for="HeaderSubtitle" class="form-control" id="inputHeaderSubtitle" placeholder="Aprendizaje Online" />
+                            <span asp-validation-for="HeaderSubtitle" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label asp-for="SideDescription" class="form-label fw-bold text-secondary small"></label>
+                            <textarea asp-for="SideDescription" class="form-control" id="inputSideDescription" rows="2" placeholder="Credencial oficial electrónica con código de verificación..."></textarea>
+                            <span asp-validation-for="SideDescription" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Gestión del Logotipo -->
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold text-secondary small">Logotipo Oficial del Certificado</label>
+                            <div class="d-flex align-items-center gap-3 p-3 rounded-3 bg-light border">
+                                <img src="@Model.LogoUrl" alt="Logo Certificado" id="previewLogoImg" class="rounded-circle shadow-xs" style="width: 50px; height: 50px; object-fit: cover; background: #fff;" onerror="this.src='/images/logo-jp.png';" />
+                                <div class="flex-grow-1">
+                                    <label asp-for="LogoFile" class="form-label mb-1 small fw-semibold text-dark">Subir nuevo archivo (PNG / JPG / SVG)</label>
+                                    <input asp-for="LogoFile" type="file" class="form-control form-control-sm" id="inputLogoFile" accept=".png,.jpg,.jpeg,.svg,.webp" />
+                                    <input type="hidden" asp-for="LogoUrl" id="inputLogoUrl" />
+                                    <span class="text-muted small" style="font-size: 0.72rem;">Recomendado formato circular o cuadrado transparente (mínimo 200x200 px).</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Títulos y Encabezado del Diploma -->
+                <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+                    <h5 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
+                        <i class="bi bi-file-earmark-text-fill text-success"></i> 2. Títulos y Encabezado del Diploma
+                    </h5>
+
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label asp-for="CertificateTitle" class="form-label fw-bold text-secondary small"></label>
+                            <input asp-for="CertificateTitle" class="form-control" id="inputCertificateTitle" placeholder="CERTIFICADO DE FINALIZACIÓN" required />
+                            <span asp-validation-for="CertificateTitle" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label asp-for="AccreditationBadgeText" class="form-label fw-bold text-secondary small"></label>
+                            <input asp-for="AccreditationBadgeText" class="form-control" id="inputAccreditationBadgeText" placeholder="ACREDITACIÓN VERIFICABLE" />
+                            <span asp-validation-for="AccreditationBadgeText" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label asp-for="GrantingIntroText" class="form-label fw-bold text-secondary small"></label>
+                            <input asp-for="GrantingIntroText" class="form-control" id="inputGrantingIntroText" placeholder="Certificado de finalización de" />
+                            <span asp-validation-for="GrantingIntroText" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Firmas, Respaldo Institucional y Pie -->
+                <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+                    <h5 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
+                        <i class="bi bi-shield-fill-check text-info"></i> 3. Respaldo Institucional y Verificación
+                    </h5>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="DeveloperOrgName" class="form-label fw-bold text-secondary small"></label>
+                            <input asp-for="DeveloperOrgName" class="form-control" id="inputDeveloperOrgName" placeholder="Cursos Globales JP" />
+                            <span asp-validation-for="DeveloperOrgName" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="CompanyLegalName" class="form-label fw-bold text-secondary small"></label>
+                            <input asp-for="CompanyLegalName" class="form-control" id="inputCompanyLegalName" placeholder="Inversiones Globales JP 1968, C.A." />
+                            <span asp-validation-for="CompanyLegalName" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label asp-for="AuthorityTitle" class="form-label fw-bold text-secondary small"></label>
+                            <input asp-for="AuthorityTitle" class="form-control" id="inputAuthorityTitle" placeholder="Dirección Académica y Certificación" />
+                            <span asp-validation-for="AuthorityTitle" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="VerificationDomain" class="form-label fw-bold text-secondary small"></label>
+                            <input asp-for="VerificationDomain" class="form-control" id="inputVerificationDomain" placeholder="https://cursos.globalesjp.net" />
+                            <span asp-validation-for="VerificationDomain" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="VerificationDisclaimer" class="form-label fw-bold text-secondary small"></label>
+                            <input asp-for="VerificationDisclaimer" class="form-control" id="inputVerificationDisclaimer" placeholder="Para validar la autenticidad y vigencia de esta credencial académica, ingrese a:" />
+                            <span asp-validation-for="VerificationDisclaimer" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botones de Acción -->
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+                    <button type="submit" class="btn btn-primary btn-lg fw-bold px-4 shadow-sm">
+                        <i class="bi bi-save2-fill me-2"></i> Guardar Plantilla de Certificado
+                    </button>
+                </div>
+            </form>
+
+            <form asp-action="RestablecerCertificadoEditor" method="post" onsubmit="return confirm('¿Estás seguro de que deseas restablecer todos los textos y datos de la plantilla a los valores predeterminados de Cursos Globales JP?');">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-counterclockwise me-1"></i> Restablecer Valores Predeterminados
+                </button>
+            </form>
+        </div>
+
+        <!-- Columna Derecha: Previsualizador en Vivo Interactivo -->
+        <div class="col-xl-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white sticky-top" style="top: 85px; z-index: 10;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+                        <i class="bi bi-eye-fill text-warning"></i> Previsualización en Tiempo Real
+                    </h5>
+                    <a asp-action="PrevisualizarCertificadoPdf" target="_blank" class="btn btn-sm btn-outline-danger fw-bold rounded-pill px-3 shadow-xs">
+                        <i class="bi bi-filetype-pdf me-1"></i> Abrir PDF
+                    </a>
+                </div>
+                <p class="text-muted small mb-3">
+                    Así es exactamente como se maqueta el diploma PDF oficial emitido por la plataforma:
+                </p>
+
+                <!-- Maqueta Gráfica del Certificado Horizontal -->
+                <div class="border rounded-3 shadow-sm overflow-hidden bg-white text-dark position-relative" style="font-family: 'Segoe UI', system-ui, sans-serif; min-height: 440px; border-color: #cbd5e1 !important;">
+                    
+                    <div class="d-flex flex-row h-100" style="min-height: 440px;">
+                        
+                        <!-- Panel Lateral Izquierdo (~28% ancho) -->
+                        <div class="p-3 border-end bg-light d-flex flex-column justify-content-between" style="width: 32%; border-color: #e2e8f0 !important; background-color: #f8fafc !important;">
+                            <div>
+                                <!-- Logo + Marca -->
+                                <div class="d-flex align-items-center gap-2 mb-3">
+                                    <img src="@Model.LogoUrl" alt="Logo" id="liveLogoImg" class="rounded-circle shadow-xs" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.src='/images/logo-jp.png';" />
+                                    <div>
+                                        <div class="fw-bold text-dark" style="font-size: 0.74rem; line-height: 1.1;">
+                                            <span id="liveInstitutionName">@Model.InstitutionName</span>
+                                            <span class="text-danger fw-extrabold" id="liveInstitutionHighlight">@Model.InstitutionHighlight</span>
+                                        </div>
+                                        <span class="text-muted d-block" style="font-size: 0.62rem;" id="liveHeaderSubtitle">@Model.HeaderSubtitle</span>
+                                    </div>
+                                </div>
+
+                                <div class="p-2 rounded bg-white border border-light-subtle my-2">
+                                    <p class="text-muted mb-0" style="font-size: 0.60rem; line-height: 1.3;" id="liveSideDescription">
+                                        @Model.SideDescription
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- QR y Serie al Pie del Panel Lateral -->
+                            <div class="pt-2 border-top">
+                                <div class="d-flex align-items-center gap-2 mb-1">
+                                    <div class="bg-white p-1 border rounded shadow-2xs" style="width: 44px; height: 44px;">
+                                        <i class="bi bi-qr-code fs-3 text-dark"></i>
+                                    </div>
+                                    <div>
+                                        <span class="d-block text-muted" style="font-size: 0.55rem;">Escanear para verificar</span>
+                                        <span class="badge bg-success bg-opacity-20 text-success fw-bold" style="font-size: 0.58rem;">QR DINÁMICO</span>
+                                    </div>
+                                </div>
+                                <div class="small" style="font-size: 0.60rem;">
+                                    <span class="text-muted d-block">Número de serie:</span>
+                                    <span class="fw-bold text-primary">CGJP-@DateTime.UtcNow.Year-DEMO</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cuerpo Principal Derecho (~68% ancho) -->
+                        <div class="p-4 flex-grow-1 d-flex flex-column justify-content-between bg-white position-relative">
+                            
+                            <!-- Cabecera Superior del Diploma -->
+                            <div class="d-flex justify-content-between align-items-start border-bottom pb-2 mb-2">
+                                <div>
+                                    <span class="fw-bold text-uppercase d-block" style="font-size: 0.85rem; letter-spacing: 0.5px; color: #475569;" id="liveCertificateTitle">
+                                        @Model.CertificateTitle
+                                    </span>
+                                </div>
+                                <span class="badge bg-success bg-opacity-15 text-success fw-bold text-uppercase px-2 py-1" style="font-size: 0.58rem;" id="liveAccreditationBadgeText">
+                                    @Model.AccreditationBadgeText
+                                </span>
+                            </div>
+
+                            <!-- Cuerpo Central (Nombre y Curso de muestra) -->
+                            <div class="my-auto py-2">
+                                <span class="text-muted d-block" style="font-size: 0.72rem;" id="liveGrantingIntroText">
+                                    @Model.GrantingIntroText
+                                </span>
+
+                                <!-- Nombre del Estudiante (Variable simulada) -->
+                                <h4 class="fw-extrabold text-dark mb-0" style="letter-spacing: -0.3px; font-size: 1.25rem;">
+                                    JUAN CARLOS PÉREZ RODRÍGUEZ
+                                </h4>
+                                <span class="text-muted small d-block mb-2" style="font-size: 0.68rem;">
+                                    Documento de Identidad: V-24.890.123 <span class="badge bg-secondary-subtle text-secondary py-0" style="font-size: 0.55rem;">Dato dinámico</span>
+                                </span>
+
+                                <div class="bg-danger my-1" style="width: 36px; height: 2.5px;"></div>
+
+                                <!-- Curso Aprobado (Variable simulada) -->
+                                <h6 class="fw-bold text-dark mt-2 mb-1" style="font-size: 0.92rem;">
+                                    Inteligencia Artificial Aplicada a la Productividad Empresarial
+                                </h6>
+                                <span class="text-secondary small d-block" style="font-size: 0.68rem;">
+                                    Curso completado satisfactoriamente el @DateTime.UtcNow.ToString("dd 'de' MMMM 'de' yyyy", new System.Globalization.CultureInfo("es-ES"))
+                                </span>
+                                <span class="text-muted small d-block" style="font-size: 0.64rem;">
+                                    24.0 Horas lectivas | 6 Módulos
+                                </span>
+                            </div>
+
+                            <!-- Pie de Respaldo y Verificación -->
+                            <div class="border-top pt-2 mt-auto">
+                                <span class="text-muted d-block" style="font-size: 0.58rem;">Contenido académico desarrollado por</span>
+                                <div class="d-flex align-items-center gap-2 mb-1">
+                                    <strong class="text-dark small" id="liveDeveloperOrgName" style="font-size: 0.72rem;">@Model.DeveloperOrgName</strong>
+                                    <span class="text-muted">&bull;</span>
+                                    <span class="text-primary small fw-semibold" id="liveVerificationDomain" style="font-size: 0.70rem;">@Model.VerificationDomain</span>
+                                </div>
+                                <span class="text-muted d-block" style="font-size: 0.55rem;" id="liveVerificationDisclaimer">
+                                    @Model.VerificationDisclaimer @Model.VerificationDomain/Certificados/Verificar/CGJP-@DateTime.UtcNow.Year-DEMO
+                                </span>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="mt-3 text-center">
+                    <span class="text-muted small" style="font-size: 0.76rem;">
+                        <i class="bi bi-magic text-warning me-1"></i> La vista previa se actualiza automáticamente a medida que modificas los campos a la izquierda.
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Sincronización en tiempo real de inputs hacia la vista previa interactiva
+            const mappings = [
+                { inputId: "inputInstitutionName", targetId: "liveInstitutionName" },
+                { inputId: "inputInstitutionHighlight", targetId: "liveInstitutionHighlight" },
+                { inputId: "inputHeaderSubtitle", targetId: "liveHeaderSubtitle" },
+                { inputId: "inputSideDescription", targetId: "liveSideDescription" },
+                { inputId: "inputCertificateTitle", targetId: "liveCertificateTitle" },
+                { inputId: "inputAccreditationBadgeText", targetId: "liveAccreditationBadgeText" },
+                { inputId: "inputGrantingIntroText", targetId: "liveGrantingIntroText" },
+                { inputId: "inputDeveloperOrgName", targetId: "liveDeveloperOrgName" },
+                { inputId: "inputVerificationDomain", targetId: "liveVerificationDomain" }
+            ];
+
+            mappings.forEach(item => {
+                const el = document.getElementById(item.inputId);
+                const target = document.getElementById(item.targetId);
+                if (el && target) {
+                    el.addEventListener("input", function () {
+                        target.textContent = el.value;
+                    });
+                }
+            });
+
+            // Disclaimer especial que concatena URL
+            const disclaimerInput = document.getElementById("inputVerificationDisclaimer");
+            const domainInput = document.getElementById("inputVerificationDomain");
+            const liveDisclaimer = document.getElementById("liveVerificationDisclaimer");
+
+            function updateDisclaimer() {
+                if (liveDisclaimer) {
+                    const domain = domainInput ? domainInput.value.replace(/\/$/, "") : "https://cursos.globalesjp.net";
+                    const disc = disclaimerInput ? disclaimerInput.value : "Para validar la autenticidad y vigencia de esta credencial académica, ingrese a:";
+                    liveDisclaimer.textContent = `${disc} ${domain}/Certificados/Verificar/CGJP-@DateTime.UtcNow.Year-DEMO`;
+                }
+            }
+
+            if (disclaimerInput) disclaimerInput.addEventListener("input", updateDisclaimer);
+            if (domainInput) domainInput.addEventListener("input", updateDisclaimer);
+
+            // Previsualización instantánea de imagen al seleccionar nuevo archivo
+            const inputLogoFile = document.getElementById("inputLogoFile");
+            const previewLogoImg = document.getElementById("previewLogoImg");
+            const liveLogoImg = document.getElementById("liveLogoImg");
+
+            if (inputLogoFile) {
+                inputLogoFile.addEventListener("change", function () {
+                    const file = this.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function (e) {
+                            if (previewLogoImg) previewLogoImg.src = e.target.result;
+                            if (liveLogoImg) liveLogoImg.src = e.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+        });
+    </script>
+}

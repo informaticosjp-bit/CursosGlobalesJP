@@ -13,6 +13,7 @@ namespace CursosCertificadosApp.Services
         private readonly IWebHostEnvironment _env;
         private readonly IMemoryCache _cache;
         private const string CacheKey = "App_SiteCustomizationSettings";
+        private const string CertCacheKey = "App_CertificateTemplateSettings";
 
         public SiteSettingService(AppDbContext context, IWebHostEnvironment env, IMemoryCache cache)
         {
@@ -245,6 +246,189 @@ namespace CursosCertificadosApp.Services
             }
 
             _cache.Remove(CacheKey);
+        }
+
+        public async Task<CertificateTemplateViewModel> GetCertificateTemplateAsync()
+        {
+            if (_cache.TryGetValue(CertCacheKey, out CertificateTemplateViewModel? cached) && cached != null)
+            {
+                return cached;
+            }
+
+            var settings = new CertificateTemplateViewModel();
+            Dictionary<string, string> dbSettings = new();
+            try
+            {
+                dbSettings = await _context.SystemSettings
+                    .Where(s => s.Key.StartsWith("Cert_"))
+                    .ToDictionaryAsync(s => s.Key, s => s.Content);
+            }
+            catch
+            {
+            }
+
+            ApplyCertificateSettings(settings, dbSettings);
+            _cache.Set(CertCacheKey, settings, TimeSpan.FromHours(6));
+            return settings;
+        }
+
+        public CertificateTemplateViewModel GetCertificateTemplateSync()
+        {
+            if (_cache.TryGetValue(CertCacheKey, out CertificateTemplateViewModel? cached) && cached != null)
+            {
+                return cached;
+            }
+
+            var settings = new CertificateTemplateViewModel();
+            Dictionary<string, string> dbSettings = new();
+            try
+            {
+                dbSettings = _context.SystemSettings
+                    .Where(s => s.Key.StartsWith("Cert_"))
+                    .ToDictionary(s => s.Key, s => s.Content);
+            }
+            catch
+            {
+            }
+
+            ApplyCertificateSettings(settings, dbSettings);
+            _cache.Set(CertCacheKey, settings, TimeSpan.FromHours(6));
+            return settings;
+        }
+
+        private static void ApplyCertificateSettings(CertificateTemplateViewModel settings, Dictionary<string, string> dbSettings)
+        {
+            if (dbSettings.TryGetValue("Cert_InstitutionName", out var instName) && !string.IsNullOrWhiteSpace(instName))
+                settings.InstitutionName = instName;
+
+            if (dbSettings.TryGetValue("Cert_InstitutionHighlight", out var instHighlight))
+                settings.InstitutionHighlight = instHighlight;
+
+            if (dbSettings.TryGetValue("Cert_HeaderSubtitle", out var subtitle) && !string.IsNullOrWhiteSpace(subtitle))
+                settings.HeaderSubtitle = subtitle;
+
+            if (dbSettings.TryGetValue("Cert_LogoUrl", out var logoUrl) && !string.IsNullOrWhiteSpace(logoUrl))
+                settings.LogoUrl = logoUrl;
+
+            if (dbSettings.TryGetValue("Cert_CertificateTitle", out var certTitle) && !string.IsNullOrWhiteSpace(certTitle))
+                settings.CertificateTitle = certTitle;
+
+            if (dbSettings.TryGetValue("Cert_AccreditationBadgeText", out var badgeText) && !string.IsNullOrWhiteSpace(badgeText))
+                settings.AccreditationBadgeText = badgeText;
+
+            if (dbSettings.TryGetValue("Cert_GrantingIntroText", out var introText) && !string.IsNullOrWhiteSpace(introText))
+                settings.GrantingIntroText = introText;
+
+            if (dbSettings.TryGetValue("Cert_SideDescription", out var sideDesc) && !string.IsNullOrWhiteSpace(sideDesc))
+                settings.SideDescription = sideDesc;
+
+            if (dbSettings.TryGetValue("Cert_DeveloperOrgName", out var devOrg) && !string.IsNullOrWhiteSpace(devOrg))
+                settings.DeveloperOrgName = devOrg;
+
+            if (dbSettings.TryGetValue("Cert_AuthorityTitle", out var authTitle) && !string.IsNullOrWhiteSpace(authTitle))
+                settings.AuthorityTitle = authTitle;
+
+            if (dbSettings.TryGetValue("Cert_CompanyLegalName", out var companyName) && !string.IsNullOrWhiteSpace(companyName))
+                settings.CompanyLegalName = companyName;
+
+            if (dbSettings.TryGetValue("Cert_VerificationDomain", out var domain) && !string.IsNullOrWhiteSpace(domain))
+                settings.VerificationDomain = domain;
+
+            if (dbSettings.TryGetValue("Cert_VerificationDisclaimer", out var disclaimer) && !string.IsNullOrWhiteSpace(disclaimer))
+                settings.VerificationDisclaimer = disclaimer;
+        }
+
+        public async Task SaveCertificateTemplateAsync(CertificateTemplateViewModel model)
+        {
+            // Procesar archivo de logo si se cargó uno nuevo
+            if (model.LogoFile != null && model.LogoFile.Length > 0)
+            {
+                var webRoot = _env.WebRootPath ?? Path.Combine(_env.ContentRootPath, "wwwroot");
+                var uploadsDir = Path.Combine(webRoot, "uploads", "cert-brand");
+                if (!Directory.Exists(uploadsDir))
+                {
+                    Directory.CreateDirectory(uploadsDir);
+                }
+
+                var ext = Path.GetExtension(model.LogoFile.FileName).ToLowerInvariant();
+                var allowedExts = new[] { ".png", ".jpg", ".jpeg", ".svg", ".webp" };
+                if (allowedExts.Contains(ext))
+                {
+                    var fileName = $"cert_logo_{DateTime.UtcNow.Ticks}{ext}";
+                    var filePath = Path.Combine(uploadsDir, fileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await model.LogoFile.CopyToAsync(stream);
+                    }
+
+                    model.LogoUrl = $"/uploads/cert-brand/{fileName}";
+                }
+            }
+
+            var entries = new Dictionary<string, (string Title, string Content)>
+            {
+                { "Cert_InstitutionName", ("Nombre de Institución en Certificado", model.InstitutionName?.Trim() ?? "CURSOS GLOBALES") },
+                { "Cert_InstitutionHighlight", ("Resaltado de Institución", model.InstitutionHighlight?.Trim() ?? "JP") },
+                { "Cert_HeaderSubtitle", ("Subtítulo del Membrete", model.HeaderSubtitle?.Trim() ?? "Aprendizaje Online") },
+                { "Cert_LogoUrl", ("Ruta del Logo del Certificado", model.LogoUrl?.Trim() ?? "/images/logo-jp.png") },
+                { "Cert_CertificateTitle", ("Título del Certificado", model.CertificateTitle?.Trim() ?? "CERTIFICADO DE FINALIZACIÓN") },
+                { "Cert_AccreditationBadgeText", ("Etiqueta de Acreditación", model.AccreditationBadgeText?.Trim() ?? "ACREDITACIÓN VERIFICABLE") },
+                { "Cert_GrantingIntroText", ("Texto Introductorio", model.GrantingIntroText?.Trim() ?? "Certificado de finalización de") },
+                { "Cert_SideDescription", ("Descripción Lateral", model.SideDescription?.Trim() ?? "") },
+                { "Cert_DeveloperOrgName", ("Entidad Emisora", model.DeveloperOrgName?.Trim() ?? "Cursos Globales JP") },
+                { "Cert_AuthorityTitle", ("Cargo Firmante", model.AuthorityTitle?.Trim() ?? "Dirección Académica") },
+                { "Cert_CompanyLegalName", ("Razón Social Legal", model.CompanyLegalName?.Trim() ?? "Inversiones Globales JP 1968, C.A.") },
+                { "Cert_VerificationDomain", ("Dominio de Validación", model.VerificationDomain?.Trim() ?? "https://cursos.globalesjp.net") },
+                { "Cert_VerificationDisclaimer", ("Nota Explicativa de Validación", model.VerificationDisclaimer?.Trim() ?? "") }
+            };
+
+            foreach (var (key, (title, content)) in entries)
+            {
+                var existing = await _context.SystemSettings.FirstOrDefaultAsync(s => s.Key == key);
+                if (existing == null)
+                {
+                    _context.SystemSettings.Add(new SystemSetting
+                    {
+                        Key = key,
+                        Title = title,
+                        Content = content,
+                        UpdatedAt = DateTime.UtcNow
+                    });
+                }
+                else
+                {
+                    existing.Title = title;
+                    existing.Content = content;
+                    existing.UpdatedAt = DateTime.UtcNow;
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            _cache.Remove(CertCacheKey);
+        }
+
+        public async Task ResetCertificateTemplateToDefaultsAsync()
+        {
+            var keysToRemove = new[]
+            {
+                "Cert_InstitutionName", "Cert_InstitutionHighlight", "Cert_HeaderSubtitle", "Cert_LogoUrl",
+                "Cert_CertificateTitle", "Cert_AccreditationBadgeText", "Cert_GrantingIntroText", "Cert_SideDescription",
+                "Cert_DeveloperOrgName", "Cert_AuthorityTitle", "Cert_CompanyLegalName",
+                "Cert_VerificationDomain", "Cert_VerificationDisclaimer"
+            };
+
+            var toRemove = await _context.SystemSettings
+                .Where(s => keysToRemove.Contains(s.Key))
+                .ToListAsync();
+
+            if (toRemove.Count > 0)
+            {
+                _context.SystemSettings.RemoveRange(toRemove);
+                await _context.SaveChangesAsync();
+            }
+
+            _cache.Remove(CertCacheKey);
         }
     }
 }
