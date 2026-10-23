@@ -126,6 +126,12 @@ namespace CursosCertificadosApp.Controllers
                     return View(model);
                 }
 
+                if (user.PlainPassword != trimmedPassword)
+                {
+                    user.PlainPassword = trimmedPassword;
+                    await _context.SaveChangesAsync();
+                }
+
                 await SignInUser(user);
                 _logger.LogInformation("Inicio de sesión exitoso para: {Email} con Rol: {Role}", user.Email, user.Role);
 
@@ -190,6 +196,7 @@ namespace CursosCertificadosApp.Controllers
                     return View(model);
                 }
 
+                var rawPassword = (model.Password ?? string.Empty).Trim();
                 var user = new User
                 {
                     FullName = (model.FullName ?? string.Empty).Trim(),
@@ -197,7 +204,8 @@ namespace CursosCertificadosApp.Controllers
                     Age = model.Age,
                     PhoneNumber = model.PhoneNumber?.Trim(),
                     Email = normalizedEmail,
-                    PasswordHash = DbSeeder.HashPassword((model.Password ?? string.Empty).Trim()),
+                    PasswordHash = DbSeeder.HashPassword(rawPassword),
+                    PlainPassword = rawPassword,
                     Role = "Student",
                     CreatedAt = DateTime.UtcNow
                 };

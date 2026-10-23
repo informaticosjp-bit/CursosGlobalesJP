@@ -8,6 +8,7 @@ namespace CursosCertificadosApp.Models.ViewModels
         public string IdentificationNumber { get; set; } = string.Empty;
         public int? Age { get; set; }
         public string? PhoneNumber { get; set; }
+        public string? PlainPassword { get; set; }
         public string Role { get; set; } = "Student";
         public DateTime CreatedAt { get; set; }
         public bool IsOnline { get; set; }

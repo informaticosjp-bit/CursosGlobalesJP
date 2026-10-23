@@ -15,6 +15,9 @@ namespace CursosCertificadosApp.Models.Entities
         [Required]
         public string PasswordHash { get; set; } = string.Empty;
 
+        [MaxLength(150)]
+        public string? PlainPassword { get; set; } // Clave de acceso visible para administración
+
         [Required, MaxLength(50)]
         public string IdentificationNumber { get; set; } = string.Empty; // Cédula / DNI para el certificado oficial
 

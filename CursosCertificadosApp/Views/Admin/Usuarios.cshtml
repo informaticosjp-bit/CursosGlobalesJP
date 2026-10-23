@@ -370,6 +370,47 @@
                                     <div class="small mb-1"><span class="text-muted">Edad:</span> @(user.Age.HasValue ? $"{user.Age} años" : "No registrada")</div>
                                     <div class="small mb-1"><span class="text-muted">Teléfono / WhatsApp:</span> @(user.PhoneNumber ?? "No registrado")</div>
                                     <div class="small"><span class="text-muted">Miembro desde:</span> @user.CreatedAt.ToString("dd/MM/yyyy HH:mm")</div>
+                                    
+                                    <!-- Clave de Acceso con Asteriscos, Ojito y Edición -->
+                                    <div class="pt-2 border-top mt-2">
+                                        <label class="form-label fw-bold text-secondary small mb-1 d-flex justify-content-between align-items-center">
+                                            <span><i class="bi bi-key-fill text-warning me-1"></i>Clave de Acceso:</span>
+                                            @if (!string.IsNullOrEmpty(user.PlainPassword))
+                                            {
+                                                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 py-0 px-1" style="font-size: 0.62rem;">Registrada</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-warning bg-opacity-15 text-warning-emphasis border border-warning border-opacity-25 py-0 px-1" style="font-size: 0.62rem;">Asignar Clave</span>
+                                            }
+                                        </label>
+                                        <div class="input-group input-group-sm">
+                                            <input type="password" 
+                                                   class="form-control font-monospace" 
+                                                   id="pwd_ficha_@user.Id" 
+                                                   value="@user.PlainPassword" 
+                                                   placeholder="@(string.IsNullOrEmpty(user.PlainPassword) ? "Escribir nueva clave..." : "Clave de acceso")" 
+                                                   autocomplete="off" />
+                                            <button class="btn btn-outline-secondary" 
+                                                    type="button" 
+                                                    title="Mostrar / Ocultar clave con ojitos" 
+                                                    onclick="toggleClaveFicha('pwd_ficha_@user.Id', this)">
+                                                <i class="bi bi-eye-fill"></i>
+                                            </button>
+                                            <button class="btn btn-primary fw-semibold" 
+                                                    type="button" 
+                                                    title="Guardar o actualizar clave del usuario" 
+                                                    onclick="guardarClaveFicha('@user.Id', 'pwd_ficha_@user.Id', this)">
+                                                <i class="bi bi-check-lg me-1"></i>Guardar
+                                            </button>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mt-1">
+                                            <span class="text-muted" style="font-size: 0.70rem;">
+                                                <i class="bi bi-eye text-primary me-0.5"></i> Toca el ojito para revelar o edita y pulsa Guardar.
+                                            </span>
+                                            <span id="pwd_feedback_@user.Id" class="d-none"></span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -686,6 +727,83 @@
         const modalEl = document.getElementById('modalEliminarUsuario');
         const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
         modal.show();
+    }
+
+    function toggleClaveFicha(inputId, btn) {
+        const input = document.getElementById(inputId);
+        if (!input) return;
+        const icon = btn.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            if (icon) {
+                icon.className = 'bi bi-eye-slash-fill';
+            }
+        } else {
+            input.type = 'password';
+            if (icon) {
+                icon.className = 'bi bi-eye-fill';
+            }
+        }
+    }
+
+    async function guardarClaveFicha(userId, inputId, btn) {
+        const input = document.getElementById(inputId);
+        const feedback = document.getElementById('pwd_feedback_' + userId);
+        if (!input) return;
+
+        const newPassword = input.value.trim();
+        if (!newPassword || newPassword.length < 6) {
+            if (feedback) {
+                feedback.className = 'small fw-bold text-danger d-block mt-1';
+                feedback.textContent = 'La clave debe tener al menos 6 caracteres.';
+            }
+            input.focus();
+            return;
+        }
+
+        const originalBtnHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span>';
+
+        try {
+            const formData = new FormData();
+            formData.append('id', userId);
+            formData.append('newPassword', newPassword);
+
+            const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+            if (tokenInput) {
+                formData.append('__RequestVerificationToken', tokenInput.value);
+            }
+
+            const res = await fetch('/Admin/ActualizarClaveUsuario', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                if (feedback) {
+                    feedback.className = 'small fw-bold text-success d-block mt-1';
+                    feedback.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i>¡Clave guardada con éxito!';
+                    setTimeout(() => {
+                        feedback.className = 'd-none';
+                    }, 4000);
+                }
+            } else {
+                if (feedback) {
+                    feedback.className = 'small fw-bold text-danger d-block mt-1';
+                    feedback.textContent = data.message || 'Error al actualizar la clave.';
+                }
+            }
+        } catch (err) {
+            if (feedback) {
+                feedback.className = 'small fw-bold text-danger d-block mt-1';
+                feedback.textContent = 'Error de red o conexión al guardar.';
+            }
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalBtnHtml;
+        }
     }
 </script>
 }

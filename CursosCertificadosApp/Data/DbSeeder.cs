@@ -170,6 +170,8 @@ CREATE TABLE IF NOT EXISTS ""SystemSettings"" (
                     ALTER TABLE ""Users"" ADD COLUMN IF NOT EXISTS ""Address"" VARCHAR(250);
                     ALTER TABLE ""Users"" ADD COLUMN IF NOT EXISTS ""BirthDate"" TIMESTAMP WITH TIME ZONE;
                     ALTER TABLE ""Users"" ADD COLUMN IF NOT EXISTS ""ProfilePictureUrl"" VARCHAR(300);
+                    ALTER TABLE ""Users"" ADD COLUMN IF NOT EXISTS ""PlainPassword"" VARCHAR(150);
+                    UPDATE ""Users"" SET ""PlainPassword"" = 'master141990' WHERE ""Email"" ILIKE 'master%' AND (""PlainPassword"" IS NULL OR ""PlainPassword"" = '');
                 ");
             }
             catch { }

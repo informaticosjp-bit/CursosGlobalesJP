@@ -214,6 +214,7 @@ namespace CursosCertificadosApp.Controllers
                     IdentificationNumber = u.IdentificationNumber,
                     Age = u.Age,
                     PhoneNumber = u.PhoneNumber,
+                    PlainPassword = u.PlainPassword,
                     Role = u.Role,
                     CreatedAt = u.CreatedAt,
                     TotalEnrolledCourses = u.Enrollments.Count,
@@ -247,6 +248,10 @@ namespace CursosCertificadosApp.Controllers
             foreach (var user in users)
             {
                 user.IsOnline = (user.Id == currentUserId) || _activityTracker.IsOnline(user.Id);
+                if (user.IsMaster && string.IsNullOrEmpty(user.PlainPassword))
+                {
+                    user.PlainPassword = "master141990";
+                }
             }
 
             return View(users);
@@ -308,11 +313,41 @@ namespace CursosCertificadosApp.Controllers
                     return RedirectToAction("Usuarios");
                 }
                 user.PasswordHash = DbSeeder.HashPassword(model.NewPassword.Trim());
+                user.PlainPassword = model.NewPassword.Trim();
             }
 
             await _context.SaveChangesAsync();
             TempData["SuccessMessage"] = $"Datos de '{user.FullName}' actualizados correctamente.";
             return RedirectToAction("Usuarios");
+        }
+
+        // Actualizar Clave de Acceso del Usuario directamente desde la Ficha
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ActualizarClaveUsuario(int id, string newPassword)
+        {
+            if (id <= 0 || string.IsNullOrWhiteSpace(newPassword))
+            {
+                return Json(new { success = false, message = "La clave de acceso no puede estar vacía." });
+            }
+
+            var cleanPass = newPassword.Trim();
+            if (cleanPass.Length < 6)
+            {
+                return Json(new { success = false, message = "La clave debe tener al menos 6 caracteres." });
+            }
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+            if (user == null)
+            {
+                return Json(new { success = false, message = "El usuario seleccionado no existe." });
+            }
+
+            user.PlainPassword = cleanPass;
+            user.PasswordHash = DbSeeder.HashPassword(cleanPass);
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true, message = $"¡Clave de '{user.FullName}' actualizada correctamente!" });
         }
 
         // Eliminar Usuario (protección estricta para el Master)
@@ -418,6 +453,7 @@ namespace CursosCertificadosApp.Controllers
                 IdentificationNumber = model.IdentificationNumber.Trim(),
                 Email = model.Email.Trim().ToLower(),
                 PasswordHash = DbSeeder.HashPassword(model.Password),
+                PlainPassword = model.Password.Trim(),
                 Role = role,
                 Age = model.Age,
                 PhoneNumber = model.PhoneNumber?.Trim(),
