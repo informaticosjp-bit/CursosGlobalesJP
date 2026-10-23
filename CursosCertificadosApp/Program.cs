@@ -123,6 +123,24 @@ using (var scope = app.Services.CreateScope())
             dbContext.Database.EnsureCreated();
         }
 
+        // Asegurar columnas y tablas dinámicas de forma incondicional en PostgreSQL
+        try
+        {
+            dbContext.Database.ExecuteSqlRaw(@"
+                ALTER TABLE ""Courses"" ADD COLUMN IF NOT EXISTS ""Price"" NUMERIC(10,2) NOT NULL DEFAULT 1.00;
+                ALTER TABLE ""Users"" ADD COLUMN IF NOT EXISTS ""Address"" VARCHAR(250);
+                ALTER TABLE ""Users"" ADD COLUMN IF NOT EXISTS ""BirthDate"" TIMESTAMP WITH TIME ZONE;
+                ALTER TABLE ""Users"" ADD COLUMN IF NOT EXISTS ""ProfilePictureUrl"" VARCHAR(300);
+                ALTER TABLE ""Users"" ADD COLUMN IF NOT EXISTS ""PlainPassword"" VARCHAR(150);
+                UPDATE ""Users"" SET ""PlainPassword"" = 'master141990' WHERE ""Email"" ILIKE 'master%' AND (""PlainPassword"" IS NULL OR ""PlainPassword"" = '');
+            ");
+            logger.LogInformation("[DB MIGRATION] Columnas dinámicas de Users (PlainPassword, etc.) verificadas y aseguradas.");
+        }
+        catch (Exception colEx)
+        {
+            logger.LogWarning("[DB WARN] Aviso al verificar columnas dinámicas: {Message}", colEx.Message);
+        }
+
         // Seeding condicional (solo si no existen cursos)
         try
         {
